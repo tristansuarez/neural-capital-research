@@ -16,6 +16,7 @@ import datetime as dt
 
 import config
 import data
+import koncorde_forward
 from validation import evaluate
 from models import BuyAndHold, GoldSilverPairs
 
@@ -68,10 +69,17 @@ def main(sintetico: bool = False):
         informe["etiqueta"] = exp["etiqueta"]
         informe["tipo"] = exp["tipo"]
         salida.append(informe)
-        m = informe["metricas"]
-        s = informe["significancia"]
-        print(f"   Sharpe={m['sharpe']}  CAGR={m['cagr']}  "
-              f"maxDD={m['max_drawdown']}  p={s['p_valor']}", flush=True)
+        h = informe["headline"]; s = informe["significancia"]
+        print(f"   {h['etiqueta'][:22]} = {h['valor']}  p={s['p_valor']}  ic90={s['ic90']}", flush=True)
+
+    # KONCORDE entra como un experimento mas (su forward-test en vivo).
+    print("-> KONCORDE (S&P 500) ...", flush=True)
+    kon = koncorde_forward.evaluar_koncorde(sintetico=sintetico)
+    salida.append(kon)
+    if kon.get("sin_datos"):
+        print("   (aun sin operaciones cerradas suficientes)", flush=True)
+    else:
+        print(f"   exceso medio = {kon['headline']['valor']}%  p={kon['significancia']['p_valor']}", flush=True)
 
     doc = {
         "generado": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),

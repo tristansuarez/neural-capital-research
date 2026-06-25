@@ -120,11 +120,26 @@ def evaluate(df: pd.DataFrame, model, train_window: int, refit_every: int,
             else:
                 extras[k] = v
 
+    def pct(x): return f"{x*100:.1f}%"
     return {
         "modelo": model.name,
         "descripcion": model.description,
-        "metricas": m,
-        "significancia": sig,
+        "headline": {"valor": m["sharpe"], "etiqueta": "Sharpe (anualizado, fuera de muestra)",
+                     "sufijo": "", "decimales": 2},
+        "significancia": {"p_valor": sig["p_valor"], "ic90": sig["ic90"], "etiqueta": "Sharpe"},
+        "cards": [
+            {"k": "Rentab. anual (CAGR)", "v": pct(m["cagr"]), "tono": "neg" if m["cagr"] < 0 else "pos"},
+            {"k": "Máx. caída", "v": pct(m["max_drawdown"]), "tono": "neg"},
+            {"k": "Volatilidad anual", "v": pct(m["vol_anual"]), "tono": ""},
+            {"k": "Acierto (días activos)", "v": pct(m["acierto"]), "tono": ""},
+            {"k": "Días evaluados", "v": str(m["n_dias"]), "tono": ""},
+            {"k": "Rotaciones", "v": str(m["rotaciones"]), "tono": ""},
+        ],
         "diagnostico": extras,
         "curva": curva,
+        "curva2": None,
+        "curva_unidad": "×",
+        "curva_base": 1.0,
+        "curva_titulo": "Curva de capital fuera de muestra",
+        "curva_sub": "Crecimiento de 1 unidad invertida según el modelo. La línea base es no hacer nada.",
     }

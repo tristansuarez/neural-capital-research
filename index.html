@@ -143,6 +143,29 @@
   .empty{margin-top:40px; padding:30px; border:1px dashed var(--line); border-radius:18px; text-align:center; color:var(--muted)}
   .empty b{color:var(--text); display:block; margin-bottom:6px; font-family:'Space Grotesk',sans-serif; font-size:17px}
 
+  /* portada / entrada */
+  body.intro-open{overflow:hidden}
+  #intro{position:fixed; inset:0; z-index:100; display:flex; align-items:center; justify-content:center; padding:24px;
+    background:radial-gradient(1000px 520px at 50% 0%, rgba(95,183,196,.08), transparent 60%), linear-gradient(var(--ink),var(--ink));
+    transition:opacity .6s ease}
+  #intro::before{content:""; position:absolute; inset:0; opacity:.5; pointer-events:none;
+    background-image:linear-gradient(rgba(38,48,61,.25) 1px,transparent 1px),linear-gradient(90deg,rgba(38,48,61,.25) 1px,transparent 1px);
+    background-size:48px 48px; -webkit-mask-image:radial-gradient(circle at 50% 45%, rgba(0,0,0,.7), transparent 75%); mask-image:radial-gradient(circle at 50% 45%, rgba(0,0,0,.7), transparent 75%)}
+  #intro.hidden{opacity:0; pointer-events:none}
+  .intro-inner{position:relative; z-index:1; text-align:center; max-width:920px; width:100%; animation:introIn .8s ease both}
+  .intro-banner{display:block; width:100%; max-width:880px; margin:0 auto; border-radius:18px; border:1px solid var(--line); box-shadow:0 30px 80px rgba(0,0,0,.55)}
+  .intro-tag{color:var(--muted); margin:26px auto 0; max-width:56ch; font-size:16px}
+  .enter-btn{margin-top:28px; cursor:pointer; font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:17px;
+    color:var(--ink); background:linear-gradient(180deg,#f0c24f,var(--oro)); border:none; border-radius:12px; padding:15px 30px;
+    display:inline-flex; align-items:center; gap:10px; transition:transform .2s ease; animation:pulse 2.4s infinite}
+  .enter-btn span{transition:transform .2s ease}
+  .enter-btn:hover{transform:translateY(-2px)}
+  .enter-btn:hover span{transform:translateX(4px)}
+  .enter-btn:focus-visible{outline:2px solid #fff; outline-offset:3px}
+  .intro-mini{margin-top:18px; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1px; color:var(--faint); text-transform:uppercase}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(232,178,58,.45)}70%{box-shadow:0 0 0 18px rgba(232,178,58,0)}100%{box-shadow:0 0 0 0 rgba(232,178,58,0)}}
+  @keyframes introIn{from{opacity:0; transform:translateY(14px)}to{opacity:1; transform:none}}
+
   .reveal{opacity:0; transform:translateY(10px); transition:opacity .5s ease, transform .5s ease}
   .reveal.in{opacity:1; transform:none}
 
@@ -152,17 +175,27 @@
     .logo{font-size:24px}
   }
   @media (prefers-reduced-motion:reduce){
-    *{transition:none!important; scroll-behavior:auto!important}
+    *{transition:none!important; animation:none!important; scroll-behavior:auto!important}
     .reveal{opacity:1; transform:none}
   }
 </style>
 </head>
-<body>
-<div class="wrap">
+<body class="intro-open">
+
+  <!-- PORTADA / ENTRADA -->
+  <div id="intro">
+    <div class="intro-inner">
+      <img class="intro-banner" src="assets/banner.png" alt="Neural Capital Research">
+      <p class="intro-tag">No predecimos el precio. Probamos, fuera de muestra y con honestidad, si un modelo tiene una ventaja real o es solo ruido.</p>
+      <button id="enter" class="enter-btn" type="button">Entrar al laboratorio <span aria-hidden="true">→</span></button>
+      <p class="intro-mini">Contenido educativo · no es recomendación de inversión</p>
+    </div>
+  </div>
+
+<div class="wrap" id="mainwrap">
 
   <header>
-    <img class="hero" src="assets/banner.png" alt="Neural Capital Research">
-    <h1 class="sr-only" id="logo">Neural Capital Research</h1>
+    <h1 class="logo" id="logo">Neural Capital Research</h1>
     <p class="tagline">No predecimos el precio. Probamos, con honestidad y fuera de muestra, si un modelo tiene una ventaja real o es ruido disfrazado.</p>
     <div class="meta" id="meta">cargando…</div>
   </header>
@@ -205,34 +238,51 @@ const NOMBRE = "Neural Capital Research";
 document.getElementById('logo').textContent = NOMBRE;
 document.title = NOMBRE + " · laboratorio de modelos";
 
+// Portada: al pulsar el botón, se oculta y se accede al laboratorio.
+const intro = document.getElementById('intro');
+const enterBtn = document.getElementById('enter');
+if(enterBtn){
+  enterBtn.addEventListener('click', ()=>{
+    intro.classList.add('hidden');
+    document.body.classList.remove('intro-open');
+    setTimeout(()=>{ intro.style.display = 'none'; }, 600);
+  });
+}
+
 let chart = null;
 
 function fmtPct(x){return (x*100).toFixed(1) + "%";}
 function clamp(x,a,b){return Math.max(a,Math.min(b,x));}
 
 function render(exp){
-  const m = exp.metricas, s = exp.significancia, d = exp.diagnostico || {};
-  const sig = s.ic90[0] > 0;            // CI no cruza el cero -> significativo
+  const h = exp.headline, s = exp.significancia, d = exp.diagnostico || {};
   const app = document.getElementById('app');
 
-  // dominio de la recta numérica, adaptado al experimento
-  const lo = Math.min(-0.4, s.ic90[0]) - 0.2;
-  const hi = Math.max(2.0, s.ic90[1], m.sharpe) + 0.2;
-  const X = v => clamp((v - lo)/(hi - lo)*100, 0, 100);
-
-  // ticks de la recta
-  let ticks = "";
-  for(let t=Math.ceil(lo); t<=Math.floor(hi); t++){
-    ticks += `<span style="left:${X(t)}%">${t}</span>`;
+  if(exp.sin_datos){
+    app.innerHTML = `<div class="tipo">▸ ${exp.tipo}</div>
+      <div class="empty"><b>Sin datos suficientes todavía</b>${exp.sin_datos_txt || 'El forward-test necesita operaciones cerradas; se irá llenando con el tiempo.'}</div>`;
+    document.getElementById('explainer').style.display = 'block';
+    return;
   }
+
+  const sig = s.ic90[0] > 0;            // el IC no cruza el cero -> significativo
+  // dominio dinámico de la recta (vale para Sharpe, % de exceso, lo que sea)
+  const pts = [0, s.ic90[0], s.ic90[1], h.valor];
+  let lo = Math.min(...pts), hi = Math.max(...pts);
+  const pad = (hi - lo) * 0.18 || 1; lo -= pad; hi += pad;
+  const X = v => clamp((v - lo)/(hi - lo)*100, 0, 100);
+  const dec = Math.abs(hi - lo) > 6 ? 0 : 1;
+  let ticks = "";
+  for(let i=0;i<=4;i++){ const t = lo + (hi-lo)*i/4; ticks += `<span style="left:${X(t)}%">${t.toFixed(dec)}</span>`; }
+  const sfx = h.sufijo || "";
 
   app.innerHTML = `
    <div class="tipo">▸ ${exp.tipo}</div>
    <div class="verdict reveal">
      <div class="verdict-top">
        <div>
-         <div class="sharpe-big">${m.sharpe.toFixed(2)}</div>
-         <div class="sharpe-lab">Sharpe (anualizado, fuera de muestra)</div>
+         <div class="sharpe-big">${h.valor.toFixed(h.decimales)}${sfx}</div>
+         <div class="sharpe-lab">${h.etiqueta}</div>
        </div>
        <div class="verdict-tag ${sig?'v-good':'v-bad'}">
          ${sig ? '✓ DISTINGUIBLE DEL AZAR' : '✕ NO DISTINGUIBLE DEL AZAR'}
@@ -243,64 +293,74 @@ function render(exp){
        <div class="nl-track">
          <div class="nl-axis"></div>
          <div class="nl-ci" style="left:${X(s.ic90[0])}%; width:${X(s.ic90[1])-X(s.ic90[0])}%; background:${sig?'var(--good)':'var(--warn)'}"></div>
-         <div class="nl-pt" style="left:${X(m.sharpe)}%"></div>
+         <div class="nl-pt" style="left:${X(h.valor)}%"></div>
          <div class="nl-zero" style="left:${X(0)}%"><span>0</span></div>
        </div>
        <div class="nl-labels">${ticks}</div>
-       <div class="nl-cap">Intervalo de confianza al 90% del Sharpe: <b>[${s.ic90[0]}, ${s.ic90[1]}]</b> · p-valor (Sharpe ≤ 0): <b>${s.p_valor}</b>. La barra es el intervalo; la línea blanca, el Sharpe observado; la marca "0", la frontera del azar.</div>
+       <div class="nl-cap">Intervalo de confianza al 90% (${s.etiqueta}): <b>[${s.ic90[0]}, ${s.ic90[1]}]</b> · p-valor (≤ 0): <b>${s.p_valor}</b>. La barra es el intervalo; la línea blanca, el valor observado; la marca "0", la frontera del azar.</div>
      </div>
    </div>
 
-   <div class="grid reveal">
-     <div class="card"><div class="k">Rentab. anual (CAGR)</div><div class="v ${m.cagr<0?'neg':'pos'}">${fmtPct(m.cagr)}</div></div>
-     <div class="card"><div class="k">Máx. caída</div><div class="v neg">${fmtPct(m.max_drawdown)}</div></div>
-     <div class="card"><div class="k">Volatilidad anual</div><div class="v">${fmtPct(m.vol_anual)}</div></div>
-     <div class="card"><div class="k">Acierto (días activos)</div><div class="v">${fmtPct(m.acierto)}</div></div>
-     <div class="card"><div class="k">Días evaluados</div><div class="v">${m.n_dias}</div></div>
-     <div class="card"><div class="k">Rotaciones</div><div class="v">${m.rotaciones}</div></div>
-   </div>
+   <div class="grid reveal">${(exp.cards||[]).map(c=>`<div class="card"><div class="k">${c.k}</div><div class="v ${c.tono||''}">${c.v}</div></div>`).join("")}</div>
 
    ${Object.keys(d).length ? `<div class="diag reveal">${diagChips(d)}</div>` : ''}
 
    <div class="chartbox reveal">
-     <h3>Curva de capital fuera de muestra</h3>
-     <div class="ch-sub">Crecimiento de 1 unidad invertida según el modelo. La línea base es no hacer nada.</div>
+     <h3>${exp.curva_titulo || 'Curva de capital fuera de muestra'}</h3>
+     <div class="ch-sub">${exp.curva_sub || 'Crecimiento de 1 unidad invertida según el modelo. La línea base es no hacer nada.'}</div>
      <div class="canvas-h"><canvas id="eq"></canvas></div>
    </div>
   `;
 
-  drawChart(exp.curva);
+  drawChart(exp);
   document.getElementById('explainer').style.display = 'block';
   requestAnimationFrame(()=>document.querySelectorAll('.reveal').forEach(e=>e.classList.add('in')));
 }
 
 function diagChips(d){
+  const lab = {cointegrated:'Cointegrado', coint_pvalue:'p-valor cointegración',
+    beta:'Ratio de cobertura β', half_life:'Vida media reversión',
+    horizonte:'Horizonte', coste:'Coste por operación', operaciones_abiertas:'En observación'};
   let out = "";
-  if('cointegrated' in d) out += `<div class="chip">Cointegrado: <b>${d.cointegrated?'sí':'no'}</b></div>`;
-  if('coint_pvalue' in d) out += `<div class="chip">p-valor cointegración: <b>${d.coint_pvalue}</b></div>`;
-  if('beta' in d) out += `<div class="chip">Ratio de cobertura β: <b>${d.beta}</b></div>`;
-  if('half_life' in d && d.half_life) out += `<div class="chip">Vida media reversión: <b>${Math.round(d.half_life)} días</b></div>`;
+  for(const k in d){
+    let v = d[k];
+    if(v === null || v === undefined) continue;
+    if(k === 'cointegrated') v = v ? 'sí' : 'no';
+    if(k === 'half_life') v = Math.round(v) + ' días';
+    out += `<div class="chip">${lab[k] || k}: <b>${v}</b></div>`;
+  }
   return out;
 }
 
-function drawChart(curva){
+function drawChart(exp){
   const ctx = document.getElementById('eq');
   if(chart) chart.destroy();
+  const curva = exp.curva || [];
   const labels = curva.map(p=>p.fecha);
-  const vals = curva.map(p=>p.valor);
+  const unidad = exp.curva_unidad || '×';
+  const base = (exp.curva_base !== undefined) ? exp.curva_base : 1;
+  const datasets = [
+    {label:'Modelo', data:curva.map(p=>p.valor), borderColor:'#e8b23a', borderWidth:2, pointRadius:0, tension:.12,
+     fill:true, backgroundColor:(c)=>{const g=c.chart.ctx.createLinearGradient(0,0,0,300); g.addColorStop(0,'rgba(232,178,58,.18)'); g.addColorStop(1,'rgba(232,178,58,0)'); return g;}}
+  ];
+  if(exp.curva2 && exp.curva2.datos){
+    datasets.push({label: exp.curva2.nombre || 'Referencia', data: exp.curva2.datos.map(p=>p.valor),
+      borderColor:'#5fb7c4', borderWidth:2, pointRadius:0, tension:.12});
+  }
+  datasets.push({label:'base', data:labels.map(()=>base), borderColor:'#5c6775', borderWidth:1, borderDash:[5,5], pointRadius:0});
+  const showLegend = !!(exp.curva2 && exp.curva2.datos);
   chart = new Chart(ctx,{
     type:'line',
-    data:{labels, datasets:[
-      {data:vals, borderColor:'#e8b23a', borderWidth:2, pointRadius:0, tension:.12,
-       fill:true, backgroundColor:(c)=>{const g=c.chart.ctx.createLinearGradient(0,0,0,300); g.addColorStop(0,'rgba(232,178,58,.18)'); g.addColorStop(1,'rgba(232,178,58,0)'); return g;}},
-      {data:labels.map(()=>1), borderColor:'#5c6775', borderWidth:1, borderDash:[5,5], pointRadius:0}
-    ]},
+    data:{labels, datasets},
     options:{
       responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.datasetIndex===0?'  '+c.parsed.y.toFixed(3)+'×':null, title:i=>i[0].label}}},
+      plugins:{
+        legend:{display:showLegend, labels:{color:'#8a97a6', filter:i=>i.text!=='base', font:{family:'JetBrains Mono'}}},
+        tooltip:{callbacks:{label:c=>c.dataset.label==='base'?null:'  '+c.dataset.label+': '+c.parsed.y.toFixed(2)+unidad, title:i=>i[0].label}}
+      },
       scales:{
         x:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#5c6775', maxTicksLimit:6, font:{family:'JetBrains Mono'}}},
-        y:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#5c6775', font:{family:'JetBrains Mono'}, callback:v=>v+'×'}}
+        y:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#5c6775', font:{family:'JetBrains Mono'}, callback:v=>v+unidad}}
       }
     }
   });

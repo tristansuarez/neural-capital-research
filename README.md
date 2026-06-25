@@ -14,16 +14,25 @@ distinguible del azar**.
 
 ## Estructura
 
-- `index.html` — la web (un solo archivo). Lee `resultados.json` y pinta el
-  desplegable, el veredicto de significancia y la curva de capital.
+- `index.html` — la web (un solo archivo): portada animada + panel con
+  desplegable, veredicto de significancia y curvas. Lee `resultados.json`.
 - `config.py` — activos, tickers y parámetros del walk-forward.
 - `data.py` — descarga de precios (Yahoo → Stooq → caché) + generador sintético.
-- `models/` — cada modelo expone la misma interfaz (`fit` / `weights`).
+- `models/` — cada modelo cuantitativo expone la misma interfaz (`fit`/`weights`).
   - `naive.py` — comprar y mantener (benchmark).
   - `cointegration.py` — par oro-plata: cointegración + reversión a la media.
-- `validation.py` — walk-forward, métricas (Sharpe, drawdown…) y significancia
-  por bootstrap de bloques.
-- `run_lab.py` — corre todos los experimentos y escribe `resultados.json`.
+- `validation.py` — walk-forward, métricas y significancia por bootstrap.
+- `koncorde_forward.py` — adapta el forward-test del KONCORDE al mismo esquema.
+- `escaner_senales_telegram.py` — el bot: escanea el S&P 500, registra señales en
+  `senales_log.csv` y las publica en Telegram.
+- `run_lab.py` — corre todos los experimentos (oro/plata + KONCORDE) y escribe
+  `resultados.json`.
+
+## Workflows (GitHub Actions)
+
+- `lab.yml` (06:00 UTC) — corre `run_lab.py` y publica `resultados.json` para la web.
+- `koncorde.yml` (00:00 UTC) — corre el escáner, publica en Telegram y guarda
+  `senales_log.csv`. Usa los secretos `TELEGRAM_TOKEN` y `TELEGRAM_CHANNEL`.
 
 ## Cambiar el nombre
 

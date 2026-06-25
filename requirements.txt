@@ -2,3 +2,5 @@ pandas
 numpy
 statsmodels
 yfinance
+requests
+lxml
