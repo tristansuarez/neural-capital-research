@@ -1,5 +1,5 @@
 {
-  "generado": "2026-06-25 20:56 UTC",
+  "generado": "2026-06-25 21:15 UTC",
   "sintetico": false,
   "aviso": "Laboratorio de experimentacion de modelos. NO es recomendacion de inversion. Todas las metricas son fuera de muestra (walk-forward) y netas de costes. Un Sharpe con p-valor alto NO es distinguible del azar.",
   "experimentos": [
@@ -4121,8 +4121,163 @@
       "tipo": "Análisis técnico · forward-test en vivo",
       "modelo": "koncorde_v3",
       "descripcion": "Señal KONCORDE V3 (Blai5 + régimen de Fosback) medida en vivo, sin sesgo de supervivencia.",
-      "sin_datos": true,
-      "sin_datos_txt": "El forward-test lleva 0 operaciones cerradas. Necesita unas cuantas más para un veredicto; se irá llenando solo con cada señal."
+      "headline": {
+        "valor": -2.71,
+        "etiqueta": "Exceso medio por operación vs S&P 500",
+        "sufijo": "%",
+        "decimales": 2
+      },
+      "significancia": {
+        "p_valor": 0.986,
+        "ic90": [
+          -4.562,
+          -0.748
+        ],
+        "etiqueta": "exceso medio (%)"
+      },
+      "cards": [
+        {
+          "k": "Operaciones cerradas",
+          "v": "12",
+          "tono": ""
+        },
+        {
+          "k": "Aciertos",
+          "v": "50%",
+          "tono": ""
+        },
+        {
+          "k": "Retorno medio estrategia",
+          "v": "-1.47%",
+          "tono": "neg"
+        },
+        {
+          "k": "Retorno medio S&P 500",
+          "v": "+1.25%",
+          "tono": ""
+        },
+        {
+          "k": "En observación",
+          "v": "0",
+          "tono": ""
+        },
+        {
+          "k": "Señales totales",
+          "v": "12",
+          "tono": ""
+        }
+      ],
+      "diagnostico": {
+        "horizonte": "20 sesiones",
+        "coste": "0.1%"
+      },
+      "curva": [
+        {
+          "fecha": "2025-02-14",
+          "valor": 16.5
+        },
+        {
+          "fecha": "2025-02-27",
+          "valor": -84.3
+        },
+        {
+          "fecha": "2025-03-13",
+          "valor": -185.2
+        },
+        {
+          "fecha": "2025-03-25",
+          "valor": -235.4
+        },
+        {
+          "fecha": "2025-04-10",
+          "valor": -229.9
+        },
+        {
+          "fecha": "2025-04-25",
+          "valor": -315.2
+        },
+        {
+          "fecha": "2025-05-09",
+          "valor": -289.9
+        },
+        {
+          "fecha": "2025-05-22",
+          "valor": -215.7
+        },
+        {
+          "fecha": "2025-06-06",
+          "valor": -185.7
+        },
+        {
+          "fecha": "2025-06-23",
+          "valor": -230.1
+        },
+        {
+          "fecha": "2025-07-07",
+          "valor": -257.7
+        },
+        {
+          "fecha": "2025-07-21",
+          "valor": -176.0
+        }
+      ],
+      "curva2": {
+        "nombre": "S&P 500",
+        "datos": [
+          {
+            "fecha": "2025-02-14",
+            "valor": 25.5
+          },
+          {
+            "fecha": "2025-02-27",
+            "valor": 13.0
+          },
+          {
+            "fecha": "2025-03-13",
+            "valor": -58.5
+          },
+          {
+            "fecha": "2025-03-25",
+            "valor": -93.1
+          },
+          {
+            "fecha": "2025-04-10",
+            "valor": -136.2
+          },
+          {
+            "fecha": "2025-04-25",
+            "valor": -172.4
+          },
+          {
+            "fecha": "2025-05-09",
+            "valor": -111.4
+          },
+          {
+            "fecha": "2025-05-22",
+            "valor": -25.9
+          },
+          {
+            "fecha": "2025-06-06",
+            "valor": 31.2
+          },
+          {
+            "fecha": "2025-06-23",
+            "valor": 53.2
+          },
+          {
+            "fecha": "2025-07-07",
+            "valor": 98.9
+          },
+          {
+            "fecha": "2025-07-21",
+            "valor": 149.7
+          }
+        ]
+      },
+      "curva_unidad": "€",
+      "curva_base": 0.0,
+      "curva_titulo": "Forward-test: estrategia vs S&P 500",
+      "curva_sub": "Beneficio acumulado en papel (1000 € por señal), mismas fechas que el índice."
     }
   ]
 }
