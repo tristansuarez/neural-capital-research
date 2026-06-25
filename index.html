@@ -143,27 +143,33 @@
   .empty{margin-top:40px; padding:30px; border:1px dashed var(--line); border-radius:18px; text-align:center; color:var(--muted)}
   .empty b{color:var(--text); display:block; margin-bottom:6px; font-family:'Space Grotesk',sans-serif; font-size:17px}
 
-  /* portada / entrada */
+  /* portada / entrada: la imagen ES el fondo, a pantalla completa y animada */
   body.intro-open{overflow:hidden}
-  #intro{position:fixed; inset:0; z-index:100; display:flex; align-items:center; justify-content:center; padding:24px;
-    background:radial-gradient(1000px 520px at 50% 0%, rgba(95,183,196,.08), transparent 60%), linear-gradient(var(--ink),var(--ink));
+  #intro{position:fixed; inset:0; z-index:100; overflow:hidden; background:#05070d;
+    display:flex; flex-direction:column; align-items:center; justify-content:flex-end;
     transition:opacity .6s ease}
-  #intro::before{content:""; position:absolute; inset:0; opacity:.5; pointer-events:none;
-    background-image:linear-gradient(rgba(38,48,61,.25) 1px,transparent 1px),linear-gradient(90deg,rgba(38,48,61,.25) 1px,transparent 1px);
-    background-size:48px 48px; -webkit-mask-image:radial-gradient(circle at 50% 45%, rgba(0,0,0,.7), transparent 75%); mask-image:radial-gradient(circle at 50% 45%, rgba(0,0,0,.7), transparent 75%)}
+  #intro .bg{position:absolute; inset:-8%; z-index:0; will-change:transform;
+    background:url('assets/banner.png') center/cover no-repeat;
+    animation:kenburns 32s ease-in-out infinite alternate}
+  #intro .scrim{position:absolute; inset:0; z-index:1; pointer-events:none;
+    background:linear-gradient(to top, rgba(5,7,13,.94) 4%, rgba(5,7,13,.45) 34%, rgba(5,7,13,0) 60%)}
   #intro.hidden{opacity:0; pointer-events:none}
-  .intro-inner{position:relative; z-index:1; text-align:center; max-width:920px; width:100%; animation:introIn .8s ease both}
-  .intro-banner{display:block; width:100%; max-width:880px; margin:0 auto; border-radius:18px; border:1px solid var(--line); box-shadow:0 30px 80px rgba(0,0,0,.55)}
-  .intro-tag{color:var(--muted); margin:26px auto 0; max-width:56ch; font-size:16px}
-  .enter-btn{margin-top:28px; cursor:pointer; font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:17px;
-    color:var(--ink); background:linear-gradient(180deg,#f0c24f,var(--oro)); border:none; border-radius:12px; padding:15px 30px;
-    display:inline-flex; align-items:center; gap:10px; transition:transform .2s ease; animation:pulse 2.4s infinite}
+  .intro-inner{position:relative; z-index:2; text-align:center; max-width:680px; width:100%;
+    padding:0 24px 10vh; animation:introIn 1s ease both}
+  .intro-tag{color:#cbd6e2; margin:0 auto; max-width:50ch; font-size:16.5px; text-shadow:0 2px 16px rgba(0,0,0,.6)}
+  .enter-btn{margin-top:26px; cursor:pointer; font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:17px;
+    color:#e8fbff; background:rgba(8,22,34,.5); border:1.5px solid #5fd0e6; border-radius:40px;
+    padding:15px 34px; display:inline-flex; align-items:center; gap:10px;
+    -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
+    box-shadow:0 0 16px rgba(95,208,230,.45), inset 0 0 12px rgba(95,208,230,.12);
+    transition:transform .2s ease, box-shadow .2s ease; animation:glow 2.8s ease-in-out infinite}
   .enter-btn span{transition:transform .2s ease}
-  .enter-btn:hover{transform:translateY(-2px)}
+  .enter-btn:hover{transform:translateY(-2px); box-shadow:0 0 30px rgba(95,208,230,.85), inset 0 0 16px rgba(95,208,230,.22)}
   .enter-btn:hover span{transform:translateX(4px)}
   .enter-btn:focus-visible{outline:2px solid #fff; outline-offset:3px}
-  .intro-mini{margin-top:18px; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1px; color:var(--faint); text-transform:uppercase}
-  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(232,178,58,.45)}70%{box-shadow:0 0 0 18px rgba(232,178,58,0)}100%{box-shadow:0 0 0 0 rgba(232,178,58,0)}}
+  .intro-mini{margin-top:18px; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1px; color:#7d8a99; text-transform:uppercase}
+  @keyframes glow{0%,100%{box-shadow:0 0 14px rgba(95,208,230,.4), inset 0 0 10px rgba(95,208,230,.12)} 50%{box-shadow:0 0 28px rgba(95,208,230,.8), inset 0 0 16px rgba(95,208,230,.22)}}
+  @keyframes kenburns{from{transform:scale(1.02) translate(0,0)} to{transform:scale(1.14) translate(-2.5%, -2%)}}
   @keyframes introIn{from{opacity:0; transform:translateY(14px)}to{opacity:1; transform:none}}
 
   .reveal{opacity:0; transform:translateY(10px); transition:opacity .5s ease, transform .5s ease}
@@ -184,8 +190,9 @@
 
   <!-- PORTADA / ENTRADA -->
   <div id="intro">
+    <div class="bg"></div>
+    <div class="scrim"></div>
     <div class="intro-inner">
-      <img class="intro-banner" src="assets/banner.png" alt="Neural Capital Research">
       <p class="intro-tag">No predecimos el precio. Probamos, fuera de muestra y con honestidad, si un modelo tiene una ventaja real o es solo ruido.</p>
       <button id="enter" class="enter-btn" type="button">Entrar al laboratorio <span aria-hidden="true">→</span></button>
       <p class="intro-mini">Contenido educativo · no es recomendación de inversión</p>

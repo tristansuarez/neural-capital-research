@@ -46,8 +46,8 @@ def calcular_senal(panel=None):
     fecha = panel.index[-1].strftime("%Y-%m-%d")
 
     if not m.cointegrated:
-        return {"fecha": fecha, "plata": round(plata, 2), "ratio": round(ratio, 1),
-                "z": None, "accion": "SIN SEÑAL",
+        return {"fecha": fecha, "plata": round(plata, 2), "oro": round(oro, 2),
+                "ratio": round(ratio, 1), "z": None, "accion": "SIN SEÑAL",
                 "motivo": "el par no está cointegrado ahora"}
 
     z = (np.log(oro) - m.beta * np.log(plata) - m.alpha - m.spread_mean) / m.spread_std
@@ -58,8 +58,8 @@ def calcular_senal(panel=None):
         accion = "VENDER"
     else:
         accion = "SIN SEÑAL"
-    return {"fecha": fecha, "plata": round(plata, 2), "ratio": round(ratio, 1),
-            "z": round(z, 2), "accion": accion, "motivo": ""}
+    return {"fecha": fecha, "plata": round(plata, 2), "oro": round(oro, 2),
+            "ratio": round(ratio, 1), "z": round(z, 2), "accion": accion, "motivo": ""}
 
 
 def registrar(s):
@@ -73,8 +73,9 @@ def registrar(s):
     with open(LOG, "a", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         if nuevo:
-            w.writerow(["fecha", "precio_plata", "ratio_oro_plata", "z", "accion", "registrado"])
-        w.writerow([s["fecha"], s["plata"], s["ratio"],
+            w.writerow(["fecha", "precio_plata", "precio_oro", "ratio_oro_plata",
+                        "z", "accion_plata", "registrado"])
+        w.writerow([s["fecha"], s["plata"], s["oro"], s["ratio"],
                     "" if s["z"] is None else s["z"], s["accion"],
                     datetime.now().strftime("%Y-%m-%d %H:%M")])
     return True
@@ -83,16 +84,19 @@ def registrar(s):
 def mensaje(s):
     if s["accion"] == "SIN SEÑAL":
         det = s["motivo"] if s["motivo"] else (f"z={s['z']:+.2f}σ" if s["z"] is not None else "")
-        return (f"🥈 PLATA · {s['fecha']}\n"
-                f"Hoy NO hay señal clara en el par oro-plata ({det}).\n"
+        return (f"🥇🥈 PAR ORO-PLATA · {s['fecha']}\n"
+                f"Hoy NO hay señal clara ({det}).\n"
                 f"ℹ️ Sin una desviación grande, no operar es la opción honesta.\n"
                 f"⚠️ Experimental y educativo. No es recomendación de inversión.")
-    emoji = "🟢" if s["accion"] == "COMPRAR" else "🔴"
-    return (f"🥈 SEÑAL PLATA · {s['fecha']}\n"
-            f"{emoji} {s['accion']} plata · 💵 {s['plata']}\n"
+    plata_emoji = "🟢" if s["accion"] == "COMPRAR" else "🔴"
+    oro_accion = "VENDER" if s["accion"] == "COMPRAR" else "COMPRAR"
+    oro_emoji = "🔴" if s["accion"] == "COMPRAR" else "🟢"
+    return (f"🥇🥈 SEÑAL PAR ORO-PLATA · {s['fecha']}\n"
+            f"{plata_emoji} {s['accion']} plata · 💵 {s['plata']}\n"
+            f"{oro_emoji} {oro_accion} oro · 💵 {s['oro']}\n"
             f"Ratio oro/plata: {s['ratio']} · desviación z = {s['z']:+.2f}σ\n"
-            f"Lógica: reversión a la media del par oro-plata (cointegración).\n"
-            f"ℹ️ Es una desviación estadística, no una predicción del precio.\n"
+            f"Es un par relativo: se opera una pata contra la otra (reversión a la media).\n"
+            f"ℹ️ Desviación estadística, no una predicción del precio.\n"
             f"⚠️ Experimental y educativo. No es recomendación de inversión.")
 
 
