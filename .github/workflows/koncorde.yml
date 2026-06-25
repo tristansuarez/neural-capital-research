@@ -1,4 +1,4 @@
-name: Bot KONCORDE (Telegram)
+name: Bot de señales (Telegram)
 
 on:
   workflow_dispatch:        # ejecucion manual desde la pestaña Actions
@@ -29,10 +29,13 @@ jobs:
       - name: Escanear S&P 500 y publicar en Telegram
         run: python escaner_senales_telegram.py --telegram --sin-modelo
 
-      - name: Guardar registro de senales (forward-test)
+      - name: Señal de plata (reversión del par oro-plata)
+        run: python senal_plata.py --telegram
+
+      - name: Guardar registros (forward-test)
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add senales_log.csv tweets_hoy.txt || true
-          git commit -m "Senales KONCORDE del dia" || echo "Sin cambios"
+          git add senales_log.csv senal_plata_log.csv tweets_hoy.txt || true
+          git commit -m "Senales del dia (KONCORDE + plata)" || echo "Sin cambios"
           git push
