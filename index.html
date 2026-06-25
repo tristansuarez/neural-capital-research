@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neural Capital Research · laboratorio de modelos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --ink:#0d1117; --panel:#141a23; --panel2:#1b232e; --line:#26303d;
+    --text:#e7edf3; --muted:#8a97a6; --faint:#5c6775;
+    --oro:#e8b23a; --oro-dim:#7a6224;
+    --si:#5fb7c4; --good:#4ec98a; --warn:#e0823c; --bad:#d2566a;
+    --r:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(232,178,58,.06), transparent 60%),
+      linear-gradient(var(--ink),var(--ink));
+    color:var(--text); font-family:'Inter',system-ui,sans-serif;
+    line-height:1.55; min-height:100vh;
+    background-attachment:fixed;
+  }
+  /* fina rejilla de plano técnico */
+  body::before{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.5;
+    background-image:
+      linear-gradient(rgba(38,48,61,.25) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(38,48,61,.25) 1px, transparent 1px);
+    background-size:48px 48px;
+    mask-image:linear-gradient(180deg, rgba(0,0,0,.6), transparent 70%);
+  }
+  .wrap{max-width:960px; margin:0 auto; padding:0 22px; position:relative; z-index:1}
+
+  /* cabecera */
+  header{padding:30px 0 22px; border-bottom:1px solid var(--line)}
+  .hero{display:block; width:100%; height:auto; border-radius:16px; border:1px solid var(--line); margin-bottom:14px}
+  .sr-only{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0}
+  .brand{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap}
+  .logo{
+    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:30px;
+    letter-spacing:-.5px; color:var(--text);
+  }
+  .logo b{color:var(--oro)}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:2px;
+    text-transform:uppercase; color:var(--faint);
+  }
+  .tagline{color:var(--muted); margin-top:8px; max-width:60ch}
+  .meta{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--faint); margin-top:12px}
+
+  /* aviso honesto */
+  .aviso{
+    margin:22px 0; padding:13px 16px; border-radius:var(--r);
+    border:1px solid var(--oro-dim); background:rgba(232,178,58,.06);
+    font-size:13.5px; color:#f0dca8; display:flex; gap:11px; align-items:flex-start;
+  }
+  .aviso svg{flex:0 0 auto; margin-top:2px}
+  .badge-syn{
+    display:inline-block; font-family:'JetBrains Mono',monospace; font-size:11px;
+    letter-spacing:1px; text-transform:uppercase; color:var(--ink); background:var(--warn);
+    padding:3px 9px; border-radius:6px; margin-bottom:10px; font-weight:700;
+  }
+
+  /* selector */
+  .picker{margin:30px 0 8px}
+  .picker label{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:9px}
+  select{
+    width:100%; appearance:none; background:var(--panel2); color:var(--text);
+    border:1px solid var(--line); border-radius:var(--r); padding:14px 44px 14px 16px;
+    font-family:'Space Grotesk',sans-serif; font-size:17px; font-weight:500; cursor:pointer;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' stroke='%238a97a6' stroke-width='2'%3E%3Cpath d='M2 4l5 6 5-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 16px center;
+  }
+  select:focus-visible{outline:2px solid var(--oro); outline-offset:2px}
+  .tipo{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--si); margin-top:10px}
+
+  /* ---- SIGNATURE: veredicto de significancia ---- */
+  .verdict{
+    margin-top:26px; background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border:1px solid var(--line); border-radius:18px; padding:26px 26px 30px;
+  }
+  .verdict-top{display:flex; justify-content:space-between; align-items:flex-end; gap:18px; flex-wrap:wrap}
+  .sharpe-big{font-family:'JetBrains Mono',monospace; font-weight:700; font-size:60px; line-height:.9; letter-spacing:-2px}
+  .sharpe-lab{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--faint); margin-top:6px}
+  .verdict-tag{
+    font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; letter-spacing:.5px;
+    padding:8px 14px; border-radius:9px; white-space:nowrap;
+  }
+  .v-good{color:var(--good); background:rgba(78,201,138,.1); border:1px solid rgba(78,201,138,.35)}
+  .v-bad{color:var(--warn); background:rgba(224,130,60,.1); border:1px solid rgba(224,130,60,.35)}
+
+  /* recta numérica del IC90 frente al cero */
+  .numline{margin-top:30px}
+  .nl-track{position:relative; height:64px}
+  .nl-axis{position:absolute; top:34px; left:0; right:0; height:2px; background:var(--line)}
+  .nl-zero{position:absolute; top:14px; bottom:0; width:2px; background:var(--text); opacity:.55}
+  .nl-zero span{position:absolute; top:-20px; left:50%; transform:translateX(-50%); font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted)}
+  .nl-ci{position:absolute; top:28px; height:14px; border-radius:7px; opacity:.9; transition:width .8s cubic-bezier(.2,.8,.2,1)}
+  .nl-pt{position:absolute; top:21px; width:3px; height:28px; background:var(--text); border-radius:2px}
+  .nl-labels{position:relative; margin-top:8px; height:16px}
+  .nl-labels span{position:absolute; transform:translateX(-50%); font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--faint)}
+  .nl-cap{font-size:12.5px; color:var(--muted); margin-top:18px}
+  .nl-cap b{color:var(--text); font-family:'JetBrains Mono',monospace}
+
+  /* tarjetas de métricas */
+  .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:14px}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:16px 17px}
+  .card .k{font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:1.5px; text-transform:uppercase; color:var(--faint)}
+  .card .v{font-family:'JetBrains Mono',monospace; font-size:24px; font-weight:700; margin-top:7px}
+  .card .v.neg{color:var(--bad)} .card .v.pos{color:var(--good)}
+
+  /* diagnóstico */
+  .diag{margin-top:12px; display:flex; gap:10px; flex-wrap:wrap}
+  .chip{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); background:var(--panel); border:1px solid var(--line); padding:8px 12px; border-radius:9px}
+  .chip b{color:var(--text)}
+
+  /* gráfico */
+  .chartbox{margin-top:26px; background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:20px 18px 14px}
+  .chartbox h3{font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:500; color:var(--muted); margin-bottom:4px}
+  .chartbox .ch-sub{font-size:12.5px; color:var(--faint); margin-bottom:14px}
+  .canvas-h{position:relative; height:300px}
+
+  /* explicaciones */
+  .explain{margin:40px 0 10px}
+  .explain h2{font-family:'Space Grotesk',sans-serif; font-size:13px; letter-spacing:2px; text-transform:uppercase; color:var(--faint); margin-bottom:14px}
+  details{border:1px solid var(--line); border-radius:var(--r); margin-bottom:10px; background:var(--panel); overflow:hidden}
+  summary{padding:15px 18px; cursor:pointer; font-family:'Space Grotesk',sans-serif; font-weight:500; font-size:15.5px; list-style:none; display:flex; justify-content:space-between; align-items:center}
+  summary::-webkit-details-marker{display:none}
+  summary .chev{color:var(--oro); transition:transform .25s}
+  details[open] summary .chev{transform:rotate(90deg)}
+  details .body{padding:0 18px 18px; color:var(--muted); font-size:14px}
+  details .body b{color:var(--text)}
+
+  footer{border-top:1px solid var(--line); margin-top:46px; padding:24px 0 50px; color:var(--faint); font-size:12.5px}
+  footer a{color:var(--muted)}
+
+  .empty{margin-top:40px; padding:30px; border:1px dashed var(--line); border-radius:18px; text-align:center; color:var(--muted)}
+  .empty b{color:var(--text); display:block; margin-bottom:6px; font-family:'Space Grotesk',sans-serif; font-size:17px}
+
+  .reveal{opacity:0; transform:translateY(10px); transition:opacity .5s ease, transform .5s ease}
+  .reveal.in{opacity:1; transform:none}
+
+  @media (max-width:640px){
+    .grid{grid-template-columns:repeat(2,1fr)}
+    .sharpe-big{font-size:48px}
+    .logo{font-size:24px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important; scroll-behavior:auto!important}
+    .reveal{opacity:1; transform:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <img class="hero" src="assets/banner.png" alt="Neural Capital Research">
+    <h1 class="sr-only" id="logo">Neural Capital Research</h1>
+    <p class="tagline">No predecimos el precio. Probamos, con honestidad y fuera de muestra, si un modelo tiene una ventaja real o es ruido disfrazado.</p>
+    <div class="meta" id="meta">cargando…</div>
+  </header>
+
+  <div id="syn" style="display:none"></div>
+
+  <div class="aviso" id="aviso">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e8b23a" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.8 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.8a2 2 0 0 0-3.4 0z"/></svg>
+    <span id="aviso-txt">—</span>
+  </div>
+
+  <div id="app"></div>
+
+  <section class="explain" id="explainer" style="display:none">
+    <h2>Cómo se lee esto</h2>
+    <details>
+      <summary>Qué es el Sharpe <span class="chev">▶</span></summary>
+      <div class="body">Mide la rentabilidad por unidad de riesgo asumido. Un número alto no basta: una estrategia muy rentable pero muy volátil puede tener peor Sharpe que una modesta y estable. Es la métrica central porque pone a todos los modelos en la misma vara.</div>
+    </details>
+    <details>
+      <summary>Qué es el p-valor y el veredicto <span class="chev">▶</span></summary>
+      <div class="body">El p-valor es la probabilidad de obtener un Sharpe así de bueno <b>por puro azar</b>. Lo calculamos remuestreando los rendimientos por bloques (bootstrap) miles de veces. Si el intervalo de confianza del Sharpe no cruza el cero, el resultado es <b>distinguible del azar</b>; si lo cruza, no lo es, por bonito que parezca el número.</div>
+    </details>
+    <details>
+      <summary>Qué es "fuera de muestra" (walk-forward) <span class="chev">▶</span></summary>
+      <div class="body">El modelo se evalúa solo sobre datos que <b>no ha visto</b>: se entrena con el pasado y se prueba con el futuro inmediato, avanzando en el tiempo. Es lo único que evita el autoengaño de un backtest que ya conoce el resultado. Todas las métricas aquí son fuera de muestra y netas de costes de transacción.</div>
+    </details>
+  </section>
+
+  <footer>
+    <div id="foot">Laboratorio experimental · contenido educativo · no es recomendación de inversión.</div>
+  </footer>
+
+</div>
+
+<script>
+// ====== Nombre de la web: cámbialo aquí en una línea ======
+const NOMBRE = "Neural Capital Research";
+// ==========================================================
+document.getElementById('logo').textContent = NOMBRE;
+document.title = NOMBRE + " · laboratorio de modelos";
+
+let chart = null;
+
+function fmtPct(x){return (x*100).toFixed(1) + "%";}
+function clamp(x,a,b){return Math.max(a,Math.min(b,x));}
+
+function render(exp){
+  const m = exp.metricas, s = exp.significancia, d = exp.diagnostico || {};
+  const sig = s.ic90[0] > 0;            // CI no cruza el cero -> significativo
+  const app = document.getElementById('app');
+
+  // dominio de la recta numérica, adaptado al experimento
+  const lo = Math.min(-0.4, s.ic90[0]) - 0.2;
+  const hi = Math.max(2.0, s.ic90[1], m.sharpe) + 0.2;
+  const X = v => clamp((v - lo)/(hi - lo)*100, 0, 100);
+
+  // ticks de la recta
+  let ticks = "";
+  for(let t=Math.ceil(lo); t<=Math.floor(hi); t++){
+    ticks += `<span style="left:${X(t)}%">${t}</span>`;
+  }
+
+  app.innerHTML = `
+   <div class="tipo">▸ ${exp.tipo}</div>
+   <div class="verdict reveal">
+     <div class="verdict-top">
+       <div>
+         <div class="sharpe-big">${m.sharpe.toFixed(2)}</div>
+         <div class="sharpe-lab">Sharpe (anualizado, fuera de muestra)</div>
+       </div>
+       <div class="verdict-tag ${sig?'v-good':'v-bad'}">
+         ${sig ? '✓ DISTINGUIBLE DEL AZAR' : '✕ NO DISTINGUIBLE DEL AZAR'}
+       </div>
+     </div>
+
+     <div class="numline">
+       <div class="nl-track">
+         <div class="nl-axis"></div>
+         <div class="nl-ci" style="left:${X(s.ic90[0])}%; width:${X(s.ic90[1])-X(s.ic90[0])}%; background:${sig?'var(--good)':'var(--warn)'}"></div>
+         <div class="nl-pt" style="left:${X(m.sharpe)}%"></div>
+         <div class="nl-zero" style="left:${X(0)}%"><span>0</span></div>
+       </div>
+       <div class="nl-labels">${ticks}</div>
+       <div class="nl-cap">Intervalo de confianza al 90% del Sharpe: <b>[${s.ic90[0]}, ${s.ic90[1]}]</b> · p-valor (Sharpe ≤ 0): <b>${s.p_valor}</b>. La barra es el intervalo; la línea blanca, el Sharpe observado; la marca "0", la frontera del azar.</div>
+     </div>
+   </div>
+
+   <div class="grid reveal">
+     <div class="card"><div class="k">Rentab. anual (CAGR)</div><div class="v ${m.cagr<0?'neg':'pos'}">${fmtPct(m.cagr)}</div></div>
+     <div class="card"><div class="k">Máx. caída</div><div class="v neg">${fmtPct(m.max_drawdown)}</div></div>
+     <div class="card"><div class="k">Volatilidad anual</div><div class="v">${fmtPct(m.vol_anual)}</div></div>
+     <div class="card"><div class="k">Acierto (días activos)</div><div class="v">${fmtPct(m.acierto)}</div></div>
+     <div class="card"><div class="k">Días evaluados</div><div class="v">${m.n_dias}</div></div>
+     <div class="card"><div class="k">Rotaciones</div><div class="v">${m.rotaciones}</div></div>
+   </div>
+
+   ${Object.keys(d).length ? `<div class="diag reveal">${diagChips(d)}</div>` : ''}
+
+   <div class="chartbox reveal">
+     <h3>Curva de capital fuera de muestra</h3>
+     <div class="ch-sub">Crecimiento de 1 unidad invertida según el modelo. La línea base es no hacer nada.</div>
+     <div class="canvas-h"><canvas id="eq"></canvas></div>
+   </div>
+  `;
+
+  drawChart(exp.curva);
+  document.getElementById('explainer').style.display = 'block';
+  requestAnimationFrame(()=>document.querySelectorAll('.reveal').forEach(e=>e.classList.add('in')));
+}
+
+function diagChips(d){
+  let out = "";
+  if('cointegrated' in d) out += `<div class="chip">Cointegrado: <b>${d.cointegrated?'sí':'no'}</b></div>`;
+  if('coint_pvalue' in d) out += `<div class="chip">p-valor cointegración: <b>${d.coint_pvalue}</b></div>`;
+  if('beta' in d) out += `<div class="chip">Ratio de cobertura β: <b>${d.beta}</b></div>`;
+  if('half_life' in d && d.half_life) out += `<div class="chip">Vida media reversión: <b>${Math.round(d.half_life)} días</b></div>`;
+  return out;
+}
+
+function drawChart(curva){
+  const ctx = document.getElementById('eq');
+  if(chart) chart.destroy();
+  const labels = curva.map(p=>p.fecha);
+  const vals = curva.map(p=>p.valor);
+  chart = new Chart(ctx,{
+    type:'line',
+    data:{labels, datasets:[
+      {data:vals, borderColor:'#e8b23a', borderWidth:2, pointRadius:0, tension:.12,
+       fill:true, backgroundColor:(c)=>{const g=c.chart.ctx.createLinearGradient(0,0,0,300); g.addColorStop(0,'rgba(232,178,58,.18)'); g.addColorStop(1,'rgba(232,178,58,0)'); return g;}},
+      {data:labels.map(()=>1), borderColor:'#5c6775', borderWidth:1, borderDash:[5,5], pointRadius:0}
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.datasetIndex===0?'  '+c.parsed.y.toFixed(3)+'×':null, title:i=>i[0].label}}},
+      scales:{
+        x:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#5c6775', maxTicksLimit:6, font:{family:'JetBrains Mono'}}},
+        y:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#5c6775', font:{family:'JetBrains Mono'}, callback:v=>v+'×'}}
+      }
+    }
+  });
+}
+
+async function init(){
+  let doc;
+  try{
+    const r = await fetch('resultados.json?ts='+Date.now());
+    if(!r.ok) throw new Error();
+    doc = await r.json();
+  }catch(e){
+    document.getElementById('meta').textContent = '';
+    document.getElementById('aviso').style.display='none';
+    document.getElementById('app').innerHTML =
+      `<div class="empty"><b>Aún no hay resultados</b>Lanza el laboratorio desde la pestaña <b>Actions</b> del repositorio para generar el primer <code>resultados.json</code>.</div>`;
+    return;
+  }
+
+  document.getElementById('meta').textContent = 'Última corrida: ' + doc.generado;
+  document.getElementById('aviso-txt').textContent = doc.aviso;
+  if(doc.sintetico){
+    const s = document.getElementById('syn');
+    s.style.display='block';
+    s.innerHTML = `<span class="badge-syn">⚠ datos de verificación · no reales</span>`;
+  }
+
+  // selector
+  const picker = document.createElement('div');
+  picker.className = 'picker reveal';
+  picker.innerHTML = `<label for="sel">Experimento</label>
+    <select id="sel">${doc.experimentos.map((e,i)=>`<option value="${i}">${e.etiqueta}</option>`).join('')}</select>`;
+  document.getElementById('app').before(picker);
+
+  const sel = document.getElementById('sel');
+  sel.addEventListener('change', ()=>render(doc.experimentos[sel.value]));
+  render(doc.experimentos[0]);
+  requestAnimationFrame(()=>picker.classList.add('in'));
+}
+init();
+</script>
+</body>
+</html>
