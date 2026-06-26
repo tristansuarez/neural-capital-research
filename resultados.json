@@ -1,5 +1,5 @@
 {
-  "generado": "2026-06-26 07:58 UTC",
+  "generado": "2026-06-26 08:16 UTC",
   "sintetico": false,
   "aviso": "Laboratorio de experimentacion de modelos. NO es recomendacion de inversion. Todas las metricas son fuera de muestra (walk-forward) y netas de costes. Un Sharpe con p-valor alto NO es distinguible del azar.",
   "experimentos": [
@@ -4361,6 +4361,10 @@
         {
           "k": "estado",
           "t": "Estado"
+        },
+        {
+          "k": "fecha_salida",
+          "t": "Salida"
         },
         {
           "k": "retorno",
