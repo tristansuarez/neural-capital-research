@@ -17,6 +17,7 @@ import datetime as dt
 import config
 import data
 import koncorde_forward
+import garch_forward
 from validation import evaluate
 from models import BuyAndHold, GoldSilverPairs
 
@@ -84,6 +85,15 @@ def main(sintetico: bool = False):
         print("   (aun sin operaciones cerradas suficientes)", flush=True)
     else:
         print(f"   exceso medio = {kon['headline']['valor']}%  p={kon['significancia']['p_valor']}", flush=True)
+
+    # GARCH de volatilidad: no opera; mide si prevé la volatilidad mejor que lo ingenuo.
+    print("-> GARCH (volatilidad del oro) ...", flush=True)
+    gar = garch_forward.evaluar_garch(sintetico=sintetico)
+    salida.append(gar)
+    if gar.get("sin_datos"):
+        print("   (sin datos suficientes)", flush=True)
+    else:
+        print(f"   mejora vs ingenuo = {gar['headline']['valor']}%  p={gar['significancia']['p_valor']}", flush=True)
 
     doc = {
         "generado": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),

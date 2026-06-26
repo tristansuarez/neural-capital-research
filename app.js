@@ -12,7 +12,7 @@ function navHTML(active){
   ];
   const mods = modelos.map(([id,n]) =>
     `<a href="lab.html?id=${id}" class="${id===active?'active':''}">${n}</a>`).join('')
-    + `<span class="nav-disabled">GARCH · próximamente</span>`;
+    + `<a href="lab.html?id=garch_vol" class="${active==='garch_vol'?'active':''}">GARCH (volatilidad)</a>`;
   return `<div class="nav-inner">
     <a class="nav-logo" href="lab.html?id=par_oro_plata">Neural <b>Capital</b> Research</a>
     <div class="nav-menu">

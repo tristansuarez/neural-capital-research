@@ -4,3 +4,4 @@ statsmodels
 yfinance
 requests
 lxml
+arch
