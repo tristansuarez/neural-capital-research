@@ -1,5 +1,5 @@
 {
-  "generado": "2026-06-26 09:15 UTC",
+  "generado": "2026-06-26 09:35 UTC",
   "sintetico": false,
   "aviso": "Laboratorio de experimentacion de modelos. NO es recomendacion de inversion. Todas las metricas son fuera de muestra (walk-forward) y netas de costes. Un Sharpe con p-valor alto NO es distinguible del azar.",
   "experimentos": [
@@ -1398,7 +1398,55 @@
           "k": "ratio_oro_plata",
           "t": "Ratio O/P"
         }
-      ]
+      ],
+      "horizonte": {
+        "titulo": "Reversión del par según el horizonte",
+        "sub": "Tras una divergencia de ≥1,5σ entre oro y plata, retorno medio de apostar a que el spread vuelve a su media, a cada plazo. Si la barra no toca el cero, la reversión aporta a ese horizonte.",
+        "unidad": "%",
+        "puntos": [
+          {
+            "h": 5,
+            "etiqueta": "1 sem",
+            "valor": -2.73,
+            "ic_lo": -3.95,
+            "ic_hi": -1.51,
+            "n": 250
+          },
+          {
+            "h": 10,
+            "etiqueta": "2 sem",
+            "valor": -4.03,
+            "ic_lo": -6.45,
+            "ic_hi": -1.58,
+            "n": 250
+          },
+          {
+            "h": 21,
+            "etiqueta": "1 mes",
+            "valor": -3.47,
+            "ic_lo": -9.16,
+            "ic_hi": 1.88,
+            "n": 250
+          },
+          {
+            "h": 63,
+            "etiqueta": "3 meses",
+            "valor": 9.18,
+            "ic_lo": -3.21,
+            "ic_hi": 22.62,
+            "n": 249
+          },
+          {
+            "h": 126,
+            "etiqueta": "6 meses",
+            "valor": 24.56,
+            "ic_lo": 5.64,
+            "ic_hi": 44.07,
+            "n": 236
+          }
+        ],
+        "nota": "La reversión del spread es lenta (vida media ~217 días): a plazos cortos el movimiento puede incluso continuar antes de revertir, y solo a horizontes largos el spread tiende a volver. La curva muestra a qué plazo —si alguno— la reversión es distinguible del azar. Coherente con que el par, en conjunto, no muestre edge."
+      }
     },
     {
       "modelo": "buy_and_hold",
@@ -2767,7 +2815,8 @@
       "curva_sub": "Crecimiento de 1 unidad invertida según el modelo. La línea base es no hacer nada.",
       "id": "oro_bh",
       "etiqueta": "Oro (benchmark comprar y mantener)",
-      "tipo": "Benchmark"
+      "tipo": "Benchmark",
+      "horizonte_na": "En un comprar-y-mantener no hay señal ni entrada condicional: se está siempre invertido. El «horizonte» aquí sería solo cuánto tiempo aguantas, y más tiempo = más retorno acumulado (beta del mercado), sin nada condicional que medir."
     },
     {
       "modelo": "buy_and_hold",
@@ -4136,7 +4185,8 @@
       "curva_sub": "Crecimiento de 1 unidad invertida según el modelo. La línea base es no hacer nada.",
       "id": "plata_bh",
       "etiqueta": "Plata (benchmark comprar y mantener)",
-      "tipo": "Benchmark"
+      "tipo": "Benchmark",
+      "horizonte_na": "En un comprar-y-mantener no hay señal ni entrada condicional: se está siempre invertido. El «horizonte» aquí sería solo cuánto tiempo aguantas, y más tiempo = más retorno acumulado (beta del mercado), sin nada condicional que medir."
     },
     {
       "id": "koncorde",
@@ -4371,7 +4421,55 @@
           "t": "Retorno",
           "sufijo": "%"
         }
-      ]
+      ],
+      "horizonte": {
+        "titulo": "KONCORDE: exceso de retorno según el horizonte · backtest 8 años",
+        "sub": "Tras una señal de compra, retorno medio del valor frente a su tasa base, a cada plazo (40 valores del S&P 500). Si la barra no toca el cero, la señal anticipa retorno excedente a ese horizonte.",
+        "unidad": "%",
+        "puntos": [
+          {
+            "h": 5,
+            "etiqueta": "1 sem",
+            "valor": -0.22,
+            "ic_lo": -0.38,
+            "ic_hi": -0.06,
+            "n": 2002
+          },
+          {
+            "h": 10,
+            "etiqueta": "2 sem",
+            "valor": -0.15,
+            "ic_lo": -0.36,
+            "ic_hi": 0.06,
+            "n": 2000
+          },
+          {
+            "h": 21,
+            "etiqueta": "1 mes",
+            "valor": -0.07,
+            "ic_lo": -0.44,
+            "ic_hi": 0.3,
+            "n": 1989
+          },
+          {
+            "h": 42,
+            "etiqueta": "2 meses",
+            "valor": -0.88,
+            "ic_lo": -1.54,
+            "ic_hi": -0.23,
+            "n": 1959
+          },
+          {
+            "h": 63,
+            "etiqueta": "3 meses",
+            "valor": -0.94,
+            "ic_lo": -1.84,
+            "ic_hi": -0.09,
+            "n": 1951
+          }
+        ],
+        "nota": "Es un estudio de eventos histórico, distinto del forward-test en vivo de más arriba. Confirma a Fosback: las señales de volumen a corto sobre acciones individuales no producen exceso de retorno fiable; el intervalo abraza el cero."
+      }
     },
     {
       "id": "garch_vol",
@@ -9662,7 +9760,55 @@
       "curva_unidad": "%",
       "curva_base": 15.3,
       "curva_titulo": "Volatilidad del oro: prevista vs realizada",
-      "curva_sub": "La línea dorada es la volatilidad que el modelo anticipa para cada día; la azul, la que de verdad ocurrió. Cuanto más se siguen, mejor anticipa las tormentas. La línea de puntos es la volatilidad media."
+      "curva_sub": "La línea dorada es la volatilidad que el modelo anticipa para cada día; la azul, la que de verdad ocurrió. Cuanto más se siguen, mejor anticipa las tormentas. La línea de puntos es la volatilidad media.",
+      "horizonte": {
+        "titulo": "Habilidad del GARCH según el horizonte",
+        "sub": "Mejora del error de previsión frente al modelo ingenuo (la volatilidad reciente), para la volatilidad MEDIA de los próximos N días. Si la barra no toca el cero, el GARCH aún aporta a ese plazo.",
+        "unidad": "%",
+        "puntos": [
+          {
+            "h": 1,
+            "etiqueta": "1 día",
+            "valor": 4.8,
+            "ic_lo": 3.14,
+            "ic_hi": 6.46,
+            "n": 3268
+          },
+          {
+            "h": 5,
+            "etiqueta": "1 sem",
+            "valor": 14.9,
+            "ic_lo": 9.6,
+            "ic_hi": 19.81,
+            "n": 3264
+          },
+          {
+            "h": 10,
+            "etiqueta": "2 sem",
+            "valor": 22.7,
+            "ic_lo": 13.98,
+            "ic_hi": 30.03,
+            "n": 3259
+          },
+          {
+            "h": 21,
+            "etiqueta": "1 mes",
+            "valor": 29.6,
+            "ic_lo": 19.73,
+            "ic_hi": 38.57,
+            "n": 3248
+          },
+          {
+            "h": 63,
+            "etiqueta": "3 meses",
+            "valor": 43.2,
+            "ic_lo": 28.3,
+            "ic_hi": 52.78,
+            "n": 3206
+          }
+        ],
+        "nota": "El baseline ingenuo usa la volatilidad reciente y se queda plano; el GARCH, en cambio, revierte hacia la volatilidad media de largo plazo. Por eso su ventaja relativa crece con el plazo (persistencia 0.99): la curva muestra hasta dónde aporta el modelo."
+      }
     }
   ]
 }
