@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neural Capital Research &middot; metodolog&iacute;a</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="metodologia">
+
+  <div id="topnav"></div>
+
+  <div class="wrap">
+    <header style="padding:26px 0 4px; border:none">
+      <h1 class="model-title">Metodolog&iacute;a</h1>
+      <p class="tagline">C&oacute;mo funciona el rigor del laboratorio, los modelos uno a uno, los motores del oro y la plata, y por qu&eacute; casi ning&uacute;n sistema funciona.</p>
+    </header>
+
+    <section class="explain" id="explainer">
+
+
+    <h2 class="sreveal" id="como-se-lee">Cómo se lee el laboratorio</h2>
+    <details class="sreveal">
+      <summary>Qué es el Sharpe <span class="chev">▶</span></summary>
+      <div class="body">Mide la rentabilidad por unidad de riesgo asumido. Un número alto no basta: una estrategia muy rentable pero muy volátil puede tener peor Sharpe que una modesta y estable. Como guía, por encima de 1 es bueno y por encima de 2 es excelente (y sospechoso si no está muy bien validado). Es la métrica central porque pone a todos los modelos en la misma vara.</div>
+    </details>
+    <details class="sreveal">
+      <summary>El veredicto: ¿distinguible del azar? <span class="chev">▶</span></summary>
+      <div class="body">El p-valor es la probabilidad de obtener un resultado así de bueno <b>por puro azar</b>. Lo calculamos remuestreando los rendimientos por bloques (bootstrap) miles de veces, respetando su autocorrelación. Si el intervalo de confianza al 90% <b>no cruza el cero</b>, el resultado es distinguible del azar; si lo cruza, no lo es, por bonito que parezca el número. Casi ningún sitio de "señales" hace esto, y es justo lo que separa un experimento honesto del humo.</div>
+    </details>
+    <details class="sreveal">
+      <summary>Fuera de muestra (walk-forward) <span class="chev">▶</span></summary>
+      <div class="body">El modelo se evalúa solo sobre datos que <b>no ha visto</b>: se entrena con el pasado y se prueba con el futuro inmediato, avanzando en el tiempo y re-entrenándose cada mes. Es lo único que evita el autoengaño de un backtest que ya conoce el final de la película. Todas las métricas aquí son fuera de muestra y netas de comisiones.</div>
+    </details>
+    <details class="sreveal">
+      <summary>El benchmark: contra qué competimos <span class="chev">▶</span></summary>
+      <div class="body">Un modelo no compite contra cero, compite contra la alternativa fácil. Para un activo suelto, esa alternativa es comprarlo y no tocarlo (comprar y mantener). Para una estrategia neutral al mercado, como el par oro-plata, el listón es que su Sharpe sea distinguible de cero. Si un modelo no bate a su benchmark, no aporta nada aunque gane dinero: ese dinero ya lo daba el mercado gratis.</div>
+    </details>
+    <details class="sreveal">
+      <summary>Por qué la dirección del precio es casi impredecible <span class="chev">▶</span></summary>
+      <div class="body">La dirección del precio de mañana es, a efectos prácticos, casi un lanzamiento de moneda. No es magia: si hubiera una forma fácil de saber que algo va a subir, todo el mundo compraría ya hoy y el precio subiría ahora, agotando la oportunidad. Por eso el laboratorio no intenta "adivinar el precio", sino buscar los pocos rincones donde queda algo de estructura: la <b>relación entre activos</b>, la <b>volatilidad</b> y el <b>régimen de riesgo</b>.</div>
+    </details>
+
+    <h2 class="sreveal" id="los-modelos">Los modelos, uno a uno</h2>
+    <details class="sreveal">
+      <summary>Par oro-plata (cointegración) · el modelo estrella <span class="chev">▶</span></summary>
+      <div class="body">El que tiene la ventaja más defendible. Oro y plata comparten casi todos sus motores (tipos reales, dólar, aversión al riesgo, demanda monetaria), así que el ratio entre sus precios tiende a oscilar alrededor de una media en lugar de irse a cualquier sitio. Cuando el ratio se estira mucho (test de cointegración de Engle-Granger, reversión de Ornstein-Uhlenbeck), apostamos a que vuelve: comprar el metal barato y vender el caro. <b>No es una predicción de hacia dónde va el oro</b>, es una apuesta a que la relación entre los dos se normaliza. Riesgo: la cointegración puede romperse si cambia el régimen, p. ej. un shock industrial que solo afecte a la plata.</div>
+    </details>
+    <details class="sreveal">
+      <summary>Oro (comprar y mantener) <span class="chev">▶</span></summary>
+      <div class="body">El oro como referencia. No genera flujo de caja: ni dividendos ni cupones. Su precio lo mandan sobre todo los <b>tipos de interés reales</b> (lo que rinde un bono por encima de la inflación): si suben, tener oro "cuesta" más en coste de oportunidad y tiende a caer; si bajan o se vuelven negativos, el oro brilla. Es el motivo de que sea refugio en crisis pero un activo plano en épocas de tipos altos.</div>
+    </details>
+    <details class="sreveal">
+      <summary>Plata (comprar y mantener) <span class="chev">▶</span></summary>
+      <div class="body">Se parece al oro pero con esteroides: su caída máxima y su volatilidad casi doblan las del oro. La razón es que la plata es <b>mitad refugio, mitad metal industrial</b> (paneles solares, electrónica), así que sufre tanto los vaivenes financieros como los del ciclo económico. Más recorrido al alza, pero también sustos mucho mayores.</div>
+    </details>
+    <details class="sreveal">
+      <summary>KONCORDE (S&P 500) <span class="chev">▶</span></summary>
+      <div class="body">Indicador técnico de volumen (familia Blai5) que intenta distinguir cuándo entran las "manos fuertes" (dinero institucional) frente a las "débiles", combinando RSI, MFI, estocástico, Bollinger y los índices de volumen NVI/PVI, con un filtro de régimen alcista de Fosback. Lo medimos <b>en vivo</b> (forward-test), no con un backtest histórico, porque backtestear los componentes actuales del S&P 500 metería sesgo de supervivencia. Aviso honesto: el propio Fosback advirtió que el análisis fino del volumen por valor es de lo menos fiable; aquí está precisamente para comprobarlo con datos limpios.</div>
+    </details>
+    <details class="sreveal">
+      <summary>GARCH de volatilidad · próximamente <span class="chev">▶</span></summary>
+      <div class="body">La dirección es casi impredecible, pero la <b>volatilidad</b> (el tamaño de los movimientos) no: los días movidos se agrupan con los movidos y los tranquilos con los tranquilos. Eso es lo que captura un modelo GARCH, y le valió el Nobel a Robert Engle. No te dirá si el oro sube o baja, pero sí si vienen días de sustos; útil para gestionar riesgo y tamaño de posición.</div>
+    </details>
+
+    <h2 class="sreveal" id="motores">Los motores del oro y la plata</h2>
+    <details class="sreveal">
+      <summary>Tipos de interés reales · el motor nº 1 <span class="chev">▶</span></summary>
+      <div class="body">El "tipo real" es lo que rinde un bono del Tesoro por encima de la inflación esperada. Como el oro no paga intereses, cuando los bonos reales rinden mucho guardar oro sale caro en coste de oportunidad y su precio sufre; cuando los tipos reales caen o se vuelven negativos, el oro brilla. Es la relación más estable de todo el complejo de metales.</div>
+    </details>
+    <details class="sreveal">
+      <summary>El dólar (DXY) <span class="chev">▶</span></summary>
+      <div class="body">El oro cotiza en dólares en todo el mundo, así que suele moverse en sentido contrario al billete verde. Un dólar débil abarata el oro para el resto del planeta y empuja su demanda; un dólar fuerte hace lo contrario. No es una ley de hierro, pero es una de las correlaciones más fiables del mercado.</div>
+    </details>
+    <details class="sreveal">
+      <summary>Inflación y refugio <span class="chev">▶</span></summary>
+      <div class="body">El oro se usa como cobertura frente a la pérdida de poder adquisitivo. Pero ojo: importa más la inflación <b>esperada</b> que la pasada, y sobre todo importa en relación con los tipos. Una inflación alta con tipos aún más altos puede ser mala para el oro. Por eso lo que de verdad manda es el tipo real, que junta ambas cosas.</div>
+    </details>
+    <details class="sreveal">
+      <summary>Bancos centrales y demanda física <span class="chev">▶</span></summary>
+      <div class="body">En los últimos años, las compras masivas de oro por parte de bancos centrales (diversificando reservas fuera del dólar) han sido un motor de fondo importante: retiran oro físico del mercado y sostienen el precio. Es demanda estructural, lenta y poco sensible al precio, muy distinta de la especulativa.</div>
+    </details>
+    <details class="sreveal">
+      <summary>La plata: mitad refugio, mitad industria <span class="chev">▶</span></summary>
+      <div class="body">Lo que separa a la plata del oro es su pata industrial: más de la mitad de la demanda de plata es para fabricar cosas (sobre todo paneles fotovoltaicos, además de electrónica y contactos). Eso la ata al ciclo económico y a temas como la transición energética, y explica por qué amplifica los movimientos del oro y por qué el ratio oro/plata se mueve.</div>
+    </details>
+
+    <h2 class="sreveal" id="fallos">Por qué casi ningún sistema funciona</h2>
+    <details class="sreveal">
+      <summary>La eficiencia de los mercados <span class="chev">▶</span></summary>
+      <div class="body">La hipótesis del mercado eficiente dice que el precio ya incorpora la información conocida, así que ganar de forma sistemática con información pública es muy difícil. No es perfecta (existen anomalías), pero como punto de partida es brutalmente útil: te obliga a <b>demostrar</b> que tu ventaja es real en vez de darla por hecha. Casi todo lo que parece ventaja es ruido con suerte.</div>
+    </details>
+    <details class="sreveal">
+      <summary>El sesgo de supervivencia <span class="chev">▶</span></summary>
+      <div class="body">El error más común de los backtests bonitos. Si pruebas una estrategia sobre las empresas que <b>hoy</b> están en el índice, eliges a posteriori a las que sobrevivieron; las que quebraron o salieron ni aparecen. Eso infla los resultados artificialmente. Por eso el KONCORDE aquí se mide en vivo, no hacia atrás.</div>
+    </details>
+    <details class="sreveal">
+      <summary>El sobreajuste (overfitting) <span class="chev">▶</span></summary>
+      <div class="body">Si pruebas suficientes variantes de un modelo, alguna encajará de maravilla en el pasado por pura casualidad, como una llave que solo abre una cerradura concreta. Eso es sobreajuste, y se desvanece en cuanto llegan datos nuevos. La defensa es el walk-forward y mantener los modelos simples y con lógica detrás, no buscar el que mejor "queda" en el gráfico.</div>
+    </details>
+    <details class="sreveal">
+      <summary>El problema de las pruebas múltiples <span class="chev">▶</span></summary>
+      <div class="body">Relacionado: si lanzas 40 estrategias, por azar unas dos darán un p-valor del 5% aunque ninguna sirva. Es el mismo motivo por el que, si haces suficientes análisis, aparecen "correlaciones" absurdas. Lo serio es corregir por el número de pruebas (Sharpe deflactado, reality checks) antes de creerse un resultado. Aquí preferimos pocos modelos con fundamento a muchos a ver cuál suena.</div>
+    </details>
+
+  
+    </section>
+
+    <footer><div>Laboratorio experimental &middot; contenido educativo &middot; no es recomendaci&oacute;n de inversi&oacute;n.</div></footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
