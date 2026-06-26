@@ -357,7 +357,8 @@ function render(exp){
 
   if(exp.sin_datos){
     app.innerHTML = `<div class="tipo">▸ ${exp.tipo}</div>
-      <div class="empty"><b>Sin datos suficientes todavía</b>${exp.sin_datos_txt || 'El forward-test necesita operaciones cerradas; se irá llenando con el tiempo.'}</div>`;
+      <div class="empty"><b>Sin datos suficientes todavía</b>${exp.sin_datos_txt || 'El forward-test necesita operaciones cerradas; se irá llenando con el tiempo.'}</div>
+      ${(exp.cards&&exp.cards.length)?`<div class="grid" style="margin-top:18px">${exp.cards.map(c=>`<div class="card"><div class="k">${c.k}</div><div class="v ${c.tono||''}">${c.v}</div></div>`).join("")}</div>`:''}`;
     document.getElementById('explainer').style.display = 'block';
     return;
   }
@@ -456,7 +457,12 @@ function drawChart(exp){
         tooltip:{callbacks:{label:c=>c.dataset.label==='base'?null:'  '+c.dataset.label+': '+c.parsed.y.toFixed(2)+unidad, title:i=>i[0].label}}
       },
       scales:{
-        x:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#5c6775', maxTicksLimit:6, font:{family:'JetBrains Mono'}}},
+        x:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#5c6775', font:{family:'JetBrains Mono'}, autoSkip:false, maxRotation:0,
+            callback:function(value,index){
+              const n=this.chart.data.labels.length;
+              const keep=new Set([0, Math.round(n*0.2), Math.round(n*0.4), Math.round(n*0.6), Math.round(n*0.8), n-1]);
+              return keep.has(index)? this.getLabelForValue(value) : '';
+            }}},
         y:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#5c6775', font:{family:'JetBrains Mono'}, callback:v=>v+unidad}}
       }
     }

@@ -148,10 +148,19 @@ def evaluar_koncorde(csv_path=LOG_CSV, sintetico=False):
     }
 
     if len(cerradas) < 3:
-        base.update({"sin_datos": True,
-                     "sin_datos_txt": (f"El forward-test lleva {len(cerradas)} operaciones "
-                                       "cerradas. Necesita unas cuantas más para un veredicto; "
-                                       "se irá llenando solo con cada señal.")})
+        base.update({
+            "sin_datos": True,
+            "sin_datos_txt": (
+                f"El forward-test tiene {n_open} señal(es) en observación y "
+                f"{len(cerradas)} operación(es) cerrada(s). Cada señal se cierra a las "
+                f"20 sesiones de registrarse; el veredicto aparecerá cuando se cierren "
+                f"unas cuantas. Señales totales registradas: {n_sen}."),
+            "cards": [
+                {"k": "En observación", "v": str(n_open), "tono": ""},
+                {"k": "Operaciones cerradas", "v": str(len(cerradas)), "tono": ""},
+                {"k": "Señales totales", "v": str(n_sen), "tono": ""},
+            ],
+        })
         return base
 
     rets = [c[1] for c in cerradas]
