@@ -27,15 +27,18 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Escanear S&P 500 y publicar en Telegram
+        continue-on-error: true
         run: python escaner_senales_telegram.py --telegram --sin-modelo
 
       - name: Señal de plata (reversión del par oro-plata)
+        continue-on-error: true
         run: python senal_plata.py --telegram
 
       - name: Guardar registros (forward-test)
+        if: always()
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add senales_log.csv senal_plata_log.csv tweets_hoy.txt || true
           git commit -m "Senales del dia (KONCORDE + plata)" || echo "Sin cambios"
-          git push
+          git push || echo "Nada que subir"
