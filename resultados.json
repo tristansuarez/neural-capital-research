@@ -1,5 +1,5 @@
 {
-  "generado": "2026-06-26 08:54 UTC",
+  "generado": "2026-06-26 08:56 UTC",
   "sintetico": false,
   "aviso": "Laboratorio de experimentacion de modelos. NO es recomendacion de inversion. Todas las metricas son fuera de muestra (walk-forward) y netas de costes. Un Sharpe con p-valor alto NO es distinguible del azar.",
   "experimentos": [
@@ -4145,11 +4145,11 @@
       "modelo": "koncorde_v3",
       "descripcion": "Señal KONCORDE V3 (Blai5 + régimen de Fosback) medida en vivo, sin sesgo de supervivencia.",
       "sin_datos": true,
-      "sin_datos_txt": "El forward-test tiene 0 señal(es) en observación y 0 operación(es) cerrada(s). Cada posición se cierra cuando el indicador da señal de venta (el marrón cruza su media a la baja); el veredicto aparecerá cuando se cierren unas cuantas. Señales totales registradas: 0.",
+      "sin_datos_txt": "El forward-test tiene 20 señal(es) en observación y 0 operación(es) cerrada(s). Cada posición se cierra cuando el indicador da señal de venta (el marrón cruza su media a la baja); el veredicto aparecerá cuando se cierren unas cuantas. Señales totales registradas: 20.",
       "cards": [
         {
           "k": "En observación",
-          "v": "0",
+          "v": "20",
           "tono": ""
         },
         {
@@ -4159,11 +4159,192 @@
         },
         {
           "k": "Señales totales",
-          "v": "0",
+          "v": "20",
           "tono": ""
         }
       ],
-      "operaciones": [],
+      "operaciones": [
+        {
+          "ticker": "UDR",
+          "fecha": "2026-06-25",
+          "precio": 39.1,
+          "estado": "en observación",
+          "salida": null,
+          "fecha_salida": null,
+          "retorno": null
+        },
+        {
+          "ticker": "AMAT",
+          "fecha": "2026-06-25",
+          "precio": 668.0,
+          "estado": "en observación",
+          "salida": null,
+          "fecha_salida": null,
+          "retorno": null
+        },
+        {
+          "ticker": "SNDK",
+          "fecha": "2026-06-25",
+          "precio": 2335.0,
+          "estado": "en observación",
+          "salida": null,
+          "fecha_salida": null,
+          "retorno": null
+        },
+        {
+          "ticker": "KDP",
+          "fecha": "2026-06-25",
+          "precio": 32.52,
+          "estado": "en observación",
+          "salida": null,
+          "fecha_salida": null,
+          "retorno": null
+        },
+        {
+          "ticker": "MU",
+          "fecha": "2026-06-25",
+          "precio": 1213.5601,
+          "estado": "en observación",
+          "salida": null,
+          "fecha_salida": null,
+          "retorno": null
+        },
+        {
+          "ticker": "FTV",
+          "fecha": "2026-06-25",
+          "precio": 61.73,
+          "estado": "en observación",
+          "salida": null,
+          "fecha_salida": null,
+          "retorno": null
+        },
+        {
+          "ticker": "IEX",
+          "fecha": "2026-06-25",
+          "precio": 228.07,
+          "estado": "en observación",
+          "salida": null,
+          "fecha_salida": null,
+          "retorno": null
+        },
+        {
+          "ticker": "KHC",
+          "fecha": "2026-06-25",
+          "precio": 23.47,
+          "estado": "en observación",
+          "salida": null,
+          "fecha_salida": null,
+          "retorno": null
+        },
+        {
+          "ticker": "LRCX",
+          "fecha": "2026-06-25",
+          "precio": 401.82,
+          "estado": "en observación",
+          "salida": null,
+          "fecha_salida": null,
+          "retorno": null
+        },
+        {
+          "ticker": "ETN",
+          "fecha": "2026-06-25",
+          "precio": 419.87,
+          "estado": "en observación",
+          "salida": null,
+          "fecha_salida": null,
+          "retorno": null
+        },
+        {
+          "ticker": "PCAR",
+          "fecha": "2026-06-25",
+          "precio": 121.68,
+          "estado": "en observación",
+          "salida": null,
+          "fecha_salida": null,
+          "retorno": null
+        },
+        {
+          "ticker": "FLEX",
+          "fecha": "2026-06-25",
+          "precio": 161.28,
+          "estado": "en observación",
+          "salida": null,
+          "fecha_salida": null,
+          "retorno": null
+        },
+        {
+          "ticker": "CPT",
+          "fecha": "2026-06-25",
+          "precio": 113.59,
+          "estado": "en observación",
+          "salida": null,
+          "fecha_salida": null,
+          "retorno": null
+        },
+        {
+          "ticker": "ROK",
+          "fecha": "2026-06-25",
+          "precio": 479.39,
+          "estado": "en observación",
+          "salida": null,
+          "fecha_salida": null,
+          "retorno": null
+        },
+        {
+          "ticker": "COHR",
+          "fecha": "2026-06-25",
+          "precio": 407.25,
+          "estado": "en observación",
+          "salida": null,
+          "fecha_salida": null,
+          "retorno": null
+        },
+        {
+          "ticker": "CNC",
+          "fecha": "2026-06-25",
+          "precio": 64.77,
+          "estado": "en observación",
+          "salida": null,
+          "fecha_salida": null,
+          "retorno": null
+        },
+        {
+          "ticker": "JCI",
+          "fecha": "2026-06-25",
+          "precio": 145.49,
+          "estado": "en observación",
+          "salida": null,
+          "fecha_salida": null,
+          "retorno": null
+        },
+        {
+          "ticker": "PSA",
+          "fecha": "2026-06-25",
+          "precio": 320.74,
+          "estado": "en observación",
+          "salida": null,
+          "fecha_salida": null,
+          "retorno": null
+        },
+        {
+          "ticker": "KEYS",
+          "fecha": "2026-06-25",
+          "precio": 360.06,
+          "estado": "en observación",
+          "salida": null,
+          "fecha_salida": null,
+          "retorno": null
+        },
+        {
+          "ticker": "TXN",
+          "fecha": "2026-06-25",
+          "precio": 311.81,
+          "estado": "en observación",
+          "salida": null,
+          "fecha_salida": null,
+          "retorno": null
+        }
+      ],
       "op_cols": [
         {
           "k": "fecha",
