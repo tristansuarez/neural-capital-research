@@ -34,15 +34,22 @@ jobs:
         continue-on-error: true
         run: python senal_plata.py --telegram
 
+      - name: Avisos de venta KONCORDE (indicador gira a la baja)
+        continue-on-error: true
+        run: python senal_ventas.py --telegram
+
       - name: Guardar registros (forward-test)
         if: always()
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add senales_log.csv senal_plata_log.csv tweets_hoy.txt || true
+          git add senales_log.csv ventas_log.csv senal_plata_log.csv tweets_hoy.txt || true
           git commit -m "Senales del dia (KONCORDE + plata)" || { echo "Sin cambios"; exit 0; }
           for i in 1 2 3 4 5; do
-            git pull --rebase origin main && git push && exit 0
+            git merge --abort 2>/dev/null || true
+            git fetch origin main
+            git merge -X ours --no-edit origin/main || true
+            git push && { echo "Publicado"; exit 0; }
             echo "Conflicto de carrera, reintento $i..."; sleep 5
           done
           echo "No se pudo publicar tras varios intentos"; exit 1
