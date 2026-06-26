@@ -31,6 +31,9 @@ NAIVE_WIN = 21          # ventana del baseline ingenuo (vol. reciente)
 REFIT_GARCH = 63        # reajustar el GARCH cada ~trimestre (estable, mas rapido)
 ACTIVO = "oro"
 
+HORIZONTES_G = [1, 5, 10, 21, 63]
+LABEL_H = {1: "1 día", 5: "1 sem", 10: "2 sem", 21: "1 mes", 63: "3 meses"}
+
 
 def _retornos(sintetico=False, activo=ACTIVO):
     serie = (data.cargar_sinteticos() if sintetico else data.cargar_panel([activo]))[activo]
@@ -79,6 +82,8 @@ def evaluar_garch(sintetico=False):
         return _sin_datos("No hay suficiente histórico para evaluar el GARCH todavía.")
 
     fc_g, fc_n, rv_real, ev_idx = [], [], [], []
+    HZ_g = {h: [] for h in HORIZONTES_G}   # QLIKE del GARCH por horizonte
+    HZ_n = {h: [] for h in HORIZONTES_G}   # QLIKE del ingenuo por horizonte
     omega = alpha = beta = mu = sigma2 = last_r = None
     alpha_beta = None
     t = train
@@ -104,6 +109,18 @@ def evaluar_garch(sintetico=False):
         n_var = float(np.var(win)) if len(win) else f_var       # baseline ingenuo
         rv = float((vals[t] - mu) ** 2)                          # varianza realizada del día
         fc_g.append(f_var); fc_n.append(n_var); rv_real.append(rv); ev_idx.append(t)
+        # multi-horizonte: previsión de la varianza MEDIA de los próximos h días
+        ab = alpha + beta
+        lr = omega / (1.0 - ab) if 0 < ab < 1 else f_var
+        for hh in HORIZONTES_G:
+            if t + hh > n:
+                continue
+            geom = (1.0 - ab ** hh) / (1.0 - ab) if 0 < ab < 1 else float(hh)
+            fc_avg = lr + (f_var - lr) * (geom / hh)               # varianza media prevista
+            real_avg = float(np.mean((vals[t:t + hh] - mu) ** 2))  # varianza media realizada
+            naive_avg = float(np.var(vals[t - NAIVE_WIN:t]))       # vol reciente (21d): mismo ingenuo a todo plazo
+            HZ_g[hh].append(_qlike(real_avg, fc_avg))
+            HZ_n[hh].append(_qlike(real_avg, naive_avg))
         # actualizar el filtro para mañana
         sigma2 = f_var
         last_r = vals[t]
@@ -163,4 +180,34 @@ def evaluar_garch(sintetico=False):
         "curva_sub": ("La línea dorada es la volatilidad que el modelo anticipa para cada día; "
                       "la azul, la que de verdad ocurrió. Cuanto más se siguen, mejor anticipa "
                       "las tormentas. La línea de puntos es la volatilidad media."),
+        "horizonte": _horizonte_garch(HZ_g, HZ_n, alpha_beta),
+    }
+
+
+def _horizonte_garch(HZ_g, HZ_n, alpha_beta):
+    """Mejora del error de previsión vs el ingenuo, por horizonte (1d..3 meses)."""
+    puntos = []
+    for hh in HORIZONTES_G:
+        qg, qn = np.array(HZ_g[hh]), np.array(HZ_n[hh])
+        if len(qg) < 50 or qn.mean() == 0:
+            continue
+        mej = (qn.mean() - qg.mean()) / qn.mean() * 100.0
+        b = _bootstrap_mejora(qn, qg, bloque=max(21, hh))
+        puntos.append({"h": hh, "etiqueta": LABEL_H[hh], "valor": round(float(mej), 1),
+                       "ic_lo": b["ic90"][0], "ic_hi": b["ic90"][1], "n": int(len(qg))})
+    if not puntos:
+        return None
+    crece = puntos[-1]["valor"] > puntos[0]["valor"]
+    tendencia = "crece" if crece else "se reduce"
+    return {
+        "titulo": "Habilidad del GARCH según el horizonte",
+        "sub": ("Mejora del error de previsión frente al modelo ingenuo (la volatilidad reciente), "
+                "para la volatilidad MEDIA de los próximos N días. Si la barra no toca el cero, el "
+                "GARCH aún aporta a ese plazo."),
+        "unidad": "%",
+        "puntos": puntos,
+        "nota": (f"El baseline ingenuo usa la volatilidad reciente y se queda plano; el GARCH, en "
+                 f"cambio, revierte hacia la volatilidad media de largo plazo. Por eso su ventaja "
+                 f"relativa {tendencia} con el plazo (persistencia {alpha_beta:.2f}): la curva "
+                 f"muestra hasta dónde aporta el modelo."),
     }

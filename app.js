@@ -52,6 +52,7 @@ function observeReveals(){
 
 // ---------- Render de un modelo ----------
 let chart = null;
+let hzChart = null;
 function clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
 
 function render(exp){
@@ -63,7 +64,9 @@ function render(exp){
     app.innerHTML = titulo + `<div class="tipo">▸ ${exp.tipo}</div>
       <div class="empty"><b>Sin datos suficientes todavía</b>${exp.sin_datos_txt || 'El forward-test necesita operaciones cerradas; se irá llenando con el tiempo.'}</div>
       ${(exp.cards&&exp.cards.length)?`<div class="grid" style="margin-top:18px">${exp.cards.map(c=>`<div class="card"><div class="k">${c.k}</div><div class="v ${c.tono||''}">${c.v}</div></div>`).join("")}</div>`:''}
-      ${opsTable(exp)}`;
+      ${opsTable(exp)}
+      ${horizonteHTML(exp)}`;
+    drawHorizonte(exp);
     requestAnimationFrame(()=>document.querySelectorAll('.reveal').forEach(e=>e.classList.add('in')));
     return;
   }
@@ -113,9 +116,11 @@ function render(exp){
    </div>
 
    ${opsTable(exp)}
+   ${horizonteHTML(exp)}
   `;
 
   drawChart(exp);
+  drawHorizonte(exp);
   requestAnimationFrame(()=>document.querySelectorAll('.reveal').forEach(e=>e.classList.add('in')));
 }
 
@@ -193,6 +198,69 @@ function drawChart(exp){
               return keep.has(index)? this.getLabelForValue(value) : '';
             }}},
         y:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#5c6775', font:{family:'JetBrains Mono'}, callback:v=>v+unidad}}
+      }
+    }
+  });
+}
+
+// ---------- Ventaja según el horizonte ----------
+function horizonteHTML(exp){
+  if(exp.horizonte_na){
+    return `<div class="chartbox reveal" id="horizonte"><h3>Ventaja según el horizonte</h3>
+      <div class="ch-sub">${exp.horizonte_na}</div></div>`;
+  }
+  const hz = exp.horizonte;
+  if(!hz || !hz.puntos || !hz.puntos.length) return '';
+  const u = hz.unidad || '%';
+  const rows = hz.puntos.map(p=>{
+    const sig = (p.ic_lo > 0) || (p.ic_hi < 0);
+    const tag = sig ? '<b>✓ distinguible</b>' : '<span class="est-obs">— abraza el 0</span>';
+    return `<tr><td>${p.etiqueta}</td><td class="${p.valor>=0?'pos':'neg'}">${p.valor>=0?'+':''}${p.valor}${u}</td>
+      <td class="est-obs">[${p.ic_lo}, ${p.ic_hi}]</td><td>${tag}</td><td class="est-obs">${p.n}</td></tr>`;
+  }).join('');
+  return `<div class="chartbox reveal" id="horizonte">
+     <h3>${hz.titulo}</h3>
+     <div class="ch-sub">${hz.sub}</div>
+     <div class="canvas-h"><canvas id="hz"></canvas></div>
+     <div class="ops-scroll" style="margin-top:14px"><table class="ops">
+       <thead><tr><th>Horizonte</th><th>Ventaja media</th><th>IC 90%</th><th>Veredicto</th><th>n</th></tr></thead>
+       <tbody>${rows}</tbody></table></div>
+     ${hz.nota?`<div class="ch-sub" style="margin-top:14px">${hz.nota}</div>`:''}
+   </div>`;
+}
+
+function drawHorizonte(exp){
+  const hz = exp.horizonte;
+  if(hzChart){ hzChart.destroy(); hzChart = null; }
+  if(!hz || !hz.puntos || !hz.puntos.length) return;
+  const ctx = document.getElementById('hz');
+  if(!ctx) return;
+  const labels = hz.puntos.map(p=>p.etiqueta);
+  const central = hz.puntos.map(p=>p.valor);
+  const hi = hz.puntos.map(p=>p.ic_hi);
+  const lo = hz.puntos.map(p=>p.ic_lo);
+  const u = hz.unidad || '%';
+  hzChart = new Chart(ctx,{
+    type:'line',
+    data:{labels, datasets:[
+      {label:'IC sup', data:hi, borderColor:'transparent', pointRadius:0, fill:'+1',
+       backgroundColor:'rgba(232,178,58,.13)'},
+      {label:'IC inf', data:lo, borderColor:'transparent', pointRadius:0, fill:false},
+      {label:'Ventaja media', data:central, borderColor:'#e8b23a', borderWidth:2.5,
+       pointRadius:4, pointBackgroundColor:'#e8b23a', tension:.1},
+      {label:'cero', data:labels.map(()=>0), borderColor:'#5c6775', borderWidth:1,
+       borderDash:[5,5], pointRadius:0}
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:c=>['IC sup','IC inf','cero'].includes(c.dataset.label)?null:
+          '  '+c.dataset.label+': '+(c.parsed.y>=0?'+':'')+c.parsed.y.toFixed(2)+u, title:i=>'Horizonte: '+i[0].label}}
+      },
+      scales:{
+        x:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#8a97a6', font:{family:'JetBrains Mono'}}},
+        y:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#5c6775', font:{family:'JetBrains Mono'}, callback:v=>v+u}}
       }
     }
   });

@@ -18,6 +18,7 @@ import config
 import data
 import koncorde_forward
 import garch_forward
+import horizonte
 from validation import evaluate
 from models import BuyAndHold, GoldSilverPairs
 
@@ -73,6 +74,14 @@ def main(sintetico: bool = False):
             ops, cols = koncorde_forward.operaciones_plata()
             informe["operaciones"] = ops
             informe["op_cols"] = cols
+            hz = horizonte.horizonte_par(panel)
+            if hz:
+                informe["horizonte"] = hz
+        if exp["id"] in ("oro_bh", "plata_bh"):
+            informe["horizonte_na"] = (
+                "En un comprar-y-mantener no hay señal ni entrada condicional: se está siempre "
+                "invertido. El «horizonte» aquí sería solo cuánto tiempo aguantas, y más tiempo = "
+                "más retorno acumulado (beta del mercado), sin nada condicional que medir.")
         salida.append(informe)
         h = informe["headline"]; s = informe["significancia"]
         print(f"   {h['etiqueta'][:22]} = {h['valor']}  p={s['p_valor']}  ic90={s['ic90']}", flush=True)
@@ -80,6 +89,9 @@ def main(sintetico: bool = False):
     # KONCORDE entra como un experimento mas (su forward-test en vivo).
     print("-> KONCORDE (S&P 500) ...", flush=True)
     kon = koncorde_forward.evaluar_koncorde(sintetico=sintetico)
+    hzk = horizonte.horizonte_koncorde(sintetico=sintetico)
+    if hzk:
+        kon["horizonte"] = hzk
     salida.append(kon)
     if kon.get("sin_datos"):
         print("   (aun sin operaciones cerradas suficientes)", flush=True)
