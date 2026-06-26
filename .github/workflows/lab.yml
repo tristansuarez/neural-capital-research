@@ -33,5 +33,9 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add resultados.json data_cache/*.csv || true
-          git commit -m "Actualizar resultados del laboratorio" || echo "Sin cambios"
-          git push
+          git commit -m "Actualizar resultados del laboratorio" || { echo "Sin cambios"; exit 0; }
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && exit 0
+            echo "Conflicto de carrera, reintento $i..."; sleep 5
+          done
+          echo "No se pudo publicar tras varios intentos"; exit 1
