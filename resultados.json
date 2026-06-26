@@ -1,5 +1,5 @@
 {
-  "generado": "2026-06-26 07:18 UTC",
+  "generado": "2026-06-26 07:26 UTC",
   "sintetico": false,
   "aviso": "Laboratorio de experimentacion de modelos. NO es recomendacion de inversion. Todas las metricas son fuera de muestra (walk-forward) y netas de costes. Un Sharpe con p-valor alto NO es distinguible del azar.",
   "experimentos": [
@@ -4122,7 +4122,24 @@
       "modelo": "koncorde_v3",
       "descripcion": "Señal KONCORDE V3 (Blai5 + régimen de Fosback) medida en vivo, sin sesgo de supervivencia.",
       "sin_datos": true,
-      "sin_datos_txt": "El forward-test lleva 0 operaciones cerradas. Necesita unas cuantas más para un veredicto; se irá llenando solo con cada señal."
+      "sin_datos_txt": "El forward-test tiene 0 señal(es) en observación y 0 operación(es) cerrada(s). Cada señal se cierra a las 20 sesiones de registrarse; el veredicto aparecerá cuando se cierren unas cuantas. Señales totales registradas: 20.",
+      "cards": [
+        {
+          "k": "En observación",
+          "v": "0",
+          "tono": ""
+        },
+        {
+          "k": "Operaciones cerradas",
+          "v": "0",
+          "tono": ""
+        },
+        {
+          "k": "Señales totales",
+          "v": "20",
+          "tono": ""
+        }
+      ]
     }
   ]
 }
