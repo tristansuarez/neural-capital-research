@@ -11,10 +11,11 @@ forward-test registra las senales en el momento, sin esa trampa. Por eso es la
 forma honesta de medir el KONCORDE; su contrapartida es que el tamano muestral
 crece despacio, con el tiempo.
 
-Regla de cada operacion (igual que el generar_web original):
-  compra a la apertura del dia siguiente a la senal, vende a 20 sesiones, con
-  0.10% de comision; se compara con meter el mismo dinero en el S&P 500 en las
-  MISMAS fechas, para aislar la senal del mercado.
+Regla de cada operacion (operando el KONCORDE como dicta el indicador):
+  compra a la apertura del dia siguiente a la senal de COMPRA y vende a la
+  apertura siguiente a la senal de VENTA (el marron cruza su media a la baja),
+  con 0.10% de comision; se compara con meter el mismo dinero en el S&P 500 en
+  las MISMAS fechas, para aislar la senal del mercado.
 """
 
 from __future__ import annotations
@@ -54,7 +55,11 @@ def _precios(ticker, desde):
 
 
 def _forward_test_real(csv_path):
-    """Replica la logica del forward-test sobre el CSV real. Devuelve trades, curva, totales y operaciones."""
+    """Forward-test del KONCORDE operado COMO DICTA EL INDICADOR: compra en la
+    apertura siguiente a la señal de compra y vende en la apertura siguiente a la
+    señal de venta (el marrón cruza su media a la baja). Devuelve trades, curva,
+    totales y la lista de operaciones."""
+    import escaner_senales_telegram as esc   # reutiliza el cálculo del indicador
     filas = list(csv.DictReader(open(csv_path, encoding="utf-8")))
     señales, vistas = [], set()
     for f in filas:
@@ -71,7 +76,8 @@ def _forward_test_real(csv_path):
         return [], ([], []), 0, 0, []
 
     fmin = min(s["fecha"] for s in señales)
-    desde = (datetime.strptime(fmin, "%Y-%m-%d") - timedelta(days=7)).strftime("%Y-%m-%d")
+    # margen amplio hacia atrás para "calentar" el indicador (ventanas de hasta 90 sesiones)
+    desde = (datetime.strptime(fmin, "%Y-%m-%d") - timedelta(days=420)).strftime("%Y-%m-%d")
     idx = _precios("^GSPC", desde)
     idx_open = idx["Open"] if idx is not None else None
 
@@ -81,16 +87,26 @@ def _forward_test_real(csv_path):
         op = {"ticker": tk, "fecha": s["fecha"], "precio": s["precio"],
               "estado": "en observación", "salida": None, "fecha_salida": None, "retorno": None}
         if tk not in cache:
-            cache[tk] = _precios(tk, desde)
-        df = cache[tk]
-        if df is not None:
+            df = _precios(tk, desde)
+            cache[tk] = esc.koncorde(df) if df is not None else None
+        kdf = cache[tk]
+        if kdf is not None:
             try:
-                fechas = df.index
+                fechas = kdf.index
+                marron = kdf["marron"].values
+                media = kdf["media"].values
                 pos = fechas.searchsorted(pd.Timestamp(s["fecha"]) + timedelta(days=1))
-                if pos < len(df):
-                    entrada = float(df["Open"].iloc[pos]); fent = fechas[pos]
-                    if pos + HORIZONTE < len(df):
-                        salida = float(df["Open"].iloc[pos + HORIZONTE]); fsal = fechas[pos + HORIZONTE]
+                if pos < len(kdf):
+                    entrada = float(kdf["Open"].iloc[pos]); fent = fechas[pos]
+                    # primera señal de VENTA tras la entrada: marrón cruza su media a la baja
+                    sell = None
+                    for t in range(pos + 1, len(kdf)):
+                        a, b, pa, pb = marron[t], media[t], marron[t-1], media[t-1]
+                        if np.isfinite(a) and np.isfinite(b) and np.isfinite(pa) and np.isfinite(pb):
+                            if a < b and pa >= pb:
+                                sell = t; break
+                    if sell is not None and sell + 1 < len(kdf):   # se ejecuta la salida a la apertura siguiente
+                        salida = float(kdf["Open"].iloc[sell + 1]); fsal = fechas[sell + 1]
                         ret = (salida / entrada - 1.0) * 100 - COSTE
                         ret_idx = None
                         if idx_open is not None:
@@ -101,13 +117,14 @@ def _forward_test_real(csv_path):
                         cerradas.append((fsal, ret, ret_idx))
                         op.update({"estado": "cerrada", "salida": round(salida, 2),
                                    "fecha_salida": fsal.strftime("%Y-%m-%d"), "retorno": round(ret, 2)})
+                    # si no hay señal de venta todavía, sigue "en observación"
             except Exception:
                 pass
         ops.append(op)
 
     cerradas.sort(key=lambda x: x[0])
     ops.sort(key=lambda o: o["fecha"], reverse=True)
-    n_open = len(señales) - len(cerradas)   # todo lo que no esta cerrado, esta en observacion
+    n_open = len(señales) - len(cerradas)   # todo lo no cerrado sigue en observación
     return cerradas, _curvas(cerradas), len(señales), n_open, ops
 
 
@@ -141,6 +158,7 @@ def _curvas(cerradas):
 def _op_cols_koncorde():
     return [{"k": "fecha", "t": "Señal"}, {"k": "ticker", "t": "Valor"},
             {"k": "precio", "t": "Cierre señal"}, {"k": "estado", "t": "Estado"},
+            {"k": "fecha_salida", "t": "Salida"},
             {"k": "retorno", "t": "Retorno", "sufijo": "%"}]
 
 
@@ -218,7 +236,7 @@ def evaluar_koncorde(csv_path=LOG_CSV, sintetico=False):
             {"k": "En observación", "v": str(n_open), "tono": ""},
             {"k": "Señales totales", "v": str(n_sen), "tono": ""},
         ],
-        "diagnostico": {"horizonte": "20 sesiones", "coste": "0.1%"},
+        "diagnostico": {"salida": "marrón cruza su media a la baja", "coste": "0.1%"},
         "curva": curva,
         "curva2": {"nombre": "S&P 500", "datos": curva2},
         "curva_unidad": "€", "curva_base": 0.0,

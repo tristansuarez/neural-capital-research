@@ -139,7 +139,7 @@ function opsTable(exp){
   const titulo = par ? 'Operaciones en vivo · par oro-plata' : 'Operaciones · forward-test del S&P 500';
   const sub = par
     ? 'Cada fila es una señal del par, con su pata de plata y su pata de oro. Solo dispara cuando el par está cointegrado y el ratio se desvía ≥2σ.'
-    : 'Cada señal (decidida al cierre) compra en la apertura siguiente y vende a las 20 sesiones. "En observación" = aún sin cerrar.';
+    : 'Cada señal (decidida al cierre) compra en la apertura siguiente y vende cuando el indicador gira a la baja (su propia señal de venta). "En observación" = aún sin cerrar.';
   return `<div class="opsbox reveal" id="operaciones"><h3>${titulo}</h3><div class="ch-sub">${sub}</div>
      <div class="ops-scroll"><table class="ops"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div></div>`;
 }
@@ -147,7 +147,7 @@ function opsTable(exp){
 function diagChips(d){
   const lab = {cointegrated:'Cointegrado', coint_pvalue:'p-valor cointegración',
     beta:'Ratio de cobertura β', half_life:'Vida media reversión',
-    horizonte:'Horizonte', coste:'Coste por operación', operaciones_abiertas:'En observación'};
+    horizonte:'Horizonte', salida:'Salida', coste:'Coste por operación', operaciones_abiertas:'En observación'};
   let out = "";
   for(const k in d){
     let v = d[k];
