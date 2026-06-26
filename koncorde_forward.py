@@ -54,7 +54,7 @@ def _precios(ticker, desde):
 
 
 def _forward_test_real(csv_path):
-    """Replica la logica del forward-test sobre el CSV real. Devuelve trades+curva."""
+    """Replica la logica del forward-test sobre el CSV real. Devuelve trades, curva, totales y operaciones."""
     filas = list(csv.DictReader(open(csv_path, encoding="utf-8")))
     señales, vistas = [], set()
     for f in filas:
@@ -62,46 +62,53 @@ def _forward_test_real(csv_path):
         if clave in vistas or not all(clave):
             continue
         vistas.add(clave)
-        señales.append({"ticker": f["ticker"], "fecha": f["fecha"]})
+        try:
+            precio = float(f.get("precio") or 0) or None
+        except Exception:
+            precio = None
+        señales.append({"ticker": f["ticker"], "fecha": f["fecha"], "precio": precio})
     if not señales:
-        return [], [], 0, 0
+        return [], ([], []), 0, 0, []
 
     fmin = min(s["fecha"] for s in señales)
     desde = (datetime.strptime(fmin, "%Y-%m-%d") - timedelta(days=7)).strftime("%Y-%m-%d")
     idx = _precios("^GSPC", desde)
     idx_open = idx["Open"] if idx is not None else None
 
-    cache, cerradas, n_abiertas = {}, [], 0
+    cache, cerradas, ops = {}, [], []
     for s in señales:
         tk = s["ticker"]
+        op = {"ticker": tk, "fecha": s["fecha"], "precio": s["precio"],
+              "estado": "en observación", "salida": None, "fecha_salida": None, "retorno": None}
         if tk not in cache:
             cache[tk] = _precios(tk, desde)
         df = cache[tk]
-        if df is None:
-            continue
-        try:
-            fechas = df.index
-            pos = fechas.searchsorted(pd.Timestamp(s["fecha"]) + timedelta(days=1))
-            if pos >= len(df):
-                continue
-            entrada = float(df["Open"].iloc[pos]); fent = fechas[pos]
-            if pos + HORIZONTE < len(df):
-                salida = float(df["Open"].iloc[pos + HORIZONTE]); fsal = fechas[pos + HORIZONTE]
-                ret = (salida / entrada - 1.0) * 100 - COSTE
-                ret_idx = None
-                if idx_open is not None:
-                    try:
-                        ret_idx = (float(idx_open.asof(fsal)) / float(idx_open.asof(fent)) - 1.0) * 100
-                    except Exception:
+        if df is not None:
+            try:
+                fechas = df.index
+                pos = fechas.searchsorted(pd.Timestamp(s["fecha"]) + timedelta(days=1))
+                if pos < len(df):
+                    entrada = float(df["Open"].iloc[pos]); fent = fechas[pos]
+                    if pos + HORIZONTE < len(df):
+                        salida = float(df["Open"].iloc[pos + HORIZONTE]); fsal = fechas[pos + HORIZONTE]
+                        ret = (salida / entrada - 1.0) * 100 - COSTE
                         ret_idx = None
-                cerradas.append((fsal, ret, ret_idx))
-            else:
-                n_abiertas += 1
-        except Exception:
-            pass
+                        if idx_open is not None:
+                            try:
+                                ret_idx = (float(idx_open.asof(fsal)) / float(idx_open.asof(fent)) - 1.0) * 100
+                            except Exception:
+                                ret_idx = None
+                        cerradas.append((fsal, ret, ret_idx))
+                        op.update({"estado": "cerrada", "salida": round(salida, 2),
+                                   "fecha_salida": fsal.strftime("%Y-%m-%d"), "retorno": round(ret, 2)})
+            except Exception:
+                pass
+        ops.append(op)
 
     cerradas.sort(key=lambda x: x[0])
-    return cerradas, _curvas(cerradas), len(señales), n_abiertas
+    ops.sort(key=lambda o: o["fecha"], reverse=True)
+    n_open = len(señales) - len(cerradas)   # todo lo que no esta cerrado, esta en observacion
+    return cerradas, _curvas(cerradas), len(señales), n_open, ops
 
 
 def _forward_test_sintetico(seed=3):
@@ -114,7 +121,7 @@ def _forward_test_sintetico(seed=3):
         ret_idx = float(rng.normal(0.5, 3.0))
         ret = ret_idx + float(rng.normal(-0.1, 4.0))  # sin ventaja real sobre el indice
         cerradas.append((pd.Timestamp(fsal), ret, ret_idx))
-    return cerradas, _curvas(cerradas), 31, 5
+    return cerradas, _curvas(cerradas), 31, 5, []
 
 
 def _curvas(cerradas):
@@ -131,13 +138,37 @@ def _curvas(cerradas):
     return curva, curva2
 
 
+def _op_cols_koncorde():
+    return [{"k": "fecha", "t": "Señal"}, {"k": "ticker", "t": "Valor"},
+            {"k": "precio", "t": "Cierre señal"}, {"k": "estado", "t": "Estado"},
+            {"k": "retorno", "t": "Retorno", "sufijo": "%"}]
+
+
+def operaciones_plata(csv_path="senal_plata_log.csv"):
+    """Lee el log de la señal de plata (par oro-plata en vivo). Vacío si aún no ha disparado."""
+    cols = [{"k": "fecha", "t": "Fecha"}, {"k": "z", "t": "z (σ)"},
+            {"k": "accion_plata", "t": "Plata"}, {"k": "accion_oro", "t": "Oro"},
+            {"k": "ratio_oro_plata", "t": "Ratio O/P"}]
+    if not os.path.exists(csv_path):
+        return [], cols
+    ops = []
+    for f in csv.DictReader(open(csv_path, encoding="utf-8")):
+        acc_p = (f.get("accion_plata") or "").upper()
+        acc_o = "VENDER" if "COMPRAR" in acc_p else ("COMPRAR" if "VENDER" in acc_p else "—")
+        ops.append({"fecha": f.get("fecha"), "z": f.get("z"),
+                    "accion_plata": acc_p or "—", "accion_oro": acc_o,
+                    "ratio_oro_plata": f.get("ratio_oro_plata")})
+    ops.sort(key=lambda o: o.get("fecha") or "", reverse=True)
+    return ops, cols
+
+
 def evaluar_koncorde(csv_path=LOG_CSV, sintetico=False):
     if sintetico:
-        cerradas, (curva, curva2), n_sen, n_open = _forward_test_sintetico()
+        cerradas, (curva, curva2), n_sen, n_open, ops = _forward_test_sintetico()
     elif os.path.exists(csv_path):
-        cerradas, (curva, curva2), n_sen, n_open = _forward_test_real(csv_path)
+        cerradas, (curva, curva2), n_sen, n_open, ops = _forward_test_real(csv_path)
     else:
-        cerradas, curva, curva2, n_sen, n_open = [], [], [], 0, 0
+        cerradas, curva, curva2, n_sen, n_open, ops = [], [], [], 0, 0, []
 
     base = {
         "id": "koncorde", "etiqueta": "KONCORDE (S&P 500)",
@@ -160,6 +191,8 @@ def evaluar_koncorde(csv_path=LOG_CSV, sintetico=False):
                 {"k": "Operaciones cerradas", "v": str(len(cerradas)), "tono": ""},
                 {"k": "Señales totales", "v": str(n_sen), "tono": ""},
             ],
+            "operaciones": ops,
+            "op_cols": _op_cols_koncorde(),
         })
         return base
 
@@ -191,5 +224,7 @@ def evaluar_koncorde(csv_path=LOG_CSV, sintetico=False):
         "curva_unidad": "€", "curva_base": 0.0,
         "curva_titulo": "Forward-test: estrategia vs S&P 500",
         "curva_sub": f"Beneficio acumulado en papel ({CAPITAL} € por señal), mismas fechas que el índice.",
+        "operaciones": ops,
+        "op_cols": _op_cols_koncorde(),
     })
     return base

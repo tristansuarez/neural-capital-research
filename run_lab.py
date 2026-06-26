@@ -68,6 +68,10 @@ def main(sintetico: bool = False):
         informe["id"] = exp["id"]
         informe["etiqueta"] = exp["etiqueta"]
         informe["tipo"] = exp["tipo"]
+        if exp["id"] == "par_oro_plata":
+            ops, cols = koncorde_forward.operaciones_plata()
+            informe["operaciones"] = ops
+            informe["op_cols"] = cols
         salida.append(informe)
         h = informe["headline"]; s = informe["significancia"]
         print(f"   {h['etiqueta'][:22]} = {h['valor']}  p={s['p_valor']}  ic90={s['ic90']}", flush=True)

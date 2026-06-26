@@ -143,6 +143,17 @@
   .sreveal{opacity:0; transform:translateY(16px); transition:opacity .55s ease, transform .55s ease}
   .sreveal.in{opacity:1; transform:none}
 
+  .opsbox{margin-top:18px; border:1px solid var(--line); border-radius:18px; padding:22px 24px; background:var(--panel)}
+  .opsbox h3{font-family:'Space Grotesk',sans-serif; font-size:16px; margin:0 0 4px; color:var(--text)}
+  .ops-scroll{max-height:420px; overflow:auto; margin-top:14px; border-radius:10px}
+  table.ops{width:100%; border-collapse:collapse; font-family:'JetBrains Mono',monospace; font-size:12.5px}
+  table.ops th{position:sticky; top:0; background:var(--panel); text-align:left; color:var(--faint); font-weight:500; text-transform:uppercase; letter-spacing:1px; font-size:10px; padding:9px 12px; border-bottom:1px solid var(--line)}
+  table.ops td{padding:9px 12px; border-bottom:1px solid rgba(38,48,61,.55); color:var(--text); white-space:nowrap}
+  table.ops tr:last-child td{border-bottom:none}
+  table.ops td.pos{color:var(--good)} table.ops td.neg{color:var(--bad)}
+  table.ops td.est-obs{color:var(--oro)} table.ops td.est-cerr{color:var(--muted)}
+  table.ops .ops-empty{color:var(--faint); text-align:center; padding:22px 12px}
+
   footer{border-top:1px solid var(--line); margin-top:46px; padding:24px 0 50px; color:var(--faint); font-size:12.5px}
   footer a{color:var(--muted)}
 
@@ -358,8 +369,10 @@ function render(exp){
   if(exp.sin_datos){
     app.innerHTML = `<div class="tipo">▸ ${exp.tipo}</div>
       <div class="empty"><b>Sin datos suficientes todavía</b>${exp.sin_datos_txt || 'El forward-test necesita operaciones cerradas; se irá llenando con el tiempo.'}</div>
-      ${(exp.cards&&exp.cards.length)?`<div class="grid" style="margin-top:18px">${exp.cards.map(c=>`<div class="card"><div class="k">${c.k}</div><div class="v ${c.tono||''}">${c.v}</div></div>`).join("")}</div>`:''}`;
+      ${(exp.cards&&exp.cards.length)?`<div class="grid" style="margin-top:18px">${exp.cards.map(c=>`<div class="card"><div class="k">${c.k}</div><div class="v ${c.tono||''}">${c.v}</div></div>`).join("")}</div>`:''}
+      ${opsTable(exp)}`;
     document.getElementById('explainer').style.display = 'block';
+    requestAnimationFrame(()=>document.querySelectorAll('.reveal').forEach(e=>e.classList.add('in')));
     return;
   }
 
@@ -408,11 +421,38 @@ function render(exp){
      <div class="ch-sub">${exp.curva_sub || 'Crecimiento de 1 unidad invertida según el modelo. La línea base es no hacer nada.'}</div>
      <div class="canvas-h"><canvas id="eq"></canvas></div>
    </div>
+
+   ${opsTable(exp)}
   `;
 
   drawChart(exp);
   document.getElementById('explainer').style.display = 'block';
   requestAnimationFrame(()=>document.querySelectorAll('.reveal').forEach(e=>e.classList.add('in')));
+}
+
+function opsTable(exp){
+  if(!exp.op_cols) return '';
+  const cols = exp.op_cols, ops = exp.operaciones || [];
+  const cell = (o,c)=>{
+    let v = o[c.k]; let cls = '';
+    if(v===null||v===undefined||v==='') return `<td class="est-obs">—</td>`;
+    if(c.k==='retorno'){ const n=parseFloat(v); cls=n>=0?'pos':'neg'; v=(n>=0?'+':'')+v+(c.sufijo||''); }
+    else if(c.k==='estado'){ cls = (''+v).indexOf('cerr')>=0?'est-cerr':'est-obs'; }
+    else if(c.k==='accion_plata'||c.k==='accion_oro'){ cls=(''+v).indexOf('COMPRAR')>=0?'pos':((''+v).indexOf('VENDER')>=0?'neg':''); }
+    else if(c.sufijo){ v = v+c.sufijo; }
+    return `<td class="${cls}">${v}</td>`;
+  };
+  const head = cols.map(c=>`<th>${c.t}</th>`).join('');
+  const body = ops.length
+    ? ops.map(o=>`<tr>${cols.map(c=>cell(o,c)).join('')}</tr>`).join('')
+    : `<tr><td colspan="${cols.length}" class="ops-empty">Aún no hay operaciones registradas. Aparecerán aquí en cuanto el modelo dispare una señal en vivo.</td></tr>`;
+  const par = exp.id==='par_oro_plata';
+  const titulo = par ? 'Operaciones en vivo · par oro-plata' : 'Operaciones · forward-test del S&P 500';
+  const sub = par
+    ? 'Cada fila es una señal del par, con su pata de plata y su pata de oro. Solo dispara cuando el par está cointegrado y el ratio se desvía ≥2σ.'
+    : 'Cada señal (decidida al cierre) compra en la apertura siguiente y vende a las 20 sesiones. "En observación" = aún sin cerrar.';
+  return `<div class="opsbox reveal"><h3>${titulo}</h3><div class="ch-sub">${sub}</div>
+     <div class="ops-scroll"><table class="ops"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div></div>`;
 }
 
 function diagChips(d){
