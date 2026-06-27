@@ -34,6 +34,12 @@ ACTIVO = "oro"
 HORIZONTES_G = [1, 5, 10, 21, 63]
 LABEL_H = {1: "1 día", 5: "1 sem", 10: "2 sem", 21: "1 mes", 63: "3 meses"}
 
+# Estructura de plazos de la PREVISIÓN actual (hasta el máximo plazo útil ~1 año).
+PREV_H = [1, 5, 10, 21, 42, 63, 126, 252]
+LABEL_PREV = {1: "1 día", 5: "1 sem", 10: "2 sem", 21: "1 mes",
+              42: "2 meses", 63: "3 meses", 126: "6 meses", 252: "1 año"}
+SKILL_SET = set(HORIZONTES_G)
+
 
 def _retornos(sintetico=False, activo=ACTIVO):
     serie = (data.cargar_sinteticos() if sintetico else data.cargar_panel([activo]))[activo]
@@ -84,6 +90,7 @@ def evaluar_garch(sintetico=False):
     fc_g, fc_n, rv_real, ev_idx = [], [], [], []
     HZ_g = {h: [] for h in HORIZONTES_G}   # QLIKE del GARCH por horizonte
     HZ_n = {h: [] for h in HORIZONTES_G}   # QLIKE del ingenuo por horizonte
+    RATIO = {h: [] for h in PREV_H}        # vol_real/vol_prevista por horizonte (calibra bandas)
     omega = alpha = beta = mu = sigma2 = last_r = None
     alpha_beta = None
     t = train
@@ -112,15 +119,18 @@ def evaluar_garch(sintetico=False):
         # multi-horizonte: previsión de la varianza MEDIA de los próximos h días
         ab = alpha + beta
         lr = omega / (1.0 - ab) if 0 < ab < 1 else f_var
-        for hh in HORIZONTES_G:
+        for hh in PREV_H:
             if t + hh > n:
                 continue
             geom = (1.0 - ab ** hh) / (1.0 - ab) if 0 < ab < 1 else float(hh)
             fc_avg = lr + (f_var - lr) * (geom / hh)               # varianza media prevista
             real_avg = float(np.mean((vals[t:t + hh] - mu) ** 2))  # varianza media realizada
-            naive_avg = float(np.var(vals[t - NAIVE_WIN:t]))       # vol reciente (21d): mismo ingenuo a todo plazo
-            HZ_g[hh].append(_qlike(real_avg, fc_avg))
-            HZ_n[hh].append(_qlike(real_avg, naive_avg))
+            if fc_avg > 0:
+                RATIO[hh].append(np.sqrt(max(real_avg, 0.0)) / np.sqrt(fc_avg))
+            if hh in SKILL_SET:
+                naive_avg = float(np.var(vals[t - NAIVE_WIN:t]))   # vol reciente (21d): mismo ingenuo a todo plazo
+                HZ_g[hh].append(_qlike(real_avg, fc_avg))
+                HZ_n[hh].append(_qlike(real_avg, naive_avg))
         # actualizar el filtro para mañana
         sigma2 = f_var
         last_r = vals[t]
@@ -181,6 +191,53 @@ def evaluar_garch(sintetico=False):
                       "la azul, la que de verdad ocurrió. Cuanto más se siguen, mejor anticipa "
                       "las tormentas. La línea de puntos es la volatilidad media."),
         "horizonte": _horizonte_garch(HZ_g, HZ_n, alpha_beta),
+        "prevision": _prevision_actual(vals, fechas, RATIO),
+    }
+
+
+def _prevision_actual(vals, fechas, RATIO):
+    """Estructura de plazos de la volatilidad esperada DESDE HOY (1 día..1 año), con banda."""
+    from arch import arch_model
+    try:
+        res = arch_model(vals, mean="Constant", vol="Garch", p=1, q=1,
+                         rescale=False).fit(disp="off", show_warning=False)
+        mu = float(res.params.get("mu", 0.0))
+        omega = float(res.params["omega"])
+        ab = float(res.params["alpha[1]"]) + float(res.params["beta[1]"])
+        f_next = float(res.forecast(horizon=1, reindex=False).variance.values[-1, 0])
+    except Exception:
+        return None
+    lr = omega / (1.0 - ab) if 0 < ab < 1 else f_next      # varianza de largo plazo
+    puntos = []
+    for hh in PREV_H:
+        geom = (1.0 - ab ** hh) / (1.0 - ab) if 0 < ab < 1 else float(hh)
+        avg_var = lr + (f_next - lr) * (geom / hh)
+        vol = float(np.sqrt(max(avg_var, 1e-12)) * ANNUAL)
+        rr = np.array(RATIO.get(hh, []))
+        lo_r, hi_r = (np.percentile(rr, [5, 95]) if len(rr) > 30 else (0.7, 1.4))
+        puntos.append({"h": hh, "etiqueta": LABEL_PREV[hh], "vol": round(vol, 1),
+                       "lo": round(float(vol * lo_r), 1), "hi": round(float(vol * hi_r), 1)})
+    vol_lr = float(np.sqrt(max(lr, 1e-12)) * ANNUAL)
+    vol_1d = puntos[0]["vol"]
+    if vol_1d > vol_lr:
+        regimen = (f"Movido: la volatilidad está por encima de su media (~{vol_lr:.1f}%). "
+                   f"El modelo espera que se vaya calmando hacia ese nivel.")
+    else:
+        regimen = (f"Tranquilo: la volatilidad está por debajo de su media (~{vol_lr:.1f}%). "
+                   f"El modelo espera que repunte hacia ese nivel.")
+    return {
+        "titulo": "Previsión actual de volatilidad del oro",
+        "sub": ("Volatilidad anualizada que el GARCH espera DESDE LA ÚLTIMA SESIÓN, para cada "
+                "horizonte. Es una estimación viva: cambia cada día con los datos nuevos."),
+        "fecha": fechas[-1].strftime("%Y-%m-%d"),
+        "actual": vol_1d,
+        "largo_plazo": round(vol_lr, 1),
+        "regimen": regimen,
+        "unidad": "%",
+        "puntos": puntos,
+        "nota": ("Las bandas reflejan cuánto se ha desviado históricamente la volatilidad real de la "
+                 "prevista a cada plazo (percentiles 5–95). A partir de ~1 año la previsión es ya, en "
+                 "esencia, la volatilidad media de largo plazo: el GARCH no aporta más allá."),
     }
 
 

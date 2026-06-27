@@ -53,6 +53,7 @@ function observeReveals(){
 // ---------- Render de un modelo ----------
 let chart = null;
 let hzChart = null;
+let pvChart = null;
 function clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
 
 function render(exp){
@@ -109,6 +110,8 @@ function render(exp){
 
    ${Object.keys(d).length ? `<div class="diag reveal">${diagChips(d)}</div>` : ''}
 
+   ${previsionHTML(exp)}
+
    <div class="chartbox reveal">
      <h3>${exp.curva_titulo || 'Curva de capital fuera de muestra'}</h3>
      <div class="ch-sub">${exp.curva_sub || 'Crecimiento de 1 unidad invertida según el modelo. La línea base es no hacer nada.'}</div>
@@ -120,6 +123,7 @@ function render(exp){
   `;
 
   drawChart(exp);
+  drawPrevision(exp);
   drawHorizonte(exp);
   requestAnimationFrame(()=>document.querySelectorAll('.reveal').forEach(e=>e.classList.add('in')));
 }
@@ -198,6 +202,67 @@ function drawChart(exp){
               return keep.has(index)? this.getLabelForValue(value) : '';
             }}},
         y:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#5c6775', font:{family:'JetBrains Mono'}, callback:v=>v+unidad}}
+      }
+    }
+  });
+}
+
+// ---------- Previsión actual de volatilidad (estructura de plazos) ----------
+function previsionHTML(exp){
+  const pv = exp.prevision;
+  if(!pv || !pv.puntos || !pv.puntos.length) return '';
+  const u = pv.unidad || '%';
+  const rows = pv.puntos.map(p=>`<tr><td>${p.etiqueta}</td><td class="pos">${p.vol}${u}</td>
+     <td class="est-obs">[${p.lo}, ${p.hi}]</td></tr>`).join('');
+  return `<div class="chartbox reveal" id="prevision">
+     <h3>${pv.titulo}</h3>
+     <div class="ch-sub">${pv.sub}${pv.fecha?` · última sesión: <b>${pv.fecha}</b>`:''}</div>
+     <div class="grid" style="margin:16px 0 4px">
+       <div class="card"><div class="k">Espera ahora · 1 día</div><div class="v pos">${pv.actual}${u}</div></div>
+       <div class="card"><div class="k">Media de largo plazo</div><div class="v">${pv.largo_plazo}${u}</div></div>
+     </div>
+     <div class="ch-sub" style="margin:8px 0 14px"><b>Régimen actual:</b> ${pv.regimen}</div>
+     <div class="canvas-h"><canvas id="pv"></canvas></div>
+     <div class="ops-scroll" style="margin-top:14px"><table class="ops">
+       <thead><tr><th>Horizonte</th><th>Volatilidad esperada</th><th>Banda (5–95%)</th></tr></thead>
+       <tbody>${rows}</tbody></table></div>
+     ${pv.nota?`<div class="ch-sub" style="margin-top:14px">${pv.nota}</div>`:''}
+   </div>`;
+}
+
+function drawPrevision(exp){
+  const pv = exp.prevision;
+  if(pvChart){ pvChart.destroy(); pvChart = null; }
+  if(!pv || !pv.puntos || !pv.puntos.length) return;
+  const ctx = document.getElementById('pv');
+  if(!ctx) return;
+  const labels = pv.puntos.map(p=>p.etiqueta);
+  const vol = pv.puntos.map(p=>p.vol);
+  const hi = pv.puntos.map(p=>p.hi);
+  const lo = pv.puntos.map(p=>p.lo);
+  const u = pv.unidad || '%';
+  const lr = pv.largo_plazo;
+  pvChart = new Chart(ctx,{
+    type:'line',
+    data:{labels, datasets:[
+      {label:'banda sup', data:hi, borderColor:'transparent', pointRadius:0, fill:'+1',
+       backgroundColor:'rgba(232,178,58,.13)'},
+      {label:'banda inf', data:lo, borderColor:'transparent', pointRadius:0, fill:false},
+      {label:'Volatilidad esperada', data:vol, borderColor:'#e8b23a', borderWidth:2.5,
+       pointRadius:4, pointBackgroundColor:'#e8b23a', tension:.1},
+      {label:'media de largo plazo', data:labels.map(()=>lr), borderColor:'#5fb7c4',
+       borderWidth:1, borderDash:[5,5], pointRadius:0}
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:c=>['banda sup','banda inf'].includes(c.dataset.label)?null:
+          '  '+c.dataset.label+': '+c.parsed.y.toFixed(1)+u, title:i=>'Horizonte: '+i[0].label}}
+      },
+      scales:{
+        x:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#8a97a6', font:{family:'JetBrains Mono'}}},
+        y:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#5c6775', font:{family:'JetBrains Mono'}, callback:v=>v+u}}
       }
     }
   });
