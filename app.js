@@ -6,6 +6,7 @@ const TELEGRAM = "https://t.me/neural_capital_research";
 function navHTML(active){
   const modelos = [
     ['par_oro_plata', 'Par oro-plata'],
+    ['par_platino_paladio', 'Par platino-paladio'],
     ['oro_bh',        'Oro'],
     ['plata_bh',      'Plata'],
     ['koncorde',      'KONCORDE (S&P 500)'],

@@ -42,13 +42,13 @@ HZ_PAR = [5, 10, 21, 63, 126]
 LAB_PAR = {5: "1 sem", 10: "2 sem", 21: "1 mes", 63: "3 meses", 126: "6 meses"}
 
 
-def horizonte_par(panel, z_entry=1.5, lb=252, gap=5):
+def horizonte_par(panel, a="oro", b="plata", titulo_par="par", z_entry=1.5, lb=252, gap=5):
     """Tras una divergencia de >=z_entry sigmas, retorno de apostar a la reversión a h días."""
     df = panel.dropna()
-    if not {"oro", "plata"}.issubset(df.columns) or len(df) < lb + 200:
+    if not {a, b}.issubset(df.columns) or len(df) < lb + 200:
         return None
-    lo = np.log(df["oro"].astype(float))
-    lp = np.log(df["plata"].astype(float))
+    lo = np.log(df[a].astype(float))
+    lp = np.log(df[b].astype(float))
     cov = lo.rolling(lb).cov(lp)
     var = lp.rolling(lb).var()
     beta = cov / var                                   # ratio de cobertura rodante (sin lookahead)
@@ -77,16 +77,16 @@ def horizonte_par(panel, z_entry=1.5, lb=252, gap=5):
     if not puntos:
         return None
     return {
-        "titulo": "Reversión del par según el horizonte",
-        "sub": ("Tras una divergencia de ≥1,5σ entre oro y plata, retorno medio de apostar a que el "
-                "spread vuelve a su media, a cada plazo. Si la barra no toca el cero, la reversión "
-                "aporta a ese horizonte."),
+        "titulo": f"Reversión del {titulo_par} según el horizonte",
+        "sub": (f"Tras una divergencia de ≥1,5σ entre {a} y {b}, retorno medio de apostar a que el "
+                f"spread vuelve a su media, a cada plazo. Si la barra no toca el cero, la reversión "
+                f"aporta a ese horizonte."),
         "unidad": "%",
         "puntos": puntos,
-        "nota": ("La reversión del spread es lenta (vida media ~217 días): a plazos cortos el "
-                 "movimiento puede incluso continuar antes de revertir, y solo a horizontes largos "
-                 "el spread tiende a volver. La curva muestra a qué plazo —si alguno— la reversión "
-                 "es distinguible del azar. Coherente con que el par, en conjunto, no muestre edge."),
+        "nota": ("La reversión del spread suele ser lenta: a plazos cortos el movimiento puede "
+                 "incluso continuar antes de revertir, y solo a horizontes largos el spread tiende "
+                 "a volver. La curva muestra a qué plazo —si alguno— la reversión es distinguible "
+                 "del azar."),
     }
 
 

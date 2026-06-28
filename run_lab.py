@@ -20,7 +20,7 @@ import koncorde_forward
 import garch_forward
 import horizonte
 from validation import evaluate
-from models import BuyAndHold, GoldSilverPairs
+from models import BuyAndHold, GoldSilverPairs, PairsModel
 
 
 def construir_experimentos():
@@ -31,6 +31,13 @@ def construir_experimentos():
             "etiqueta": "Oro-Plata (par cointegrado)",
             "activos": ["oro", "plata"],
             "modelo": GoldSilverPairs(),
+            "tipo": "Reversion a la media / arbitraje estadistico",
+        },
+        {
+            "id": "par_platino_paladio",
+            "etiqueta": "Platino-Paladio (par cointegrado)",
+            "activos": ["platino", "paladio"],
+            "modelo": PairsModel("platino", "paladio"),
             "tipo": "Reversion a la media / arbitraje estadistico",
         },
         {
@@ -57,7 +64,14 @@ def main(sintetico: bool = False):
     for exp in experimentos:
         print(f"-> {exp['etiqueta']} ...", flush=True)
         if sintetico:
-            panel = data.cargar_sinteticos()[exp["activos"]]
+            syn = data.cargar_sinteticos()
+            cols = exp["activos"]
+            if set(cols) <= set(syn.columns):
+                panel = syn[cols]
+            else:
+                # par sintético genérico: reutiliza el par cointegrado y renombra
+                panel = syn[["oro", "plata"]].rename(
+                    columns={"oro": cols[0], "plata": cols[1] if len(cols) > 1 else cols[0]})
         else:
             panel = data.cargar_panel(exp["activos"])
 
@@ -74,7 +88,11 @@ def main(sintetico: bool = False):
             ops, cols = koncorde_forward.operaciones_plata()
             informe["operaciones"] = ops
             informe["op_cols"] = cols
-            hz = horizonte.horizonte_par(panel)
+            hz = horizonte.horizonte_par(panel, "oro", "plata", "par oro-plata")
+            if hz:
+                informe["horizonte"] = hz
+        if exp["id"] == "par_platino_paladio":
+            hz = horizonte.horizonte_par(panel, "platino", "paladio", "par platino-paladio")
             if hz:
                 informe["horizonte"] = hz
         if exp["id"] in ("oro_bh", "plata_bh"):
