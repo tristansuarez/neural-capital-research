@@ -35,6 +35,7 @@ function navHTML(active){
           <a href="lab.html?id=par_oro_plata#operaciones">Oro</a>
           <a href="lab.html?id=par_oro_plata#operaciones">Plata</a>
         </div></div>
+      <a class="nav-link ${active==='visor'?'active':''}" href="visor.html">Visor</a>
       <div class="nav-item"><button class="nav-trigger" type="button">Metodología ▾</button>
         <div class="nav-drop">
           <a href="metodologia.html#como-se-lee" class="${active==='metodologia'?'active':''}">Cómo se lee</a>
@@ -527,6 +528,132 @@ async function initLab(){
   }
 }
 
+// ---------- Visor de gráficos (velas + figuras dibujadas) ----------
+let VISOR = { graf:null, verd:{diario:{}, intradia:{}}, tf:'diario', tk:null };
+
+async function initVisor(){
+  mountNav('visor');
+  document.getElementById('meta').textContent = '';
+  const aviso = document.getElementById('aviso'); if(aviso) aviso.style.display = 'none';
+  const app = document.getElementById('app');
+  let graf, res;
+  try{
+    graf = await fetch('graficos.json?ts='+Date.now()).then(r=>{ if(!r.ok) throw 0; return r.json(); });
+    res  = await fetch('resultados.json?ts='+Date.now()).then(r=>r.ok?r.json():null).catch(()=>null);
+  }catch(e){
+    app.innerHTML = `<div class="empty"><b>Aún no disponible</b>El visor necesita que el laboratorio genere <code>graficos.json</code>. Vuelve cuando termine la próxima corrida (pestaña <b>Actions</b>).</div>`;
+    return;
+  }
+  VISOR.graf = graf;
+  const mapaVerd = (idExp, etiqHz)=>{
+    const m = {}; if(!res) return m;
+    const e = (res.experimentos||[]).find(x=>x.id===idExp); if(!e) return m;
+    (e.figuras||[]).forEach(f=>{
+      const p = (f.puntos||[]).find(p=>p.etiqueta===etiqHz) || (f.puntos&&f.puntos[f.puntos.length-1]);
+      if(p) m[f.tipo] = {valor:p.valor, fdr:p.sig_fdr};
+    });
+    return m;
+  };
+  VISOR.verd.diario   = mapaVerd('figuras_tecnicas','3 meses');
+  VISOR.verd.intradia = mapaVerd('figuras_intradia','2 sem');
+
+  app.innerHTML = `
+    <div class="visor-head">
+      <h2 class="ch-title">Visor de gráficos</h2>
+      <div class="ch-sub">Las figuras que detecta el laboratorio, dibujadas sobre el precio real con reglas fijas. Cada figura lleva su veredicto histórico —lo que valió, no lo que promete—. Datos del último cierre, no en vivo.</div>
+    </div>
+    <div class="visor-controls">
+      <div class="tf-toggle">
+        <button data-tf="diario" class="tf-btn active">Diario</button>
+        <button data-tf="intradia" class="tf-btn">Intradía 1h</button>
+      </div>
+      <select id="tk-sel" class="tk-sel" aria-label="Seleccionar valor"></select>
+    </div>
+    <div class="chartbox" style="padding:14px"><div class="visor-canvas-wrap"><canvas id="velas"></canvas></div></div>
+    <div id="visor-leyenda"></div>
+  `;
+  app.querySelectorAll('.tf-btn').forEach(b=>b.addEventListener('click',()=>{
+    VISOR.tf = b.dataset.tf;
+    app.querySelectorAll('.tf-btn').forEach(x=>x.classList.toggle('active', x===b));
+    poblarTickers(); renderVisor();
+  }));
+  document.getElementById('tk-sel').addEventListener('change', e=>{ VISOR.tk = e.target.value; renderVisor(); });
+  poblarTickers(); renderVisor();
+  let rt; window.addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(renderVisor,150); });
+}
+
+function poblarTickers(){
+  const datos = VISOR.graf[VISOR.tf] || {};
+  const tickers = Object.keys(datos).sort();
+  const sel = document.getElementById('tk-sel');
+  sel.innerHTML = tickers.map(t=>`<option value="${t}">${t}</option>`).join('');
+  if(!VISOR.tk || !tickers.includes(VISOR.tk)) VISOR.tk = tickers[0] || null;
+  if(VISOR.tk) sel.value = VISOR.tk;
+}
+
+function renderVisor(){
+  const ley = document.getElementById('visor-leyenda');
+  const hayTickers = Object.keys(VISOR.graf[VISOR.tf]||{}).length > 0;
+  if(!hayTickers){
+    dibujarVelas(null);
+    if(ley) ley.innerHTML = `<div class="chartbox reveal in"><div class="ch-sub">Esta temporalidad todavía no tiene datos en la última corrida —habitual en el intradía si Yahoo limitó las descargas—. Prueba la otra temporalidad o vuelve tras la próxima corrida.</div></div>`;
+    return;
+  }
+  const datos = (VISOR.graf[VISOR.tf]||{})[VISOR.tk];
+  if(!datos){ dibujarVelas(null); if(ley) ley.innerHTML=''; return; }
+  dibujarVelas(datos);
+  const verd = VISOR.verd[VISOR.tf] || {};
+  const vistos = {}; (datos.figuras||[]).forEach(f=>{ vistos[f.tipo]=f; });
+  const filas = Object.values(vistos).map(f=>{
+    const v = verd[f.tipo]; let txt = 'aún sin backtest';
+    if(v){
+      if(v.fdr && v.valor<0) txt = `tiende a fallar (revierte) · ${v.valor>0?'+':''}${v.valor}%`;
+      else if(v.fdr && v.valor>0) txt = `ventaja a favor (rara) · +${v.valor}%`;
+      else txt = `sin ventaja fiable · ${v.valor>0?'+':''}${v.valor}%`;
+    }
+    return `<div class="vf-row"><span class="dot" style="background:${f.color}"></span><b>${f.nombre}</b><span class="est-obs"> — ${txt}</span></div>`;
+  }).join('');
+  if(ley) ley.innerHTML = `<div class="chartbox reveal in"><h3>Figuras en este gráfico</h3>${filas || '<div class="ch-sub">No hay figuras en la ventana visible de este valor.</div>'}</div>`;
+}
+
+function dibujarVelas(datos){
+  const cv = document.getElementById('velas'); if(!cv) return;
+  const cssW = (cv.parentElement.clientWidth||800), cssH = 420;
+  const dpr = window.devicePixelRatio||1;
+  cv.width = cssW*dpr; cv.height = cssH*dpr; cv.style.width = cssW+'px'; cv.style.height = cssH+'px';
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,cssW,cssH);
+  if(!datos || !datos.velas || !datos.velas.length) return;
+  const velas = datos.velas, figs = datos.figuras||[];
+  const padL=8, padR=60, padT=12, padB=22;
+  const plotW = cssW-padL-padR, plotH = cssH-padT-padB;
+  let lo=Infinity, hi=-Infinity;
+  velas.forEach(v=>{ if(v[2]<lo)lo=v[2]; if(v[1]>hi)hi=v[1]; });
+  figs.forEach(f=>f.trazos.forEach(t=>['y','y0','y1'].forEach(k=>{ if(k in t){ if(t[k]<lo)lo=t[k]; if(t[k]>hi)hi=t[k]; } })));
+  if(!isFinite(lo)||!isFinite(hi)||hi<=lo){ lo=Math.min(...velas.map(v=>v[2])); hi=Math.max(...velas.map(v=>v[1])); }
+  const pad=(hi-lo)*0.06||1; lo-=pad; hi+=pad;
+  const n=velas.length, step=plotW/n;
+  const X=i=>padL+(i+0.5)*step, Y=p=>padT+(1-(p-lo)/(hi-lo))*plotH;
+  ctx.strokeStyle='rgba(38,48,61,.55)'; ctx.fillStyle='#5c6775'; ctx.font="11px 'JetBrains Mono',monospace"; ctx.lineWidth=1;
+  for(let t=0;t<=5;t++){ const p=lo+(hi-lo)*t/5, y=Y(p);
+    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+plotW,y); ctx.stroke();
+    ctx.fillText(p.toFixed(2), padL+plotW+6, y+3);
+  }
+  const bw=Math.max(1, step*0.62);
+  velas.forEach((v,i)=>{ const o=v[0],h=v[1],l=v[2],c=v[3]; const col=c>=o?'#6ec08a':'#d2566a'; const x=X(i);
+    ctx.strokeStyle=col; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(x,Y(h)); ctx.lineTo(x,Y(l)); ctx.stroke();
+    ctx.fillStyle=col; const yo=Y(o),yc=Y(c); ctx.fillRect(x-bw/2, Math.min(yo,yc), bw, Math.max(1,Math.abs(yc-yo)));
+  });
+  figs.forEach(f=>{ const col=f.color||'#e8b23a';
+    f.trazos.forEach(t=>{ ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=1.7;
+      if(t.k==='hline'){ ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(X(t.x0),Y(t.y)); ctx.lineTo(X(t.x1),Y(t.y)); ctx.stroke(); ctx.setLineDash([]); }
+      else if(t.k==='line'){ ctx.beginPath(); ctx.moveTo(X(t.x0),Y(t.y0)); ctx.lineTo(X(t.x1),Y(t.y1)); ctx.stroke(); }
+      else if(t.k==='pico'){ ctx.beginPath(); ctx.arc(X(t.x),Y(t.y),3.2,0,7); ctx.fill(); }
+      else if(t.k==='break'){ ctx.beginPath(); ctx.arc(X(t.x),Y(t.y),4.6,0,7); ctx.fill();
+        ctx.globalAlpha=.45; ctx.lineWidth=1; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(X(t.x),padT); ctx.lineTo(X(t.x),padT+plotH); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha=1; }
+    });
+  });
+}
+
 // ---------- Arranque según la página ----------
 document.addEventListener('DOMContentLoaded', ()=>{
   const page = document.body.dataset.page;
@@ -535,5 +662,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   }else if(page === 'metodologia'){
     mountNav('metodologia');
     observeReveals();
+  }else if(page === 'visor'){
+    initVisor();
   }
 });

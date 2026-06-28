@@ -87,6 +87,91 @@ def detectar(h, l, c, k=5, tol=0.03, win=60, buf=0.005):
     return ev
 
 
+def detectar_geom(h, l, c, k=5, tol=0.03, win=60, buf=0.005):
+    """Como detectar() pero devuelve geometría (en índices de vela) para dibujar."""
+    n = len(c)
+    out = []
+    if n < 3 * k + 10:
+        return out
+    ph = [i for i in range(k, n - k) if h[i] == max(h[i - k:i + k + 1])]
+    pl = [i for i in range(k, n - k) if l[i] == min(l[i - k:i + k + 1])]
+
+    def add(tipo, d, j, trazos):
+        nombre, _dd, color = FIGURAS[tipo]
+        out.append({"tipo": tipo, "nombre": nombre, "color": color,
+                    "dir": d, "break": int(j), "trazos": trazos})
+
+    for a, b in zip(ph, ph[1:]):
+        if 10 <= b - a <= win and abs(h[a] - h[b]) / h[a] < tol:
+            cuello = float(l[a:b + 1].min())
+            for j in range(b + 1, min(b + win, n)):
+                if c[j] < cuello * (1 - buf):
+                    add("doble_techo", -1, j, [
+                        {"k": "pico", "x": int(a), "y": float(h[a])},
+                        {"k": "pico", "x": int(b), "y": float(h[b])},
+                        {"k": "hline", "y": cuello, "x0": int(a), "x1": int(j)},
+                        {"k": "break", "x": int(j), "y": float(c[j])}]); break
+    for a, b in zip(pl, pl[1:]):
+        if 10 <= b - a <= win and abs(l[a] - l[b]) / l[a] < tol:
+            cuello = float(h[a:b + 1].max())
+            for j in range(b + 1, min(b + win, n)):
+                if c[j] > cuello * (1 + buf):
+                    add("doble_suelo", +1, j, [
+                        {"k": "pico", "x": int(a), "y": float(l[a])},
+                        {"k": "pico", "x": int(b), "y": float(l[b])},
+                        {"k": "hline", "y": cuello, "x0": int(a), "x1": int(j)},
+                        {"k": "break", "x": int(j), "y": float(c[j])}]); break
+
+    for a, b in zip(ph, ph[1:]):
+        if not (5 <= b - a <= win):
+            continue
+        slope = (h[b] - h[a]) / (b - a)
+        for j in range(b + 1, min(b + win, n)):
+            linea = h[b] + slope * (j - b)
+            if c[j] > linea * (1 + buf):
+                tipo = "ruptura_tendencia_bajista" if slope < 0 else "ruptura_resistencia"
+                add(tipo, +1, j, [
+                    {"k": "line", "x0": int(a), "y0": float(h[a]), "x1": int(j), "y1": float(linea)},
+                    {"k": "break", "x": int(j), "y": float(c[j])}]); break
+    for a, b in zip(pl, pl[1:]):
+        if not (5 <= b - a <= win):
+            continue
+        slope = (l[b] - l[a]) / (b - a)
+        for j in range(b + 1, min(b + win, n)):
+            linea = l[b] + slope * (j - b)
+            if c[j] < linea * (1 - buf):
+                tipo = "ruptura_tendencia_alcista" if slope > 0 else "ruptura_soporte"
+                add(tipo, -1, j, [
+                    {"k": "line", "x0": int(a), "y0": float(l[a]), "x1": int(j), "y1": float(linea)},
+                    {"k": "break", "x": int(j), "y": float(c[j])}]); break
+    return out
+
+
+def _exportar_ticker(O, H, L, C, n_velas=160, max_figs=8):
+    """Últimas n_velas (OHLC) + figuras visibles, reindexadas a la ventana."""
+    n = len(C); s = max(0, n - n_velas)
+    velas = [[round(float(O[i]), 2), round(float(H[i]), 2),
+              round(float(L[i]), 2), round(float(C[i]), 2)] for i in range(s, n)]
+    out = []
+    for f in detectar_geom(H, L, C):
+        if f["break"] < s:
+            continue
+        tr = []
+        for t in f["trazos"]:
+            t = dict(t)
+            for kx in ("x", "x0", "x1"):
+                if kx in t:
+                    t[kx] = int(t[kx] - s)
+            for ky in ("y", "y0", "y1"):
+                if ky in t:
+                    t[ky] = round(float(t[ky]), 2)
+            tr.append(t)
+        out.append({"tipo": f["tipo"], "nombre": f["nombre"], "color": f["color"],
+                    "dir": f["dir"], "break": int(f["break"] - s), "trazos": tr})
+    out = sorted(out, key=lambda x: x["break"])[-max_figs:]
+    return {"velas": velas, "figuras": out}
+
+
 # --------------------------- estadística ---------------------------
 def _boot_media(x, n_boot=2000, bloque=10, seed=7):
     x = np.asarray(x, float); x = x[np.isfinite(x)]
@@ -128,7 +213,9 @@ def _ohlc_sintetico(seed, n=2600):
     c = 100 * np.exp(np.cumsum(r))
     ruido = np.abs(rng.normal(0, 0.006, n)) * c
     h = c + ruido; l = c - ruido
-    return h, l, c
+    o = np.empty(n); o[0] = c[0]; o[1:] = c[:-1]      # apertura ≈ cierre anterior
+    o = np.clip(o, l, h)
+    return o, h, l, c
 
 
 def _muestra_sintetica(n_tickers=25):
@@ -149,35 +236,45 @@ def _muestra_real(n_tickers, anos):
                 df.columns = df.columns.get_level_values(0)
             if df.empty or len(df) < 300:
                 continue
-            yield tk, (df["High"].values, df["Low"].values, df["Close"].values)
+            yield tk, (df["Open"].values, df["High"].values, df["Low"].values, df["Close"].values)
         except Exception:
             continue
 
 
-def _muestra_intradia(n_tickers=120, period="2y"):
-    """Velas de 1 hora por lotes (Yahoo da ~730 días de histórico horario)."""
+def _muestra_intradia(n_tickers=60, period="2y"):
+    """Velas de 1 hora por lotes (Yahoo da ~730 días de histórico horario).
+    Universo y lotes acotados + pausa entre lotes para no saturar Yahoo."""
+    import time
     import yfinance as yf
     import escaner_senales_telegram as esc
     tickers = esc.obtener_sp500()[:n_tickers]
-    for j in range(0, len(tickers), 40):
-        chunk = tickers[j:j + 40]
-        try:
-            df = yf.download(chunk, period=period, interval="1h", group_by="ticker",
-                             auto_adjust=True, progress=False, threads=True)
-        except Exception:
+    for j in range(0, len(tickers), 20):
+        chunk = tickers[j:j + 20]
+        df = None
+        for intento in range(2):
+            try:
+                df = yf.download(chunk, period=period, interval="1h", group_by="ticker",
+                                 auto_adjust=True, progress=False, threads=True)
+                if df is not None and not df.empty:
+                    break
+            except Exception:
+                df = None
+            time.sleep(5)
+        if df is None or df.empty:
             continue
         for tk in chunk:
             try:
                 sub = df[tk].dropna()
                 if len(sub) < 200:
                     continue
-                yield tk, (sub["High"].values, sub["Low"].values, sub["Close"].values)
+                yield tk, (sub["Open"].values, sub["High"].values, sub["Low"].values, sub["Close"].values)
             except Exception:
                 continue
+        time.sleep(2)
 
 
 # --------------------------- backtest ---------------------------
-def backtest_figuras(sintetico=False, n_tickers=60, anos=10, intradia=False):
+def backtest_figuras(sintetico=False, n_tickers=60, anos=10, intradia=False, graf=None):
     if intradia:
         hz, lab = HZ_FIG_INTRA, LAB_FIG_INTRA
         fuente = _muestra_sintetica(n_tickers=20) if sintetico else _muestra_intradia()
@@ -196,9 +293,10 @@ def backtest_figuras(sintetico=False, n_tickers=60, anos=10, intradia=False):
     n_eventos = {tipo: 0 for tipo in FIGURAS}
     tickers_usados = []
     try:
-        for _tk, (H, L, C) in fuente:
+        for _tk, (O, H, L, C) in fuente:
+            H = np.asarray(H, float); L = np.asarray(L, float); C = np.asarray(C, float)
             try:
-                ev = detectar(np.asarray(H, float), np.asarray(L, float), np.asarray(C, float))
+                ev = detectar(H, L, C)
             except Exception:
                 continue
             m = len(C)
@@ -208,6 +306,11 @@ def backtest_figuras(sintetico=False, n_tickers=60, anos=10, intradia=False):
                 for h in hz:
                     if i + h < m:
                         acc[tipo][h].append(d * (C[i + h] / C[i] - 1.0 - base[h]) * 100.0)
+            if graf is not None:
+                try:
+                    graf[_tk] = _exportar_ticker(np.asarray(O, float), H, L, C)
+                except Exception:
+                    pass
             tickers_usados.append(_tk)
     except Exception:
         return None

@@ -144,13 +144,34 @@ def main(sintetico: bool = False):
         print("   (no hay suficientes metales con datos)", flush=True)
 
     # Figuras técnicas: detección de chartismo + backtest honesto (event study).
+    # graf_d / graf_i recogen, de paso, las velas + geometría para el visor.
+    graf_d, graf_i = {}, {}
     print("-> Figuras técnicas (S&P 500) ...", flush=True)
-    fig = figuras.backtest_figuras(sintetico=sintetico)
+    fig = figuras.backtest_figuras(sintetico=sintetico, graf=graf_d)
     if fig:
         salida.append(fig)
         print(f"   {fig['n_celdas']} celdas evaluadas, {fig['n_fdr']} sobreviven al FDR", flush=True)
     else:
         print("   (sin datos suficientes)", flush=True)
+
+    # Figuras intradía (velas de 1h, ~2 años): mismo motor, otra temporalidad.
+    print("-> Figuras técnicas intradía (1h) ...", flush=True)
+    figi = figuras.backtest_figuras(sintetico=sintetico, intradia=True, graf=graf_i)
+    if figi:
+        salida.append(figi)
+        print(f"   {figi['n_celdas']} celdas evaluadas, {figi['n_fdr']} sobreviven al FDR", flush=True)
+    else:
+        print("   (sin datos intradía suficientes)", flush=True)
+
+    # Visor de gráficos: velas + figuras dibujables, por ticker y temporalidad.
+    graf_doc = {
+        "generado": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        "diario": graf_d,
+        "intradia": graf_i,
+    }
+    with open("graficos.json", "w", encoding="utf-8") as f:
+        json.dump(graf_doc, f, ensure_ascii=False)
+    print(f"   graficos.json: {len(graf_d)} diario / {len(graf_i)} intradía", flush=True)
 
     doc = {
         "generado": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),

@@ -32,7 +32,7 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add resultados.json data_cache/*.csv || true
+          git add resultados.json graficos.json data_cache/*.csv || true
           git commit -m "Actualizar resultados del laboratorio" || { echo "Sin cambios"; exit 0; }
           for i in 1 2 3 4 5; do
             git merge --abort 2>/dev/null || true
