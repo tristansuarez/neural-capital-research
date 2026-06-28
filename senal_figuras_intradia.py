@@ -113,13 +113,28 @@ def main():
         return
 
     hora = hall[0]["hora"]
+
+    def _emoji(tipo):
+        vs = vd.get(tipo)
+        if vs:
+            val, sig = vs
+            if sig and val < 0:
+                return "🔴"
+            if sig and val > 0:
+                return "🟢"
+        return "⚪"
+
+    top = sorted(hall, key=lambda h: (0 if _emoji(h["figura"]) != "⚪" else 1,
+                                      -h.get("fuerza", 0)))[:12]
     lineas = [f"⏱️ FIGURAS INTRADÍA (1h) · {hora}",
-              "Detectadas en la última vela horaria. INFORMATIVO, no señal: las rupturas tienden a revertir.\n"]
-    for h in sorted(hall, key=lambda x: -x.get("fuerza", 0)):
-        lineas.append(f"• {h['nombre']} en {h['ticker']} — {h['precio']:.2f}  (fuerza {h.get('fuerza',0)})")
-        lineas.append(f"   {_frase(h['figura'], vd)}")
+              f"Las {len(top)} más decisivas de la última vela (de {len(hall)}). "
+              f"Informativo, no señal: las rupturas tienden a revertir.",
+              "🔴 históricamente falla · 🟢 ventaja (rara) · ⚪ sin ventaja\n"]
+    for h in top:
+        lineas.append(f"{_emoji(h['figura'])} {h['nombre']} · {h['ticker']} "
+                      f"{h['precio']:.2f} · 💪{h.get('fuerza', 0)}")
     lineas.append("\n🌐 tristansuarez.github.io/neural-capital-research")
-    lineas.append("⚠️ Contenido educativo. No es recomendación de inversión.")
+    lineas.append("⚠️ Educativo. No es recomendación de inversión.")
     texto = "\n".join(lineas)
 
     if args.telegram:

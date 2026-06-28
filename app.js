@@ -567,7 +567,10 @@ async function initVisor(){
         <button data-tf="diario" class="tf-btn active">Diario</button>
         <button data-tf="intradia" class="tf-btn">Intradía 1h</button>
       </div>
-      <select id="tk-sel" class="tk-sel" aria-label="Seleccionar valor"></select>
+      <div class="tk-combo">
+        <input id="tk-input" type="text" placeholder="Buscar valor…" autocomplete="off" spellcheck="false" aria-label="Buscar valor">
+        <div id="tk-list" class="tk-list" hidden></div>
+      </div>
     </div>
     <div class="chartbox" style="padding:14px"><div class="visor-canvas-wrap"><canvas id="velas"></canvas></div></div>
     <div id="visor-leyenda"></div>
@@ -577,18 +580,51 @@ async function initVisor(){
     app.querySelectorAll('.tf-btn').forEach(x=>x.classList.toggle('active', x===b));
     poblarTickers(); renderVisor();
   }));
-  document.getElementById('tk-sel').addEventListener('change', e=>{ VISOR.tk = e.target.value; renderVisor(); });
+  const inp = document.getElementById('tk-input');
+  const lista = document.getElementById('tk-list');
+  inp.addEventListener('focus', comboAbrir);
+  inp.addEventListener('input', ()=>comboRender(inp.value));
+  inp.addEventListener('keydown', e=>{
+    const opts = [...lista.querySelectorAll('.tk-opt')];
+    if(e.key==='ArrowDown'){ e.preventDefault(); if(lista.hidden) comboAbrir(); VISOR._hl = Math.min((VISOR._hl ?? -1)+1, opts.length-1); }
+    else if(e.key==='ArrowUp'){ e.preventDefault(); VISOR._hl = Math.max((VISOR._hl ?? 0)-1, 0); }
+    else if(e.key==='Enter'){ e.preventDefault(); const o = opts[VISOR._hl] || opts[0]; if(o) comboElegir(o.dataset.tk); return; }
+    else if(e.key==='Escape'){ comboCerrar(); inp.blur(); return; }
+    else return;
+    [...lista.querySelectorAll('.tk-opt')].forEach((o,i)=>o.classList.toggle('hl', i===VISOR._hl));
+    if(opts[VISOR._hl]) opts[VISOR._hl].scrollIntoView({block:'nearest'});
+  });
+  lista.addEventListener('mousedown', e=>{ const o = e.target.closest('.tk-opt'); if(o){ e.preventDefault(); comboElegir(o.dataset.tk); } });
+  document.addEventListener('click', e=>{ if(!e.target.closest('.tk-combo')) comboCerrar(); });
   poblarTickers(); renderVisor();
   let rt; window.addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(renderVisor,150); });
 }
 
 function poblarTickers(){
-  const datos = VISOR.graf[VISOR.tf] || {};
-  const tickers = Object.keys(datos).sort();
-  const sel = document.getElementById('tk-sel');
-  sel.innerHTML = tickers.map(t=>`<option value="${t}">${t}</option>`).join('');
+  const tickers = Object.keys(VISOR.graf[VISOR.tf]||{}).sort();
   if(!VISOR.tk || !tickers.includes(VISOR.tk)) VISOR.tk = tickers[0] || null;
-  if(VISOR.tk) sel.value = VISOR.tk;
+  const inp = document.getElementById('tk-input');
+  if(inp) inp.value = VISOR.tk || '';
+  comboCerrar();
+}
+
+function comboRender(filtro){
+  const lista = document.getElementById('tk-list'); if(!lista) return;
+  const all = Object.keys(VISOR.graf[VISOR.tf]||{}).sort();
+  const q = (filtro||'').trim().toUpperCase();
+  const items = all.filter(t=>t.toUpperCase().includes(q));
+  lista.innerHTML = items.length
+    ? items.map(t=>`<div class="tk-opt${t===VISOR.tk?' sel':''}" data-tk="${t}">${t}</div>`).join('')
+    : '<div class="tk-empty">Sin coincidencias</div>';
+  VISOR._hl = -1;
+}
+function comboAbrir(){ const l=document.getElementById('tk-list'); if(!l) return; l.hidden=false; comboRender(document.getElementById('tk-input').value); }
+function comboCerrar(){ const l=document.getElementById('tk-list'); if(l) l.hidden=true; }
+function comboElegir(tk){
+  if(!tk) return;
+  VISOR.tk = tk;
+  const inp = document.getElementById('tk-input'); if(inp) inp.value = tk;
+  comboCerrar(); renderVisor();
 }
 
 function renderVisor(){
@@ -648,8 +684,8 @@ function dibujarVelas(datos){
       if(t.k==='hline'){ ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(X(t.x0),Y(t.y)); ctx.lineTo(X(t.x1),Y(t.y)); ctx.stroke(); ctx.setLineDash([]); }
       else if(t.k==='line'){ ctx.beginPath(); ctx.moveTo(X(t.x0),Y(t.y0)); ctx.lineTo(X(t.x1),Y(t.y1)); ctx.stroke(); }
       else if(t.k==='pico'){ ctx.beginPath(); ctx.arc(X(t.x),Y(t.y),3.2,0,7); ctx.fill(); }
-      else if(t.k==='break'){ ctx.beginPath(); ctx.arc(X(t.x),Y(t.y),4.6,0,7); ctx.fill();
-        ctx.globalAlpha=.45; ctx.lineWidth=1; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(X(t.x),padT); ctx.lineTo(X(t.x),padT+plotH); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha=1; }
+      else if(t.k==='break'){ ctx.beginPath(); ctx.arc(X(t.x),Y(t.y),4.8,0,7); ctx.fill();
+        ctx.globalAlpha=.9; ctx.lineWidth=1.6; ctx.strokeStyle='#0b0f14'; ctx.stroke(); ctx.globalAlpha=1; }
     });
   });
 }

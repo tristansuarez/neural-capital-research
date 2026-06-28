@@ -156,14 +156,29 @@ def main():
     # --- mensaje 1: figuras decisivas del día ---
     if hallazgos:
         fecha = hallazgos[0]["fecha"]
+
+        def _emoji(tipo):
+            vs = vd.get(tipo)
+            if vs:
+                val, sig = vs
+                if sig and val < 0:
+                    return "🔴"
+                if sig and val > 0:
+                    return "🟢"
+            return "⚪"
+
+        # importancia: primero veredicto significativo, luego más fuerza
+        top = sorted(hallazgos, key=lambda h: (0 if _emoji(h["figura"]) != "⚪" else 1,
+                                               -h.get("fuerza", 0)))[:12]
         lineas = [f"📐 FIGURAS TÉCNICAS · {fecha}",
-                  "Detectadas con reglas fijas en el cierre. INFORMATIVO, no señal: en nuestros datos "
-                  "las rupturas tienden a REVERTIR, no a continuar.\n"]
-        for h in sorted(hallazgos, key=lambda x: -x.get("fuerza", 0)):
-            lineas.append(f"• {h['nombre']} en {h['ticker']} — {h['precio']:.2f}  (fuerza {h.get('fuerza',0)})")
-            lineas.append(f"   {_frase_veredicto(h['figura'], vd)}")
+                  f"Las {len(top)} más decisivas de hoy (de {len(hallazgos)} detectadas). "
+                  f"Informativo, no señal: las rupturas tienden a revertir.",
+                  "🔴 históricamente falla · 🟢 ventaja (rara) · ⚪ sin ventaja\n"]
+        for h in top:
+            lineas.append(f"{_emoji(h['figura'])} {h['nombre']} · {h['ticker']} "
+                          f"{h['precio']:.2f} · 💪{h.get('fuerza', 0)}")
         lineas.append("\n🌐 tristansuarez.github.io/neural-capital-research")
-        lineas.append("⚠️ Contenido educativo. No es recomendación de inversión.")
+        lineas.append("⚠️ Educativo. No es recomendación de inversión.")
         texto = "\n".join(lineas)
         if args.telegram:
             for trozo in esc.trocear(texto):
