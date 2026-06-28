@@ -1,5 +1,5 @@
 {
-  "generado": "2026-06-28 21:07 UTC",
+  "generado": "2026-06-28 21:31 UTC",
   "sintetico": false,
   "aviso": "Laboratorio de experimentacion de modelos. NO es recomendacion de inversion. Todas las metricas son fuera de muestra (walk-forward) y netas de costes. Un Sharpe con p-valor alto NO es distinguible del azar.",
   "experimentos": [
@@ -1400,7 +1400,7 @@
         }
       ],
       "horizonte": {
-        "titulo": "Reversión del par según el horizonte",
+        "titulo": "Reversión del par oro-plata según el horizonte",
         "sub": "Tras una divergencia de ≥1,5σ entre oro y plata, retorno medio de apostar a que el spread vuelve a su media, a cada plazo. Si la barra no toca el cero, la reversión aporta a ese horizonte.",
         "unidad": "%",
         "puntos": [
@@ -1445,7 +1445,1429 @@
             "n": 235
           }
         ],
-        "nota": "La reversión del spread es lenta (vida media ~217 días): a plazos cortos el movimiento puede incluso continuar antes de revertir, y solo a horizontes largos el spread tiende a volver. La curva muestra a qué plazo —si alguno— la reversión es distinguible del azar. Coherente con que el par, en conjunto, no muestre edge."
+        "nota": "La reversión del spread suele ser lenta: a plazos cortos el movimiento puede incluso continuar antes de revertir, y solo a horizontes largos el spread tiende a volver. La curva muestra a qué plazo —si alguno— la reversión es distinguible del azar."
+      }
+    },
+    {
+      "modelo": "par_platino_paladio",
+      "descripcion": "Par cointegrado platino-paladio. Opera la reversion a la media del spread cuando el test de cointegracion lo respalda.",
+      "headline": {
+        "valor": 0.0,
+        "etiqueta": "Sharpe (anualizado, fuera de muestra)",
+        "sufijo": "",
+        "decimales": 2
+      },
+      "significancia": {
+        "p_valor": 1.0,
+        "ic90": [
+          0.0,
+          0.0
+        ],
+        "etiqueta": "Sharpe"
+      },
+      "cards": [
+        {
+          "k": "Rentab. anual (CAGR)",
+          "v": "0.0%",
+          "tono": "pos"
+        },
+        {
+          "k": "Máx. caída",
+          "v": "0.0%",
+          "tono": "neg"
+        },
+        {
+          "k": "Volatilidad anual",
+          "v": "0.0%",
+          "tono": ""
+        },
+        {
+          "k": "Acierto (días activos)",
+          "v": "0.0%",
+          "tono": ""
+        },
+        {
+          "k": "Días evaluados",
+          "v": "3266",
+          "tono": ""
+        },
+        {
+          "k": "Rotaciones",
+          "v": "0",
+          "tono": ""
+        }
+      ],
+      "diagnostico": {
+        "cointegrated": false,
+        "coint_pvalue": 0.3983,
+        "half_life": 201.1838,
+        "beta": -0.144
+      },
+      "curva": [
+        {
+          "fecha": "2013-06-27",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2013-07-12",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2013-07-26",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2013-08-09",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2013-08-23",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2013-09-09",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2013-09-23",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2013-10-07",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2013-10-21",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2013-11-04",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2013-11-18",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2013-12-03",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2013-12-17",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-01-02",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-01-16",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-01-31",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-02-14",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-03-03",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-03-17",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-03-31",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-04-14",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-04-29",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-05-13",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-05-28",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-06-11",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-06-25",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-07-10",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-07-24",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-08-07",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-08-21",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-09-05",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-09-19",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-10-03",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-10-17",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-10-31",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-11-14",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-12-01",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-12-15",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2014-12-30",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2015-01-14",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2015-01-29",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2015-02-12",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2015-02-27",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2015-03-13",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2015-03-27",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2015-04-13",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2015-04-27",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2015-05-11",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2015-05-26",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2015-06-09",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2015-06-23",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2015-07-08",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2015-07-22",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2015-08-05",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2015-08-19",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2015-09-02",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2015-09-17",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2015-10-01",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2015-10-15",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2015-10-29",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2015-11-12",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2015-11-27",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2015-12-11",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2015-12-28",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2016-01-12",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2016-01-27",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2016-02-10",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2016-02-25",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2016-03-10",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2016-03-24",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2016-04-08",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2016-04-22",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2016-05-06",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2016-05-20",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2016-06-07",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2016-06-21",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2016-07-06",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2016-07-20",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2016-08-03",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2016-08-17",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2016-08-31",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2016-09-15",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2016-09-29",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2016-10-14",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2016-10-28",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2016-11-14",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2016-11-29",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2016-12-13",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2016-12-28",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2017-01-12",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2017-01-27",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2017-02-10",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2017-02-27",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2017-03-13",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2017-03-27",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2017-04-10",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2017-04-25",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2017-05-09",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2017-05-23",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2017-06-07",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2017-06-21",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2017-07-06",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2017-07-20",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2017-08-03",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2017-08-17",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2017-08-31",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2017-09-15",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2017-09-29",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2017-10-13",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2017-10-27",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2017-11-10",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2017-11-27",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2017-12-11",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2017-12-26",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2018-01-10",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2018-01-25",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2018-02-09",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2018-02-26",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2018-03-12",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2018-03-26",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2018-04-10",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2018-04-24",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2018-05-08",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2018-05-22",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2018-06-06",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2018-06-20",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2018-07-05",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2018-07-19",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2018-08-02",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2018-08-16",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2018-08-30",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2018-09-14",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2018-09-28",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2018-10-12",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2018-10-26",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2018-11-09",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2018-11-26",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2018-12-11",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2018-12-26",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2019-01-10",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2019-01-25",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2019-02-08",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2019-02-25",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2019-03-11",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2019-03-25",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2019-04-08",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2019-04-23",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2019-05-07",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2019-05-21",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2019-06-05",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2019-06-19",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2019-07-03",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2019-07-18",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2019-08-01",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2019-08-15",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2019-08-29",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2019-09-13",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2019-09-27",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2019-10-11",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2019-10-25",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2019-11-08",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2019-11-22",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2019-12-09",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2019-12-23",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2020-01-08",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2020-01-23",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2020-02-06",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2020-02-21",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2020-03-06",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2020-03-20",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2020-04-03",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2020-04-20",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2020-05-04",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2020-05-18",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2020-06-02",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2020-06-16",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2020-06-30",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2020-07-15",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2020-07-29",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2020-08-12",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2020-08-26",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2020-09-10",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2020-09-24",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2020-10-08",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2020-10-22",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2020-11-05",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2020-11-19",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2020-12-04",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2020-12-18",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-01-05",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-01-20",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-02-03",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-02-18",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-03-04",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-03-18",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-04-01",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-04-16",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-04-30",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-05-14",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-05-28",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-06-14",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-06-28",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-07-13",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-07-27",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-08-10",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-08-24",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-09-08",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-09-22",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-10-06",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-10-20",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-11-03",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-11-17",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-12-02",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-12-16",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2021-12-31",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2022-01-14",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2022-01-31",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2022-02-14",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2022-03-01",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2022-03-15",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2022-03-29",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2022-04-12",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2022-04-27",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2022-05-11",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2022-05-25",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2022-06-09",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2022-06-24",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2022-07-11",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2022-07-25",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2022-08-08",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2022-08-22",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2022-09-06",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2022-09-20",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2022-10-04",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2022-10-18",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2022-11-01",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2022-11-15",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2022-11-30",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2022-12-14",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2022-12-29",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2023-01-13",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2023-01-30",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2023-02-13",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2023-02-28",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2023-03-14",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2023-03-28",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2023-04-12",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2023-04-26",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2023-05-10",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2023-05-24",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2023-06-08",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2023-06-23",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2023-07-10",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2023-07-24",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2023-08-07",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2023-08-21",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2023-09-05",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2023-09-19",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2023-10-03",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2023-10-17",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2023-10-31",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2023-11-14",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2023-11-29",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2023-12-13",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2023-12-28",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2024-01-12",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2024-01-29",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2024-02-12",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2024-02-27",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2024-03-12",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2024-03-26",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2024-04-10",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2024-04-24",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2024-05-08",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2024-05-22",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2024-06-06",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2024-06-21",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2024-07-08",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2024-07-22",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2024-08-05",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2024-08-19",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2024-09-03",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2024-09-17",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2024-10-01",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2024-10-15",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2024-10-29",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2024-11-12",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2024-11-26",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2024-12-11",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2024-12-26",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2025-01-10",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2025-01-27",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2025-02-10",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2025-02-25",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2025-03-11",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2025-03-25",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2025-04-08",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2025-04-23",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2025-05-07",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2025-05-21",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2025-06-05",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2025-06-20",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2025-07-07",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2025-07-21",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2025-08-04",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2025-08-18",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2025-09-02",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2025-09-16",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2025-09-30",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2025-10-14",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2025-10-28",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2025-11-11",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2025-11-25",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2025-12-10",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2025-12-24",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2026-01-09",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2026-01-26",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2026-02-09",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2026-02-24",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2026-03-10",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2026-03-24",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2026-04-08",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2026-04-22",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2026-05-06",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2026-05-20",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2026-06-04",
+          "valor": 1.0
+        },
+        {
+          "fecha": "2026-06-18",
+          "valor": 1.0
+        }
+      ],
+      "curva2": null,
+      "curva_unidad": "×",
+      "curva_base": 1.0,
+      "curva_titulo": "Curva de capital fuera de muestra",
+      "curva_sub": "Crecimiento de 1 unidad invertida según el modelo. La línea base es no hacer nada.",
+      "id": "par_platino_paladio",
+      "etiqueta": "Platino-Paladio (par cointegrado)",
+      "tipo": "Reversion a la media / arbitraje estadistico",
+      "horizonte": {
+        "titulo": "Reversión del par platino-paladio según el horizonte",
+        "sub": "Tras una divergencia de ≥1,5σ entre platino y paladio, retorno medio de apostar a que el spread vuelve a su media, a cada plazo. Si la barra no toca el cero, la reversión aporta a ese horizonte.",
+        "unidad": "%",
+        "puntos": [
+          {
+            "h": 5,
+            "etiqueta": "1 sem",
+            "valor": -13.41,
+            "ic_lo": -18.39,
+            "ic_hi": -8.69,
+            "n": 228
+          },
+          {
+            "h": 10,
+            "etiqueta": "2 sem",
+            "valor": -23.68,
+            "ic_lo": -33.89,
+            "ic_hi": -13.84,
+            "n": 228
+          },
+          {
+            "h": 21,
+            "etiqueta": "1 mes",
+            "valor": -36.73,
+            "ic_lo": -58.37,
+            "ic_hi": -16.28,
+            "n": 228
+          },
+          {
+            "h": 63,
+            "etiqueta": "3 meses",
+            "valor": 0.21,
+            "ic_lo": -65.88,
+            "ic_hi": 67.72,
+            "n": 228
+          },
+          {
+            "h": 126,
+            "etiqueta": "6 meses",
+            "valor": 98.04,
+            "ic_lo": 14.68,
+            "ic_hi": 183.73,
+            "n": 228
+          }
+        ],
+        "nota": "La reversión del spread suele ser lenta: a plazos cortos el movimiento puede incluso continuar antes de revertir, y solo a horizontes largos el spread tiende a volver. La curva muestra a qué plazo —si alguno— la reversión es distinguible del azar."
       }
     },
     {
@@ -4432,40 +5854,40 @@
             "etiqueta": "1 sem",
             "valor": -0.22,
             "ic_lo": -0.38,
-            "ic_hi": -0.06,
-            "n": 2004
+            "ic_hi": -0.07,
+            "n": 2002
           },
           {
             "h": 10,
             "etiqueta": "2 sem",
             "valor": -0.15,
             "ic_lo": -0.36,
-            "ic_hi": 0.07,
-            "n": 2001
+            "ic_hi": 0.06,
+            "n": 1999
           },
           {
             "h": 21,
             "etiqueta": "1 mes",
-            "valor": -0.08,
+            "valor": -0.07,
             "ic_lo": -0.44,
-            "ic_hi": 0.28,
-            "n": 1991
+            "ic_hi": 0.3,
+            "n": 1989
           },
           {
             "h": 42,
             "etiqueta": "2 meses",
             "valor": -0.88,
             "ic_lo": -1.54,
-            "ic_hi": -0.24,
-            "n": 1961
+            "ic_hi": -0.23,
+            "n": 1959
           },
           {
             "h": 63,
             "etiqueta": "3 meses",
             "valor": -0.94,
-            "ic_lo": -1.83,
-            "ic_hi": -0.06,
-            "n": 1952
+            "ic_lo": -1.84,
+            "ic_hi": -0.07,
+            "n": 1950
           }
         ],
         "nota": "Es un estudio de eventos histórico, distinto del forward-test en vivo de más arriba. Confirma a Fosback: las señales de volumen a corto sobre acciones individuales no producen exceso de retorno fiable; el intervalo abraza el cero."
