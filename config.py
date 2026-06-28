@@ -8,9 +8,12 @@ activo nuevo es tocar solo este archivo (mas su modelo, si lo lleva).
 # Tickers en Yahoo Finance (fuente primaria) y Stooq (respaldo).
 # GC=F = futuro del oro, SI=F = futuro de la plata, ^GSPC = S&P 500.
 ACTIVOS = {
-    "oro":   {"yahoo": "GC=F",  "stooq": "xauusd"},
-    "plata": {"yahoo": "SI=F",  "stooq": "xagusd"},
-    "sp500": {"yahoo": "^GSPC", "stooq": "^spx"},
+    "oro":     {"yahoo": "GC=F",  "stooq": "xauusd"},
+    "plata":   {"yahoo": "SI=F",  "stooq": "xagusd"},
+    "platino": {"yahoo": "PL=F",  "stooq": "xptusd"},
+    "paladio": {"yahoo": "PA=F",  "stooq": "xpdusd"},
+    "cobre":   {"yahoo": "HG=F",  "stooq": "hg.f"},
+    "sp500":   {"yahoo": "^GSPC", "stooq": "^spx"},
 }
 
 # Anos de historico a descargar.

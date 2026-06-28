@@ -31,6 +31,15 @@ NAIVE_WIN = 21          # ventana del baseline ingenuo (vol. reciente)
 REFIT_GARCH = 63        # reajustar el GARCH cada ~trimestre (estable, mas rapido)
 ACTIVO = "oro"
 
+# Metales sobre los que corre el GARCH (oro ya estaba; los demas se anaden aqui).
+METALES = ["oro", "plata", "platino", "paladio", "cobre"]
+NOMBRE_METAL = {"oro": "oro", "plata": "plata", "platino": "platino",
+                "paladio": "paladio", "cobre": "cobre"}
+ARTICULO = {"oro": "del oro", "plata": "de la plata", "platino": "del platino",
+            "paladio": "del paladio", "cobre": "del cobre"}
+COLOR_METAL = {"oro": "#e8b23a", "plata": "#c0c5cc", "platino": "#8fb8c9",
+               "paladio": "#b48ad6", "cobre": "#d08a5a"}
+
 HORIZONTES_G = [1, 5, 10, 21, 63]
 LABEL_H = {1: "1 día", 5: "1 sem", 10: "2 sem", 21: "1 mes", 63: "3 meses"}
 
@@ -41,8 +50,30 @@ LABEL_PREV = {1: "1 día", 5: "1 sem", 10: "2 sem", 21: "1 mes",
 SKILL_SET = set(HORIZONTES_G)
 
 
+def _serie_sintetica(activo):
+    """Serie de precios sintética con clustering de volatilidad (para pruebas offline)."""
+    seed = abs(hash(activo)) % (2**31)
+    rng = np.random.default_rng(seed)
+    n = 3500
+    sigma2 = 1.0
+    om, al, be = 0.02, 0.08, 0.90
+    r = np.empty(n)
+    for i in range(n):
+        sigma2 = om + al * (r[i - 1] ** 2 if i else 0.0) + be * sigma2
+        r[i] = rng.normal(0, np.sqrt(sigma2))
+    precio = 100.0 * np.exp(np.cumsum(r) / 100.0)
+    idx = pd.bdate_range(end="2024-07-01", periods=n)
+    return pd.Series(precio, index=idx)
+
+
 def _retornos(sintetico=False, activo=ACTIVO):
-    serie = (data.cargar_sinteticos() if sintetico else data.cargar_panel([activo]))[activo]
+    if sintetico:
+        if activo in ("oro", "plata"):
+            serie = data.cargar_sinteticos()[activo]
+        else:
+            serie = _serie_sintetica(activo)
+    else:
+        serie = data.cargar_panel([activo])[activo]
     r = (np.log(serie / serie.shift(1)).dropna()) * 100.0   # retornos diarios en %
     return r
 
@@ -73,19 +104,22 @@ def _bootstrap_mejora(perd_naive, perd_garch, n_boot=2000, seed=11, bloque=21):
             "ic90": [round(float(lo), 2), round(float(hi), 2)]}
 
 
-def _sin_datos(msg):
-    return {"id": "garch_vol", "etiqueta": "GARCH (volatilidad del oro)",
+def _sin_datos(msg, activo="oro"):
+    return {"id": f"garch_{activo}", "etiqueta": f"GARCH (volatilidad {ARTICULO[activo]})",
             "tipo": "Volatilidad · GARCH(1,1) · fuera de muestra",
             "modelo": "garch_1_1", "sin_datos": True, "sin_datos_txt": msg}
 
 
-def evaluar_garch(sintetico=False):
+def evaluar_garch(sintetico=False, activo="oro"):
     from arch import arch_model
-    r = _retornos(sintetico=sintetico)
+    try:
+        r = _retornos(sintetico=sintetico, activo=activo)
+    except Exception:
+        return _sin_datos(f"No se pudieron cargar datos {ARTICULO[activo]} todavía.", activo)
     fechas, vals, n = r.index, r.values, len(r)
     train = config.TRAIN_WINDOW
     if n < train + 100:
-        return _sin_datos("No hay suficiente histórico para evaluar el GARCH todavía.")
+        return _sin_datos("No hay suficiente histórico para evaluar el GARCH todavía.", activo)
 
     fc_g, fc_n, rv_real, ev_idx = [], [], [], []
     HZ_g = {h: [] for h in HORIZONTES_G}   # QLIKE del GARCH por horizonte
@@ -137,7 +171,7 @@ def evaluar_garch(sintetico=False):
         t += 1
 
     if len(fc_g) < 100:
-        return _sin_datos("El ajuste del GARCH no produjo suficientes previsiones.")
+        return _sin_datos("El ajuste del GARCH no produjo suficientes previsiones.", activo)
 
     fc_g = np.array(fc_g); fc_n = np.array(fc_n); rv_real = np.array(rv_real)
     perd_g, perd_n = _qlike(rv_real, fc_g), _qlike(rv_real, fc_n)
@@ -164,11 +198,15 @@ def evaluar_garch(sintetico=False):
     curva = [{"fecha": fechas_ev[i], "valor": round(float(vp[i]), 1)} for i in range(0, len(vp), PASO)]
     curva2 = [{"fecha": fechas_ev[i], "valor": round(float(vr[i]), 1)} for i in range(0, len(vr), PASO)]
 
+    nombre = NOMBRE_METAL[activo]
+    color = COLOR_METAL[activo]
     return {
-        "id": "garch_vol",
-        "etiqueta": "GARCH (volatilidad del oro)",
+        "id": f"garch_{activo}",
+        "etiqueta": f"GARCH (volatilidad {ARTICULO[activo]})",
         "tipo": "Volatilidad · GARCH(1,1) · fuera de muestra",
         "modelo": "garch_1_1",
+        "metal": activo,
+        "color": color,
         "headline": {"valor": round(mejora, 1),
                      "etiqueta": "Mejora del error de previsión vs modelo ingenuo",
                      "sufijo": "%", "decimales": 1},
@@ -184,18 +222,19 @@ def evaluar_garch(sintetico=False):
         "diagnostico": {},
         "curva": curva,
         "curva2": {"nombre": "Volatilidad real (21d)", "datos": curva2},
+        "curva_color": color,
         "curva_unidad": "%",
         "curva_base": round(float(np.nanmean(vr)), 1),
-        "curva_titulo": "Volatilidad del oro: prevista vs realizada",
-        "curva_sub": ("La línea dorada es la volatilidad que el modelo anticipa para cada día; "
-                      "la azul, la que de verdad ocurrió. Cuanto más se siguen, mejor anticipa "
-                      "las tormentas. La línea de puntos es la volatilidad media."),
+        "curva_titulo": f"Volatilidad {ARTICULO[activo]}: prevista vs realizada",
+        "curva_sub": (f"La línea de color es la volatilidad que el modelo anticipa para cada día; "
+                      f"la azul, la que de verdad ocurrió. Cuanto más se siguen, mejor anticipa "
+                      f"las tormentas. La línea de puntos es la volatilidad media."),
         "horizonte": _horizonte_garch(HZ_g, HZ_n, alpha_beta),
-        "prevision": _prevision_actual(vals, fechas, RATIO),
+        "prevision": _prevision_actual(vals, fechas, RATIO, activo),
     }
 
 
-def _prevision_actual(vals, fechas, RATIO):
+def _prevision_actual(vals, fechas, RATIO, activo="oro"):
     """Estructura de plazos de la volatilidad esperada DESDE HOY (1 día..1 año), con banda."""
     from arch import arch_model
     try:
@@ -226,7 +265,8 @@ def _prevision_actual(vals, fechas, RATIO):
         regimen = (f"Tranquilo: la volatilidad está por debajo de su media (~{vol_lr:.1f}%). "
                    f"El modelo espera que repunte hacia ese nivel.")
     return {
-        "titulo": "Previsión actual de volatilidad del oro",
+        "titulo": f"Previsión actual de volatilidad {ARTICULO[activo]}",
+        "color": COLOR_METAL[activo],
         "sub": ("Volatilidad anualizada que el GARCH espera DESDE LA ÚLTIMA SESIÓN, para cada "
                 "horizonte. Es una estimación viva: cambia cada día con los datos nuevos."),
         "fecha": fechas[-1].strftime("%Y-%m-%d"),
@@ -267,4 +307,56 @@ def _horizonte_garch(HZ_g, HZ_n, alpha_beta):
                  f"cambio, revierte hacia la volatilidad media de largo plazo. Por eso su ventaja "
                  f"relativa {tendencia} con el plazo (persistencia {alpha_beta:.2f}): la curva "
                  f"muestra hasta dónde aporta el modelo."),
+    }
+
+
+def panel_metales(resultados):
+    """Construye el experimento 'panel' conjunto a partir de los GARCH individuales.
+
+    `resultados` es {activo: dict_resultado}. Reutiliza la previsión (estructura de
+    plazos) y la curva de volatilidad realizada de cada metal: no recalcula nada.
+    """
+    metales = []
+    for activo in METALES:
+        ex = resultados.get(activo)
+        if not ex or ex.get("sin_datos"):
+            continue
+        prev = ex.get("prevision") or {}
+        pts = prev.get("puntos", [])
+        # serie histórica (submuestreada a ~220 puntos para que el conjunto no pese)
+        hist = ex.get("curva2", {}).get("datos", [])
+        paso = max(1, len(hist) // 220)
+        hist_ds = hist[::paso]
+        metales.append({
+            "nombre": NOMBRE_METAL[activo].capitalize(),
+            "metal": activo,
+            "color": COLOR_METAL[activo],
+            "actual": prev.get("actual"),
+            "largo_plazo": prev.get("largo_plazo"),
+            "prev": [{"etiqueta": p["etiqueta"], "vol": p["vol"]} for p in pts],
+            "hist": hist_ds,
+        })
+    if len(metales) < 2:
+        return None
+    # etiquetas de plazo comunes (del primero que tenga previsión)
+    etiquetas = next((["", *[p["etiqueta"] for p in m["prev"]]][1:] for m in metales if m["prev"]), [])
+    return {
+        "id": "panel_metales",
+        "etiqueta": "Panel de volatilidad de metales",
+        "tipo": "Volatilidad · GARCH(1,1) · comparativa de metales",
+        "modelo": "garch_1_1",
+        "panel": True,
+        "metales": metales,
+        "plazos": etiquetas,
+        "prev_titulo": "Previsión actual de volatilidad por metal",
+        "prev_sub": ("Estructura de plazos que el GARCH espera hoy para cada metal (1 día → 1 año). "
+                     "La pendiente dice el régimen: si baja, el metal está movido y se espera calma; "
+                     "si sube, está tranquilo y se espera repunte."),
+        "hist_titulo": "Volatilidad realizada por metal (anualizada, 21 días)",
+        "hist_sub": ("La volatilidad que de verdad ocurrió en cada metal a lo largo del tiempo. "
+                     "Permite comparar quién es estructuralmente más nervioso."),
+        "unidad": "%",
+        "nota": ("Industriales (cobre, paladio) suelen ser más volátiles que los refugios (oro). "
+                 "El paladio, por su mercado pequeño y concentrado, es de los más extremos. "
+                 "No es recomendación de inversión."),
     }

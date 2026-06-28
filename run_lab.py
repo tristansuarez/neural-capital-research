@@ -98,14 +98,31 @@ def main(sintetico: bool = False):
     else:
         print(f"   exceso medio = {kon['headline']['valor']}%  p={kon['significancia']['p_valor']}", flush=True)
 
-    # GARCH de volatilidad: no opera; mide si prevé la volatilidad mejor que lo ingenuo.
-    print("-> GARCH (volatilidad del oro) ...", flush=True)
-    gar = garch_forward.evaluar_garch(sintetico=sintetico)
-    salida.append(gar)
-    if gar.get("sin_datos"):
-        print("   (sin datos suficientes)", flush=True)
+    # GARCH de volatilidad por metal: no opera; mide si prevé la volatilidad mejor que lo ingenuo.
+    resultados_garch = {}
+    for metal in garch_forward.METALES:
+        print(f"-> GARCH (volatilidad de {metal}) ...", flush=True)
+        try:
+            gar = garch_forward.evaluar_garch(sintetico=sintetico, activo=metal)
+        except Exception as e:
+            print(f"   fallo: {e}", flush=True)
+            continue
+        resultados_garch[metal] = gar
+        salida.append(gar)
+        if gar.get("sin_datos"):
+            print("   (sin datos suficientes)", flush=True)
+        else:
+            print(f"   mejora vs ingenuo = {gar['headline']['valor']}%  "
+                  f"p={gar['significancia']['p_valor']}", flush=True)
+
+    # Panel conjunto de volatilidad de metales (comparativa).
+    print("-> Panel de volatilidad de metales ...", flush=True)
+    panel = garch_forward.panel_metales(resultados_garch)
+    if panel:
+        salida.append(panel)
+        print(f"   {len(panel['metales'])} metales en el panel", flush=True)
     else:
-        print(f"   mejora vs ingenuo = {gar['headline']['valor']}%  p={gar['significancia']['p_valor']}", flush=True)
+        print("   (no hay suficientes metales con datos)", flush=True)
 
     doc = {
         "generado": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),

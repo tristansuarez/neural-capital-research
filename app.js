@@ -11,13 +11,21 @@ function navHTML(active){
     ['koncorde',      'KONCORDE (S&P 500)'],
   ];
   const mods = modelos.map(([id,n]) =>
-    `<a href="lab.html?id=${id}" class="${id===active?'active':''}">${n}</a>`).join('')
-    + `<a href="lab.html?id=garch_vol" class="${active==='garch_vol'?'active':''}">GARCH (volatilidad)</a>`;
+    `<a href="lab.html?id=${id}" class="${id===active?'active':''}">${n}</a>`).join('');
+  const metales = [
+    ['garch_oro','Oro'],['garch_plata','Plata'],['garch_platino','Platino'],
+    ['garch_paladio','Paladio'],['garch_cobre','Cobre'],
+  ];
+  const vols = `<a href="lab.html?id=panel_metales" class="${active==='panel_metales'?'active':''}"><b>Panel de metales</b></a>`
+    + metales.map(([id,n]) =>
+      `<a href="lab.html?id=${id}" class="${id===active?'active':''}">${n}</a>`).join('');
   return `<div class="nav-inner">
     <a class="nav-logo" href="lab.html?id=par_oro_plata">Neural <b>Capital</b> Research</a>
     <div class="nav-menu">
       <div class="nav-item"><button class="nav-trigger" type="button">Modelos ▾</button>
         <div class="nav-drop">${mods}</div></div>
+      <div class="nav-item"><button class="nav-trigger" type="button">Volatilidad ▾</button>
+        <div class="nav-drop">${vols}</div></div>
       <div class="nav-item"><button class="nav-trigger" type="button">Operaciones ▾</button>
         <div class="nav-drop">
           <a href="lab.html?id=koncorde#operaciones">Acciones (S&P 500)</a>
@@ -54,12 +62,22 @@ function observeReveals(){
 let chart = null;
 let hzChart = null;
 let pvChart = null;
+let pvPanelChart = null;
+let histPanelChart = null;
 function clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
 
 function render(exp){
   const h = exp.headline, s = exp.significancia, d = exp.diagnostico || {};
   const app = document.getElementById('app');
   const titulo = `<h1 class="model-title">${exp.etiqueta || ''}</h1>`;
+
+  if(exp.panel){
+    app.innerHTML = titulo + `<div class="tipo">▸ ${exp.tipo}</div>${panelHTML(exp)}`;
+    drawPanelPrev(exp);
+    drawPanelHist(exp);
+    requestAnimationFrame(()=>document.querySelectorAll('.reveal').forEach(e=>e.classList.add('in')));
+    return;
+  }
 
   if(exp.sin_datos){
     app.innerHTML = titulo + `<div class="tipo">▸ ${exp.tipo}</div>
@@ -175,9 +193,11 @@ function drawChart(exp){
   const labels = curva.map(p=>p.fecha);
   const unidad = exp.curva_unidad || '×';
   const base = (exp.curva_base !== undefined) ? exp.curva_base : 1;
+  const col = exp.curva_color || '#e8b23a';
+  const rgb = col.replace('#','').match(/.{2}/g).map(x=>parseInt(x,16)).join(',');
   const datasets = [
-    {label:'Modelo', data:curva.map(p=>p.valor), borderColor:'#e8b23a', borderWidth:2, pointRadius:0, tension:.12,
-     fill:true, backgroundColor:(c)=>{const g=c.chart.ctx.createLinearGradient(0,0,0,300); g.addColorStop(0,'rgba(232,178,58,.18)'); g.addColorStop(1,'rgba(232,178,58,0)'); return g;}}
+    {label:'Modelo', data:curva.map(p=>p.valor), borderColor:col, borderWidth:2, pointRadius:0, tension:.12,
+     fill:true, backgroundColor:(c)=>{const g=c.chart.ctx.createLinearGradient(0,0,0,300); g.addColorStop(0,`rgba(${rgb},.18)`); g.addColorStop(1,`rgba(${rgb},0)`); return g;}}
   ];
   if(exp.curva2 && exp.curva2.datos){
     datasets.push({label: exp.curva2.nombre || 'Referencia', data: exp.curva2.datos.map(p=>p.valor),
@@ -205,6 +225,74 @@ function drawChart(exp){
       }
     }
   });
+}
+
+// ---------- Panel conjunto de volatilidad de metales ----------
+function panelHTML(exp){
+  const u = exp.unidad || '%';
+  const ms = exp.metales || [];
+  const leyenda = ms.map(m=>`<span class="lg"><i style="background:${m.color}"></i>${m.nombre}</span>`).join('');
+  // tabla resumen: previsión a 1 día y media de largo plazo por metal
+  const filas = ms.map(m=>`<tr>
+     <td><span class="dot" style="background:${m.color}"></span>${m.nombre}</td>
+     <td class="pos">${m.actual!=null?m.actual+u:'—'}</td>
+     <td class="est-obs">${m.largo_plazo!=null?m.largo_plazo+u:'—'}</td></tr>`).join('');
+  return `
+    <div class="chartbox reveal" id="prevision">
+      <h3>${exp.prev_titulo}</h3>
+      <div class="ch-sub">${exp.prev_sub}</div>
+      <div class="lg-row">${leyenda}</div>
+      <div class="canvas-h"><canvas id="pvpanel"></canvas></div>
+      <div class="ops-scroll" style="margin-top:14px"><table class="ops">
+        <thead><tr><th>Metal</th><th>Espera ahora · 1 día</th><th>Media largo plazo</th></tr></thead>
+        <tbody>${filas}</tbody></table></div>
+    </div>
+    <div class="chartbox reveal">
+      <h3>${exp.hist_titulo}</h3>
+      <div class="ch-sub">${exp.hist_sub}</div>
+      <div class="lg-row">${leyenda}</div>
+      <div class="canvas-h"><canvas id="histpanel"></canvas></div>
+      ${exp.nota?`<div class="ch-sub" style="margin-top:14px">${exp.nota}</div>`:''}
+    </div>`;
+}
+
+function drawPanelPrev(exp){
+  if(pvPanelChart){ pvPanelChart.destroy(); pvPanelChart = null; }
+  const ms = exp.metales || [];
+  const ctx = document.getElementById('pvpanel'); if(!ctx) return;
+  const labels = exp.plazos || (ms[0] ? ms[0].prev.map(p=>p.etiqueta) : []);
+  const u = exp.unidad || '%';
+  const datasets = ms.map(m=>({
+    label:m.nombre, data:m.prev.map(p=>p.vol), borderColor:m.color, backgroundColor:m.color,
+    borderWidth:2.4, pointRadius:3, pointBackgroundColor:m.color, tension:.1
+  }));
+  pvPanelChart = new Chart(ctx,{type:'line', data:{labels, datasets}, options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>'  '+c.dataset.label+': '+c.parsed.y.toFixed(1)+u}}},
+    scales:{x:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#8a97a6', font:{family:'JetBrains Mono'}}},
+      y:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#5c6775', font:{family:'JetBrains Mono'}, callback:v=>v+u}}}
+  }});
+}
+
+function drawPanelHist(exp){
+  if(histPanelChart){ histPanelChart.destroy(); histPanelChart = null; }
+  const ms = exp.metales || [];
+  const ctx = document.getElementById('histpanel'); if(!ctx) return;
+  const u = exp.unidad || '%';
+  // eje X común: fechas del metal con más historia
+  let base = []; ms.forEach(m=>{ if(m.hist && m.hist.length>base.length) base = m.hist.map(p=>p.fecha); });
+  const datasets = ms.map(m=>{
+    const mp = new Map((m.hist||[]).map(p=>[p.fecha, p.valor]));
+    return {label:m.nombre, data:base.map(f=>mp.has(f)?mp.get(f):null), borderColor:m.color,
+      backgroundColor:m.color, borderWidth:1.4, pointRadius:0, tension:.15, spanGaps:true};
+  });
+  histPanelChart = new Chart(ctx,{type:'line', data:{labels:base, datasets}, options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{mode:'index', intersect:false,
+      callbacks:{label:c=>c.parsed.y==null?null:'  '+c.dataset.label+': '+c.parsed.y.toFixed(1)+u}}},
+    scales:{x:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#5c6775', maxTicksLimit:6, font:{family:'JetBrains Mono'}}},
+      y:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#5c6775', font:{family:'JetBrains Mono'}, callback:v=>v+u}}}
+  }});
 }
 
 // ---------- Previsión actual de volatilidad (estructura de plazos) ----------
@@ -242,14 +330,15 @@ function drawPrevision(exp){
   const lo = pv.puntos.map(p=>p.lo);
   const u = pv.unidad || '%';
   const lr = pv.largo_plazo;
+  const col = pv.color || '#e8b23a';
   pvChart = new Chart(ctx,{
     type:'line',
     data:{labels, datasets:[
       {label:'banda sup', data:hi, borderColor:'transparent', pointRadius:0, fill:'+1',
        backgroundColor:'rgba(232,178,58,.13)'},
       {label:'banda inf', data:lo, borderColor:'transparent', pointRadius:0, fill:false},
-      {label:'Volatilidad esperada', data:vol, borderColor:'#e8b23a', borderWidth:2.5,
-       pointRadius:4, pointBackgroundColor:'#e8b23a', tension:.1},
+      {label:'Volatilidad esperada', data:vol, borderColor:col, borderWidth:2.5,
+       pointRadius:4, pointBackgroundColor:col, tension:.1},
       {label:'media de largo plazo', data:labels.map(()=>lr), borderColor:'#5fb7c4',
        borderWidth:1, borderDash:[5,5], pointRadius:0}
     ]},
@@ -305,14 +394,15 @@ function drawHorizonte(exp){
   const hi = hz.puntos.map(p=>p.ic_hi);
   const lo = hz.puntos.map(p=>p.ic_lo);
   const u = hz.unidad || '%';
+  const col = exp.color || '#e8b23a';
   hzChart = new Chart(ctx,{
     type:'line',
     data:{labels, datasets:[
       {label:'IC sup', data:hi, borderColor:'transparent', pointRadius:0, fill:'+1',
        backgroundColor:'rgba(232,178,58,.13)'},
       {label:'IC inf', data:lo, borderColor:'transparent', pointRadius:0, fill:false},
-      {label:'Ventaja media', data:central, borderColor:'#e8b23a', borderWidth:2.5,
-       pointRadius:4, pointBackgroundColor:'#e8b23a', tension:.1},
+      {label:'Ventaja media', data:central, borderColor:col, borderWidth:2.5,
+       pointRadius:4, pointBackgroundColor:col, tension:.1},
       {label:'cero', data:labels.map(()=>0), borderColor:'#5c6775', borderWidth:1,
        borderDash:[5,5], pointRadius:0}
     ]},
@@ -333,7 +423,8 @@ function drawHorizonte(exp){
 
 // ---------- Arranque del laboratorio ----------
 async function initLab(){
-  const id0 = new URLSearchParams(location.search).get('id') || 'par_oro_plata';
+  let id0 = new URLSearchParams(location.search).get('id') || 'par_oro_plata';
+  if(id0 === 'garch_vol') id0 = 'garch_oro';   // compatibilidad con el enlace antiguo
   mountNav(id0);
   let doc;
   try{
