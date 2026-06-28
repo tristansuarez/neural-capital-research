@@ -511,7 +511,15 @@ async function initLab(){
     s.style.display = 'block';
     s.innerHTML = `<span class="badge-syn">⚠ datos de verificación · no reales</span>`;
   }
-  const exp = doc.experimentos.find(e=>e.id===id0) || doc.experimentos[0];
+  const exp = doc.experimentos.find(e=>e.id===id0);
+  if(!exp){
+    mountNav(id0);
+    document.getElementById('meta').textContent = 'Última corrida: ' + doc.generado;
+    document.getElementById('aviso').style.display = 'none';
+    document.getElementById('app').innerHTML =
+      `<div class="empty"><b>Aún no disponible</b>Este experimento todavía no está en la última corrida del laboratorio. Puede estar calculándose ahora mismo, o no haber tenido datos suficientes hoy —algo habitual en el intradía si Yahoo limita las descargas—. Vuelve a probar cuando termine la corrida (pestaña <b>Actions</b> del repositorio).</div>`;
+    return;
+  }
   mountNav(exp.id);
   render(exp);
   if(location.hash === '#operaciones'){

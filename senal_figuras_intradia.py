@@ -29,6 +29,17 @@ import escaner_senales_telegram as esc
 UNIVERSO = 120   # nº de valores escaneados (acotado para no saturar Yahoo)
 
 
+def _bar_fresca(ts, horas=3):
+    """True si la última vela cerró hace <= 'horas'. Descarta festivos y mercado cerrado
+    sin necesidad de un calendario: si el mercado está cerrado, la última vela es vieja."""
+    try:
+        t = pd.Timestamp(ts)
+        t = t.tz_localize("UTC") if t.tzinfo is None else t.tz_convert("UTC")
+        return (pd.Timestamp.now(tz="UTC") - t) <= pd.Timedelta(hours=horas)
+    except Exception:
+        return True
+
+
 def _veredictos():
     try:
         with open("resultados.json", encoding="utf-8") as fh:
@@ -77,6 +88,8 @@ def main():
                 sub = df[tk].dropna()
                 if len(sub) < 120:
                     continue
+                if not _bar_fresca(sub.index[-1]):
+                    continue   # festivo / fuera de mercado: la última vela no es de ahora
                 H = np.asarray(sub["High"].values, float)
                 L = np.asarray(sub["Low"].values, float)
                 C = np.asarray(sub["Close"].values, float)
