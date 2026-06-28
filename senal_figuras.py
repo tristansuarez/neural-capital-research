@@ -167,24 +167,23 @@ def main():
                     return "🟢"
             return "⚪"
 
-        # importancia: primero veredicto significativo, luego más fuerza
+        # importancia: primero veredicto significativo, luego más fuerza (TODAS)
         top = sorted(hallazgos, key=lambda h: (0 if _emoji(h["figura"]) != "⚪" else 1,
-                                               -h.get("fuerza", 0)))[:12]
-        lineas = [f"📐 FIGURAS TÉCNICAS · {fecha}",
-                  f"Las {len(top)} más decisivas de hoy (de {len(hallazgos)} detectadas). "
-                  f"Informativo, no señal: las rupturas tienden a revertir.",
+                                               -h.get("fuerza", 0)))
+        cuerpo = [f"📐 FIGURAS TÉCNICAS · {fecha}",
+                  f"Todas las decisivas de hoy ({len(top)}). Informativo, no señal: "
+                  f"las rupturas tienden a revertir.",
                   "🔴 históricamente falla · 🟢 ventaja (rara) · ⚪ sin ventaja\n"]
         for h in top:
-            lineas.append(f"{_emoji(h['figura'])} {h['nombre']} · {h['ticker']} "
+            cuerpo.append(f"{_emoji(h['figura'])} {h['nombre']} · {h['ticker']} "
                           f"{h['precio']:.2f} · 💪{h.get('fuerza', 0)}")
-        lineas.append("\n🌐 tristansuarez.github.io/neural-capital-research")
-        lineas.append("⚠️ Educativo. No es recomendación de inversión.")
-        texto = "\n".join(lineas)
-        if args.telegram:
-            for trozo in esc.trocear(texto):
+        pie = ("🌐 tristansuarez.github.io/neural-capital-research\n"
+               "⚠️ Educativo. No es recomendación de inversión.")
+        for trozo in esc.trocear_con_pie("\n".join(cuerpo), pie):
+            if args.telegram:
                 esc.enviar_telegram(trozo)
-        else:
-            print(texto)
+            else:
+                print(trozo)
 
     # --- mensaje 2: radar de compresión (las más fuertes, sin repetir) ---
     recientes = _comp_recientes()
@@ -201,19 +200,19 @@ def main():
                 w.writerow([c["ticker"], c["fecha"], f"{c['precio']:.2f}", int(c["fuerza"]),
                             c["box_lo"], c["box_hi"], dt.datetime.now(dt.timezone.utc).isoformat()])
         fecha = nuevas[0]["fecha"]
-        lineas = [f"🎯 RADAR DE COMPRESIÓN · {fecha}",
-                  "Valores muy contraídos: ruptura probable pronto. Dirección DESCONOCIDA. INFORMATIVO, no señal.",
+        cuerpo = [f"🎯 RADAR DE COMPRESIÓN · {fecha}",
+                  "Valores muy contraídos: ruptura probable pronto. Dirección DESCONOCIDA. Informativo, no señal.",
                   f"({_veredicto_compresion(vd)})\n"]
         for c in nuevas:
-            lineas.append(f"• {c['ticker']} — {c['precio']:.2f}  (compresión {int(c['fuerza'])}/100 · "
+            cuerpo.append(f"• {c['ticker']} — {c['precio']:.2f}  (compresión {int(c['fuerza'])}/100 · "
                           f"rango {c['box_lo']}–{c['box_hi']})")
-        lineas.append("\n⚠️ Una compresión dice que VA a moverse, no hacia dónde ni que pague. No es recomendación.")
-        texto = "\n".join(lineas)
-        if args.telegram:
-            for trozo in esc.trocear(texto):
+        pie = ("🌐 tristansuarez.github.io/neural-capital-research\n"
+               "⚠️ Una compresión dice que VA a moverse, no hacia dónde ni que pague. No es recomendación.")
+        for trozo in esc.trocear_con_pie("\n".join(cuerpo), pie):
+            if args.telegram:
                 esc.enviar_telegram(trozo)
-        else:
-            print(texto)
+            else:
+                print(trozo)
 
 
 if __name__ == "__main__":

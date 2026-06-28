@@ -256,6 +256,25 @@ def trocear(texto, limite=4000):
     return trozos
 
 
+def trocear_con_pie(cuerpo, pie="", limite=3800):
+    """Parte 'cuerpo' por lineas en trozos <= limite y pega 'pie' SIEMPRE al ultimo
+    trozo (asi el enlace nunca se queda en un mensaje suelto, mida lo que mida)."""
+    trozos, actual, n = [], [], 0
+    for ln in cuerpo.split("\n"):
+        if actual and n + len(ln) + 1 > limite:
+            trozos.append("\n".join(actual))
+            actual, n = [], 0
+        actual.append(ln)
+        n += len(ln) + 1
+    if actual:
+        trozos.append("\n".join(actual))
+    if not trozos:
+        trozos = [""]
+    if pie:
+        trozos[-1] = trozos[-1].rstrip() + "\n\n" + pie
+    return trozos
+
+
 # --------------------------- Telegram publica --------------------------- #
 def enviar_telegram(texto):
     """Publica 'texto' en el canal de Telegram. Devuelve (ok, detalle)."""

@@ -125,23 +125,21 @@ def main():
         return "⚪"
 
     top = sorted(hall, key=lambda h: (0 if _emoji(h["figura"]) != "⚪" else 1,
-                                      -h.get("fuerza", 0)))[:12]
-    lineas = [f"⏱️ FIGURAS INTRADÍA (1h) · {hora}",
-              f"Las {len(top)} más decisivas de la última vela (de {len(hall)}). "
-              f"Informativo, no señal: las rupturas tienden a revertir.",
+                                      -h.get("fuerza", 0)))
+    cuerpo = [f"⏱️ FIGURAS INTRADÍA (1h) · {hora}",
+              f"Todas las decisivas de la última vela ({len(top)}). Informativo, no señal: "
+              f"las rupturas tienden a revertir.",
               "🔴 históricamente falla · 🟢 ventaja (rara) · ⚪ sin ventaja\n"]
     for h in top:
-        lineas.append(f"{_emoji(h['figura'])} {h['nombre']} · {h['ticker']} "
+        cuerpo.append(f"{_emoji(h['figura'])} {h['nombre']} · {h['ticker']} "
                       f"{h['precio']:.2f} · 💪{h.get('fuerza', 0)}")
-    lineas.append("\n🌐 tristansuarez.github.io/neural-capital-research")
-    lineas.append("⚠️ Educativo. No es recomendación de inversión.")
-    texto = "\n".join(lineas)
-
-    if args.telegram:
-        for trozo in esc.trocear(texto):
+    pie = ("🌐 tristansuarez.github.io/neural-capital-research\n"
+           "⚠️ Educativo. No es recomendación de inversión.")
+    for trozo in esc.trocear_con_pie("\n".join(cuerpo), pie):
+        if args.telegram:
             esc.enviar_telegram(trozo)
-    else:
-        print(texto)
+        else:
+            print(trozo)
 
 
 if __name__ == "__main__":
