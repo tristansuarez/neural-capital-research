@@ -1,5 +1,5 @@
 {
-  "generado": "2026-06-28 21:31 UTC",
+  "generado": "2026-06-28 22:07 UTC",
   "sintetico": false,
   "aviso": "Laboratorio de experimentacion de modelos. NO es recomendacion de inversion. Todas las metricas son fuera de muestra (walk-forward) y netas de costes. Un Sharpe con p-valor alto NO es distinguible del azar.",
   "experimentos": [
@@ -5854,8 +5854,8 @@
             "etiqueta": "1 sem",
             "valor": -0.22,
             "ic_lo": -0.38,
-            "ic_hi": -0.07,
-            "n": 2002
+            "ic_hi": -0.06,
+            "n": 2007
           },
           {
             "h": 10,
@@ -5863,31 +5863,31 @@
             "valor": -0.15,
             "ic_lo": -0.36,
             "ic_hi": 0.06,
-            "n": 1999
+            "n": 2004
           },
           {
             "h": 21,
             "etiqueta": "1 mes",
             "valor": -0.07,
             "ic_lo": -0.44,
-            "ic_hi": 0.3,
-            "n": 1989
+            "ic_hi": 0.29,
+            "n": 1994
           },
           {
             "h": 42,
             "etiqueta": "2 meses",
             "valor": -0.88,
-            "ic_lo": -1.54,
-            "ic_hi": -0.23,
-            "n": 1959
+            "ic_lo": -1.53,
+            "ic_hi": -0.24,
+            "n": 1964
           },
           {
             "h": 63,
             "etiqueta": "3 meses",
             "valor": -0.94,
-            "ic_lo": -1.84,
+            "ic_lo": -1.85,
             "ic_hi": -0.07,
-            "n": 1950
+            "n": 1955
           }
         ],
         "nota": "Es un estudio de eventos histórico, distinto del forward-test en vivo de más arriba. Confirma a Fosback: las señales de volumen a corto sobre acciones individuales no producen exceso de retorno fiable; el intervalo abraza el cero."
@@ -39719,6 +39719,338 @@
       "hist_sub": "La volatilidad que de verdad ocurrió en cada metal a lo largo del tiempo. Permite comparar quién es estructuralmente más nervioso.",
       "unidad": "%",
       "nota": "Industriales (cobre, paladio) suelen ser más volátiles que los refugios (oro). El paladio, por su mercado pequeño y concentrado, es de los más extremos. No es recomendación de inversión."
+    },
+    {
+      "id": "figuras_tecnicas",
+      "etiqueta": "Figuras técnicas (S&P 500)",
+      "tipo": "Chartismo · event study · 60 valores · backtest 10 años",
+      "modelo": "figuras",
+      "figuras_panel": true,
+      "intro": "Cada figura se detecta con reglas fijas y se mide su retorno tras la ruptura, orientado a su dirección (alcista = sube; bajista = baja), frente a la tasa base del valor. «Ventaja» positiva = la figura funciona en su sentido.",
+      "figuras": [
+        {
+          "tipo": "ruptura_resistencia",
+          "nombre": "Ruptura de resistencia",
+          "color": "#5fb7c4",
+          "n_eventos": 1569,
+          "puntos": [
+            {
+              "etiqueta": "1 sem",
+              "valor": -0.14,
+              "ic_lo": -0.32,
+              "ic_hi": 0.04,
+              "n": 1564,
+              "sig_cruda": false,
+              "sig_fdr": false
+            },
+            {
+              "etiqueta": "2 sem",
+              "valor": -0.09,
+              "ic_lo": -0.35,
+              "ic_hi": 0.17,
+              "n": 1563,
+              "sig_cruda": false,
+              "sig_fdr": false
+            },
+            {
+              "etiqueta": "1 mes",
+              "valor": -0.73,
+              "ic_lo": -1.13,
+              "ic_hi": -0.34,
+              "n": 1553,
+              "sig_cruda": true,
+              "sig_fdr": true
+            },
+            {
+              "etiqueta": "2 meses",
+              "valor": -1.57,
+              "ic_lo": -2.27,
+              "ic_hi": -0.85,
+              "n": 1543,
+              "sig_cruda": true,
+              "sig_fdr": true
+            },
+            {
+              "etiqueta": "3 meses",
+              "valor": -1.3,
+              "ic_lo": -2.19,
+              "ic_hi": -0.38,
+              "n": 1539,
+              "sig_cruda": true,
+              "sig_fdr": true
+            }
+          ]
+        },
+        {
+          "tipo": "ruptura_soporte",
+          "nombre": "Ruptura de soporte",
+          "color": "#d2566a",
+          "n_eventos": 891,
+          "puntos": [
+            {
+              "etiqueta": "1 sem",
+              "valor": 0.14,
+              "ic_lo": -0.23,
+              "ic_hi": 0.53,
+              "n": 891,
+              "sig_cruda": false,
+              "sig_fdr": false
+            },
+            {
+              "etiqueta": "2 sem",
+              "valor": -0.13,
+              "ic_lo": -0.64,
+              "ic_hi": 0.37,
+              "n": 889,
+              "sig_cruda": false,
+              "sig_fdr": false
+            },
+            {
+              "etiqueta": "1 mes",
+              "valor": -0.64,
+              "ic_lo": -1.27,
+              "ic_hi": 0.02,
+              "n": 884,
+              "sig_cruda": false,
+              "sig_fdr": false
+            },
+            {
+              "etiqueta": "2 meses",
+              "valor": -1.67,
+              "ic_lo": -2.62,
+              "ic_hi": -0.71,
+              "n": 875,
+              "sig_cruda": true,
+              "sig_fdr": true
+            },
+            {
+              "etiqueta": "3 meses",
+              "valor": -2.52,
+              "ic_lo": -3.62,
+              "ic_hi": -1.38,
+              "n": 869,
+              "sig_cruda": true,
+              "sig_fdr": true
+            }
+          ]
+        },
+        {
+          "tipo": "ruptura_tendencia_bajista",
+          "nombre": "Ruptura de línea bajista (al alza)",
+          "color": "#6ec08a",
+          "n_eventos": 3420,
+          "puntos": [
+            {
+              "etiqueta": "1 sem",
+              "valor": -0.01,
+              "ic_lo": -0.15,
+              "ic_hi": 0.12,
+              "n": 3409,
+              "sig_cruda": false,
+              "sig_fdr": false
+            },
+            {
+              "etiqueta": "2 sem",
+              "valor": 0.09,
+              "ic_lo": -0.1,
+              "ic_hi": 0.28,
+              "n": 3400,
+              "sig_cruda": false,
+              "sig_fdr": false
+            },
+            {
+              "etiqueta": "1 mes",
+              "valor": 0.2,
+              "ic_lo": -0.1,
+              "ic_hi": 0.51,
+              "n": 3376,
+              "sig_cruda": false,
+              "sig_fdr": false
+            },
+            {
+              "etiqueta": "2 meses",
+              "valor": 0.25,
+              "ic_lo": -0.24,
+              "ic_hi": 0.72,
+              "n": 3357,
+              "sig_cruda": false,
+              "sig_fdr": false
+            },
+            {
+              "etiqueta": "3 meses",
+              "valor": 0.27,
+              "ic_lo": -0.38,
+              "ic_hi": 0.94,
+              "n": 3295,
+              "sig_cruda": false,
+              "sig_fdr": false
+            }
+          ]
+        },
+        {
+          "tipo": "ruptura_tendencia_alcista",
+          "nombre": "Ruptura de línea alcista (a la baja)",
+          "color": "#d08a5a",
+          "n_eventos": 4162,
+          "puntos": [
+            {
+              "etiqueta": "1 sem",
+              "valor": -0.08,
+              "ic_lo": -0.22,
+              "ic_hi": 0.05,
+              "n": 4156,
+              "sig_cruda": false,
+              "sig_fdr": false
+            },
+            {
+              "etiqueta": "2 sem",
+              "valor": -0.06,
+              "ic_lo": -0.24,
+              "ic_hi": 0.12,
+              "n": 4151,
+              "sig_cruda": false,
+              "sig_fdr": false
+            },
+            {
+              "etiqueta": "1 mes",
+              "valor": -0.09,
+              "ic_lo": -0.39,
+              "ic_hi": 0.2,
+              "n": 4136,
+              "sig_cruda": false,
+              "sig_fdr": false
+            },
+            {
+              "etiqueta": "2 meses",
+              "valor": -0.18,
+              "ic_lo": -0.61,
+              "ic_hi": 0.25,
+              "n": 4093,
+              "sig_cruda": false,
+              "sig_fdr": false
+            },
+            {
+              "etiqueta": "3 meses",
+              "valor": -0.33,
+              "ic_lo": -0.89,
+              "ic_hi": 0.24,
+              "n": 4071,
+              "sig_cruda": false,
+              "sig_fdr": false
+            }
+          ]
+        },
+        {
+          "tipo": "doble_suelo",
+          "nombre": "Doble suelo",
+          "color": "#b48ad6",
+          "n_eventos": 1998,
+          "puntos": [
+            {
+              "etiqueta": "1 sem",
+              "valor": 0.02,
+              "ic_lo": -0.12,
+              "ic_hi": 0.15,
+              "n": 1981,
+              "sig_cruda": false,
+              "sig_fdr": false
+            },
+            {
+              "etiqueta": "2 sem",
+              "valor": 0.17,
+              "ic_lo": -0.03,
+              "ic_hi": 0.38,
+              "n": 1975,
+              "sig_cruda": false,
+              "sig_fdr": false
+            },
+            {
+              "etiqueta": "1 mes",
+              "valor": -0.15,
+              "ic_lo": -0.47,
+              "ic_hi": 0.19,
+              "n": 1969,
+              "sig_cruda": false,
+              "sig_fdr": false
+            },
+            {
+              "etiqueta": "2 meses",
+              "valor": -1.12,
+              "ic_lo": -1.6,
+              "ic_hi": -0.66,
+              "n": 1960,
+              "sig_cruda": true,
+              "sig_fdr": true
+            },
+            {
+              "etiqueta": "3 meses",
+              "valor": -1.17,
+              "ic_lo": -1.7,
+              "ic_hi": -0.63,
+              "n": 1940,
+              "sig_cruda": true,
+              "sig_fdr": true
+            }
+          ]
+        },
+        {
+          "tipo": "doble_techo",
+          "nombre": "Doble techo",
+          "color": "#e8b23a",
+          "n_eventos": 1766,
+          "puntos": [
+            {
+              "etiqueta": "1 sem",
+              "valor": -0.01,
+              "ic_lo": -0.19,
+              "ic_hi": 0.17,
+              "n": 1765,
+              "sig_cruda": false,
+              "sig_fdr": false
+            },
+            {
+              "etiqueta": "2 sem",
+              "valor": -0.22,
+              "ic_lo": -0.48,
+              "ic_hi": 0.03,
+              "n": 1762,
+              "sig_cruda": false,
+              "sig_fdr": false
+            },
+            {
+              "etiqueta": "1 mes",
+              "valor": -0.38,
+              "ic_lo": -0.77,
+              "ic_hi": -0.0,
+              "n": 1747,
+              "sig_cruda": false,
+              "sig_fdr": false
+            },
+            {
+              "etiqueta": "2 meses",
+              "valor": -0.63,
+              "ic_lo": -1.18,
+              "ic_hi": -0.11,
+              "n": 1733,
+              "sig_cruda": true,
+              "sig_fdr": false
+            },
+            {
+              "etiqueta": "3 meses",
+              "valor": -1.1,
+              "ic_lo": -1.8,
+              "ic_hi": -0.43,
+              "n": 1727,
+              "sig_cruda": true,
+              "sig_fdr": true
+            }
+          ]
+        }
+      ],
+      "n_celdas": 30,
+      "n_fdr": 8,
+      "nota_fdr": "Se han evaluado 30 combinaciones figura×horizonte. Tras corregir por multiple-testing (Benjamini-Hochberg, FDR 10%), 8 sobreviven. La columna «cruda» marca lo que parece significativo sin corregir; la columna «FDR» marca lo que aguanta de verdad. La diferencia es la trampa del data mining.",
+      "nota": "Estudio de eventos histórico con reglas reproducibles. Si casi todo «abraza el cero» tras la corrección, es coherente con que el chartismo no dé edge fiable. No es recomendación de inversión."
     }
   ]
 }
