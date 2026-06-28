@@ -156,7 +156,7 @@
     display:flex; flex-direction:column; align-items:center; justify-content:flex-end;
     transition:opacity .6s ease}
   #intro .bg{position:absolute; inset:-8%; z-index:0; will-change:transform;
-    background:url('assets/banner.png') center/cover no-repeat;
+    background:url('assets/banner.jpg') center/cover no-repeat;
     animation:kenburns 32s ease-in-out infinite alternate}
   #intro .scrim{position:absolute; inset:0; z-index:1; pointer-events:none;
     background:linear-gradient(to top, rgba(5,7,13,.94) 4%, rgba(5,7,13,.45) 34%, rgba(5,7,13,0) 60%)}

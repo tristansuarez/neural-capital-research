@@ -3,19 +3,18 @@
 """
 escaner_senales_telegram.py
 ===========================
-Escanea el NASDAQ-100 buscando senales KONCORDE V3 (cruce de Blai5 + regimen de
+Escanea el S&P 500 buscando senales KONCORDE V3 (cruce de Blai5 + regimen de
 Fosback) en la ULTIMA sesion disponible, registra cada senal en un CSV (para poder
-medir a futuro si funciona, sin sesgo de supervivencia), le pide a OpenClaw que
-redacte el mensaje con emojis y lo PUBLICA en un canal de Telegram (gratis).
+medir a futuro si funciona, sin sesgo de supervivencia) y la PUBLICA en un canal
+de Telegram (gratis).
 
 FLUJO
 -----
 1. Python (determinista) calcula KONCORDE y detecta que valores dan senal HOY.
 2. Cada senal se guarda en senales_log.csv (ticker, fecha, precio, azul, verde).
-3. OpenClaw (qwen3:1.7b, via `openclaw infer model run`) redacta una frase con gancho.
-4. El mensaje se ensambla en plantilla fija (emojis + descargo + cashtag) y:
+3. El mensaje se ensambla en plantilla fija (frase + emojis + descargo) y:
    - se guarda en tweets_hoy.txt, y
-   - si se pasa --telegram, se publica en el canal vía la API de bots (gratis).
+   - si se pasa --telegram, se publica en el canal via la API de bots (gratis).
 
 CONFIG (variables de entorno, NO escribir en el codigo)
 -------------------------------------------------------
@@ -66,7 +65,6 @@ except ImportError:
 
 LOG_CSV = "senales_log.csv"
 TWEETS_OUT = "tweets_hoy.txt"
-MODELO = "ollama/qwen3:1.7b"
 TG_TOKEN = os.environ.get("TELEGRAM_TOKEN", "")
 TG_CHANNEL = os.environ.get("TELEGRAM_CHANNEL", "@koncorde_signals")
 
@@ -218,30 +216,6 @@ def regimen_alcista(inicio):
 
 
 # --------------------------- OpenClaw redacta --------------------------- #
-def openclaw_frase(ticker, precio):
-    """Pide a OpenClaw (qwen local) una frase con gancho. Devuelve texto o None."""
-    prompt = (
-        f"/no_think Eres un bot de bolsa. Escribe UNA sola frase corta y con energia "
-        f"(maximo 12 palabras, en espanol) anunciando que el indicador KONCORDE ha dado "
-        f"senal de entrada de manos fuertes en {ticker}. Incluye 1-2 emojis. "
-        f"No pongas hashtags, ni enlaces, ni comillas. Solo la frase."
-    )
-    try:
-        env = dict(os.environ, OLLAMA_API_KEY="ollama-local")
-        r = subprocess.run(
-            ["openclaw", "infer", "model", "run", "--local", "--model", MODELO,
-             "--prompt", prompt, "--json"],
-            capture_output=True, text=True, timeout=120, env=env,
-        )
-        data = json.loads(r.stdout)
-        txt = data.get("outputs", [{}])[0].get("text", "") or ""
-        txt = re.sub(r"<think>.*?</think>", "", txt, flags=re.DOTALL)  # por si piensa
-        txt = txt.strip().strip('"').splitlines()[0].strip() if txt.strip() else ""
-        return txt or None
-    except Exception:
-        return None
-
-
 def construir_tweet(ticker, precio, frase):
     """Tweet individual (para tweets_hoy.txt). 'frase' ya viene con su emoji de nivel."""
     if not frase:
@@ -406,7 +380,7 @@ def main():
     for s in senales:
         nivel = nivel_potencia(s["potencia"])
         emoji = EMOJI_NIVEL[nivel]
-        base = None if args.sin_modelo else openclaw_frase(s["ticker"], s["precio"])
+        base = None  # frases deterministas de plantilla (FRASES_NIVEL)
         if not base:
             base = random.choice(FRASES_NIVEL[nivel]).format(ticker=s["ticker"])
         frase = f"{emoji} {base}"
