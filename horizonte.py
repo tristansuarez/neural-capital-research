@@ -117,7 +117,7 @@ def horizonte_koncorde(sintetico=False, n_tickers=40, anos=8):
         regimen = None
 
     acc = {h: [] for h in HZ_KON}
-    usados = 0
+    tickers_usados = []
     for tk in tickers:
         try:
             df = yf.download(tk, start=inicio, auto_adjust=True, progress=False)
@@ -149,7 +149,8 @@ def horizonte_koncorde(sintetico=False, n_tickers=40, anos=8):
             for h in HZ_KON:
                 if i + h < m:
                     acc[h].append((c[i + h] / c[i] - 1.0 - base[h]) * 100.0)
-        usados += 1
+        tickers_usados.append(tk)
+    usados = len(tickers_usados)
 
     puntos = []
     for h in HZ_KON:
@@ -167,6 +168,7 @@ def horizonte_koncorde(sintetico=False, n_tickers=40, anos=8):
                 f"anticipa retorno excedente a ese horizonte."),
         "unidad": "%",
         "puntos": puntos,
+        "tickers": sorted(tickers_usados),
         "nota": ("Es un estudio de eventos histórico, distinto del forward-test en vivo de más "
                  "arriba. Confirma a Fosback: las señales de volumen a corto sobre acciones "
                  "individuales no producen exceso de retorno fiable; el intervalo abraza el cero."),

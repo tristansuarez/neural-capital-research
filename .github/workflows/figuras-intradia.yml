@@ -1,0 +1,35 @@
+name: Figuras intradía (Telegram)
+
+on:
+  workflow_dispatch:          # ejecución manual desde la pestaña Actions
+  schedule:
+    # Cada 30 min, 14:00-21:00 UTC, días laborables (~horario de mercado USA).
+    # GitHub Actions puede retrasar las ejecuciones programadas; no es tiempo real.
+    - cron: '*/30 14-21 * * 1-5'
+
+# Sin permiso de escritura: este bot solo envía a Telegram, no commitea nada
+# (así no dispara el laboratorio ni genera commits cada 30 minutos).
+permissions:
+  contents: read
+
+jobs:
+  intradia:
+    runs-on: ubuntu-latest
+    env:
+      TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+      TELEGRAM_CHANNEL: ${{ secrets.TELEGRAM_CHANNEL }}
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Escanear figuras intradía y publicar en Telegram
+        continue-on-error: true
+        run: python senal_figuras_intradia.py --telegram

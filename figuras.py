@@ -26,6 +26,10 @@ import pandas as pd
 HZ_FIG = [5, 10, 21, 42, 63]
 LAB_FIG = {5: "1 sem", 10: "2 sem", 21: "1 mes", 42: "2 meses", 63: "3 meses"}
 
+# Horizontes intradía (en velas de 1 hora; ~6,5 velas por sesión)
+HZ_FIG_INTRA = [3, 7, 14, 35, 70]
+LAB_FIG_INTRA = {3: "½ día", 7: "1 día", 14: "2 días", 35: "1 sem", 70: "2 sem"}
+
 # tipo -> (nombre legible, dirección por defecto, color, sesgo)
 FIGURAS = {
     "ruptura_resistencia":       ("Ruptura de resistencia", +1, "#5fb7c4"),
@@ -150,12 +154,47 @@ def _muestra_real(n_tickers, anos):
             continue
 
 
+def _muestra_intradia(n_tickers=120, period="2y"):
+    """Velas de 1 hora por lotes (Yahoo da ~730 días de histórico horario)."""
+    import yfinance as yf
+    import escaner_senales_telegram as esc
+    tickers = esc.obtener_sp500()[:n_tickers]
+    for j in range(0, len(tickers), 40):
+        chunk = tickers[j:j + 40]
+        try:
+            df = yf.download(chunk, period=period, interval="1h", group_by="ticker",
+                             auto_adjust=True, progress=False, threads=True)
+        except Exception:
+            continue
+        for tk in chunk:
+            try:
+                sub = df[tk].dropna()
+                if len(sub) < 200:
+                    continue
+                yield tk, (sub["High"].values, sub["Low"].values, sub["Close"].values)
+            except Exception:
+                continue
+
+
 # --------------------------- backtest ---------------------------
-def backtest_figuras(sintetico=False, n_tickers=60, anos=10):
-    fuente = _muestra_sintetica() if sintetico else _muestra_real(n_tickers, anos)
-    acc = {tipo: {h: [] for h in HZ_FIG} for tipo in FIGURAS}
+def backtest_figuras(sintetico=False, n_tickers=60, anos=10, intradia=False):
+    if intradia:
+        hz, lab = HZ_FIG_INTRA, LAB_FIG_INTRA
+        fuente = _muestra_sintetica(n_tickers=20) if sintetico else _muestra_intradia()
+        id_exp, etiqueta = "figuras_intradia", "Figuras técnicas · intradía (1h)"
+        tipo_txt_fmt = "Chartismo intradía · velas 1h · event study · {u} valores · ~2 años"
+        intro_extra = (" Detección sobre velas de 1 hora; la ventaja se mide a horizontes intradía "
+                       "y de pocos días. El histórico horario gratuito llega a ~2 años.")
+    else:
+        hz, lab = HZ_FIG, LAB_FIG
+        fuente = _muestra_sintetica() if sintetico else _muestra_real(n_tickers, anos)
+        id_exp, etiqueta = "figuras_tecnicas", "Figuras técnicas (S&P 500)"
+        tipo_txt_fmt = "Chartismo · event study · {u} valores · backtest %d años" % anos
+        intro_extra = ""
+
+    acc = {tipo: {h: [] for h in hz} for tipo in FIGURAS}
     n_eventos = {tipo: 0 for tipo in FIGURAS}
-    usados = 0
+    tickers_usados = []
     try:
         for _tk, (H, L, C) in fuente:
             try:
@@ -163,20 +202,21 @@ def backtest_figuras(sintetico=False, n_tickers=60, anos=10):
             except Exception:
                 continue
             m = len(C)
-            base = {h: float(np.nanmean(C[h:] / C[:-h] - 1.0)) for h in HZ_FIG}
+            base = {h: float(np.nanmean(C[h:] / C[:-h] - 1.0)) for h in hz}
             for (i, tipo, d) in ev:
                 n_eventos[tipo] += 1
-                for h in HZ_FIG:
+                for h in hz:
                     if i + h < m:
                         acc[tipo][h].append(d * (C[i + h] / C[i] - 1.0 - base[h]) * 100.0)
-            usados += 1
+            tickers_usados.append(_tk)
     except Exception:
         return None
+    usados = len(tickers_usados)
 
     # estadística por celda (tipo x horizonte) + recogida de p-valores para el FDR
-    celdas, pvals = [], []
+    celdas = []
     for tipo in FIGURAS:
-        for h in HZ_FIG:
+        for h in hz:
             x = acc[tipo][h]
             if len(x) < 40:
                 continue
@@ -185,7 +225,6 @@ def backtest_figuras(sintetico=False, n_tickers=60, anos=10):
             celdas.append({"tipo": tipo, "h": h, "valor": round(mm, 2),
                            "ic_lo": round(ic[0], 2), "ic_hi": round(ic[1], 2),
                            "n": len(x), "p": p2})
-            pvals.append(p2)
     if not celdas:
         return None
     mask = _bh([c["p"] for c in celdas], q=0.10)
@@ -193,7 +232,6 @@ def backtest_figuras(sintetico=False, n_tickers=60, anos=10):
         c["sig_cruda"] = bool(c["ic_lo"] > 0 or c["ic_hi"] < 0)
         c["sig_fdr"] = bool(ok)
 
-    # agrupar por figura
     figuras = []
     for tipo, (nombre, _dir, color) in FIGURAS.items():
         pts = [c for c in celdas if c["tipo"] == tipo]
@@ -202,7 +240,7 @@ def backtest_figuras(sintetico=False, n_tickers=60, anos=10):
         figuras.append({
             "tipo": tipo, "nombre": nombre, "color": color,
             "n_eventos": n_eventos[tipo],
-            "puntos": [{"etiqueta": LAB_FIG[c["h"]], "valor": c["valor"],
+            "puntos": [{"etiqueta": lab[c["h"]], "valor": c["valor"],
                         "ic_lo": c["ic_lo"], "ic_hi": c["ic_hi"], "n": c["n"],
                         "sig_cruda": c["sig_cruda"], "sig_fdr": c["sig_fdr"]} for c in pts],
         })
@@ -210,14 +248,15 @@ def backtest_figuras(sintetico=False, n_tickers=60, anos=10):
         return None
     n_fdr = sum(1 for c in celdas if c["sig_fdr"])
     return {
-        "id": "figuras_tecnicas",
-        "etiqueta": "Figuras técnicas (S&P 500)",
-        "tipo": f"Chartismo · event study · {usados} valores · backtest {anos} años",
+        "id": id_exp,
+        "etiqueta": etiqueta,
+        "tipo": tipo_txt_fmt.format(u=usados),
         "modelo": "figuras",
         "figuras_panel": True,
+        "tickers": sorted(tickers_usados),
         "intro": ("Cada figura se detecta con reglas fijas y se mide su retorno tras la ruptura, "
                   "orientado a su dirección (alcista = sube; bajista = baja), frente a la tasa base "
-                  "del valor. «Ventaja» positiva = la figura funciona en su sentido."),
+                  "del valor. «Ventaja» positiva = la figura funciona en su sentido." + intro_extra),
         "figuras": figuras,
         "n_celdas": len(celdas),
         "n_fdr": n_fdr,

@@ -11,6 +11,7 @@ function navHTML(active){
     ['plata_bh',      'Plata'],
     ['koncorde',      'KONCORDE (S&P 500)'],
     ['figuras_tecnicas', 'Figuras técnicas (S&P 500)'],
+    ['figuras_intradia', 'Figuras intradía (1h)'],
   ];
   const mods = modelos.map(([id,n]) =>
     `<a href="lab.html?id=${id}" class="${id===active?'active':''}">${n}</a>`).join('');
@@ -264,6 +265,7 @@ function figurasHTML(exp){
     <div class="chartbox reveal"><h3>Cómo leer esto</h3>
       <div class="ch-sub">${exp.intro}</div>
       <div class="ch-sub" style="margin-top:12px"><b>${exp.nota_fdr}</b></div>
+      ${(exp.tickers&&exp.tickers.length)?`<details style="margin-top:12px"><summary class="ch-sub" style="cursor:pointer">▸ Valores analizados (${exp.tickers.length}) — transparencia total</summary><div class="ch-sub" style="margin-top:8px;font-family:'JetBrains Mono',monospace;line-height:1.7">${exp.tickers.join(' · ')}</div></details>`:''}
     </div>
     ${bloques}
     <div class="chartbox reveal"><div class="ch-sub">${exp.nota}</div></div>`;
@@ -443,6 +445,7 @@ function horizonteHTML(exp){
        <thead><tr><th>Horizonte</th><th>Ventaja media</th><th>IC 90%</th><th>Veredicto</th><th>n</th></tr></thead>
        <tbody>${rows}</tbody></table></div>
      ${hz.nota?`<div class="ch-sub" style="margin-top:14px">${hz.nota}</div>`:''}
+     ${(hz.tickers&&hz.tickers.length)?`<details style="margin-top:10px"><summary class="ch-sub" style="cursor:pointer">▸ Valores analizados (${hz.tickers.length})</summary><div class="ch-sub" style="margin-top:8px;font-family:'JetBrains Mono',monospace;line-height:1.7">${hz.tickers.join(' · ')}</div></details>`:''}
    </div>`;
 }
 
