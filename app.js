@@ -10,6 +10,7 @@ function navHTML(active){
     ['oro_bh',        'Oro'],
     ['plata_bh',      'Plata'],
     ['koncorde',      'KONCORDE (S&P 500)'],
+    ['figuras_tecnicas', 'Figuras técnicas (S&P 500)'],
   ];
   const mods = modelos.map(([id,n]) =>
     `<a href="lab.html?id=${id}" class="${id===active?'active':''}">${n}</a>`).join('');
@@ -65,6 +66,7 @@ let hzChart = null;
 let pvChart = null;
 let pvPanelChart = null;
 let histPanelChart = null;
+let figCharts = [];
 function clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
 
 function render(exp){
@@ -76,6 +78,13 @@ function render(exp){
     app.innerHTML = titulo + `<div class="tipo">▸ ${exp.tipo}</div>${panelHTML(exp)}`;
     drawPanelPrev(exp);
     drawPanelHist(exp);
+    requestAnimationFrame(()=>document.querySelectorAll('.reveal').forEach(e=>e.classList.add('in')));
+    return;
+  }
+
+  if(exp.figuras_panel){
+    app.innerHTML = titulo + `<div class="tipo">▸ ${exp.tipo}</div>${figurasHTML(exp)}`;
+    drawFiguras(exp);
     requestAnimationFrame(()=>document.querySelectorAll('.reveal').forEach(e=>e.classList.add('in')));
     return;
   }
@@ -225,6 +234,59 @@ function drawChart(exp){
         y:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#5c6775', font:{family:'JetBrains Mono'}, callback:v=>v+unidad}}
       }
     }
+  });
+}
+
+// ---------- Figuras técnicas (event study con FDR) ----------
+function figurasHTML(exp){
+  const u = '%';
+  const bloques = (exp.figuras||[]).map((f,idx)=>{
+    const rows = f.puntos.map(p=>{
+      const cruda = p.sig_cruda ? '<b>✓</b>' : '<span class="est-obs">—</span>';
+      const fdr = p.sig_fdr ? '<b class="pos">✓ real</b>' : '<span class="est-obs">—</span>';
+      return `<tr><td>${p.etiqueta}</td>
+        <td class="${p.valor>=0?'pos':'neg'}">${p.valor>=0?'+':''}${p.valor}${u}</td>
+        <td class="est-obs">[${p.ic_lo}, ${p.ic_hi}]</td>
+        <td style="text-align:center">${cruda}</td><td style="text-align:center">${fdr}</td>
+        <td class="est-obs">${p.n}</td></tr>`;
+    }).join('');
+    return `<div class="chartbox reveal">
+      <h3><span class="dot" style="background:${f.color}"></span>${f.nombre}
+        <span class="est-obs" style="font-size:13px">· ${f.n_eventos} eventos</span></h3>
+      <div class="canvas-h" style="height:180px"><canvas id="fig${idx}"></canvas></div>
+      <div class="ops-scroll" style="margin-top:12px"><table class="ops">
+        <thead><tr><th>Horizonte</th><th>Ventaja media</th><th>IC 90%</th>
+          <th style="text-align:center">Crudo</th><th style="text-align:center">Tras FDR</th><th>n</th></tr></thead>
+        <tbody>${rows}</tbody></table></div>
+    </div>`;
+  }).join('');
+  return `
+    <div class="chartbox reveal"><h3>Cómo leer esto</h3>
+      <div class="ch-sub">${exp.intro}</div>
+      <div class="ch-sub" style="margin-top:12px"><b>${exp.nota_fdr}</b></div>
+    </div>
+    ${bloques}
+    <div class="chartbox reveal"><div class="ch-sub">${exp.nota}</div></div>`;
+}
+
+function drawFiguras(exp){
+  figCharts.forEach(c=>{ try{c.destroy();}catch(e){} });
+  figCharts = [];
+  (exp.figuras||[]).forEach((f,idx)=>{
+    const ctx = document.getElementById('fig'+idx); if(!ctx) return;
+    const labels = f.puntos.map(p=>p.etiqueta);
+    const central = f.puntos.map(p=>p.valor);
+    const hi = f.puntos.map(p=>p.ic_hi), lo = f.puntos.map(p=>p.ic_lo);
+    const ch = new Chart(ctx,{type:'line', data:{labels, datasets:[
+      {label:'IC sup', data:hi, borderColor:'transparent', pointRadius:0, fill:'+1', backgroundColor:'rgba(150,160,175,.12)'},
+      {label:'IC inf', data:lo, borderColor:'transparent', pointRadius:0, fill:false},
+      {label:'Ventaja', data:central, borderColor:f.color, borderWidth:2.4, pointRadius:3, pointBackgroundColor:f.color, tension:.1},
+      {label:'cero', data:labels.map(()=>0), borderColor:'#5c6775', borderWidth:1, borderDash:[5,5], pointRadius:0}
+    ]}, options:{responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>['IC sup','IC inf','cero'].includes(c.dataset.label)?null:'  '+(c.parsed.y>=0?'+':'')+c.parsed.y.toFixed(2)+'%'}}},
+      scales:{x:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#8a97a6', font:{family:'JetBrains Mono'}}},
+        y:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#5c6775', font:{family:'JetBrains Mono'}, callback:v=>v+'%'}}}}});
+    figCharts.push(ch);
   });
 }
 

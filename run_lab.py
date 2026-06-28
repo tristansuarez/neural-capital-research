@@ -19,6 +19,7 @@ import data
 import koncorde_forward
 import garch_forward
 import horizonte
+import figuras
 from validation import evaluate
 from models import BuyAndHold, GoldSilverPairs, PairsModel
 
@@ -141,6 +142,15 @@ def main(sintetico: bool = False):
         print(f"   {len(panel['metales'])} metales en el panel", flush=True)
     else:
         print("   (no hay suficientes metales con datos)", flush=True)
+
+    # Figuras técnicas: detección de chartismo + backtest honesto (event study).
+    print("-> Figuras técnicas (S&P 500) ...", flush=True)
+    fig = figuras.backtest_figuras(sintetico=sintetico)
+    if fig:
+        salida.append(fig)
+        print(f"   {fig['n_celdas']} celdas evaluadas, {fig['n_fdr']} sobreviven al FDR", flush=True)
+    else:
+        print("   (sin datos suficientes)", flush=True)
 
     doc = {
         "generado": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
