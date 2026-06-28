@@ -25,6 +25,10 @@ import figuras
 import escaner_senales_telegram as esc
 
 LOG = "figuras_log.csv"
+LOG_COMP = "compresion_log.csv"
+UMBRAL_FUERZA = 35   # solo avisa de rupturas decisivas (movimiento ≥ ~1·ATR)
+TOP_COMP = 10        # nº máximo de compresiones avisadas por corrida
+DIAS_DEDUP_COMP = 6  # no repetir una compresión avisada en los últimos N días
 
 
 def _veredictos():
@@ -64,6 +68,35 @@ def _ya_registradas():
     return vistas
 
 
+def _veredicto_compresion(vd_full):
+    """Frase de veredicto para la compresión, leída del backtest."""
+    val_sig = vd_full.get("compresion")
+    if not val_sig:
+        return "histórico: aún sin backtest"
+    val, sig = val_sig
+    if sig and val < 0:
+        return f"histórico: romper aquí tendió a fallar ({val:+.1f}% a 3m)"
+    if sig and val > 0:
+        return f"histórico: ligera ventaja al romper ({val:+.1f}%; rara)"
+    return f"histórico: romper aquí no dio ventaja fiable ({val:+.1f}%)"
+
+
+def _comp_recientes():
+    """Tickers de compresión avisados en los últimos DIAS_DEDUP_COMP días."""
+    recientes = set()
+    if not os.path.exists(LOG_COMP):
+        return recientes
+    limite = dt.date.today() - dt.timedelta(days=DIAS_DEDUP_COMP)
+    with open(LOG_COMP, encoding="utf-8") as fh:
+        for row in csv.DictReader(fh):
+            try:
+                if dt.date.fromisoformat(row["fecha"]) >= limite:
+                    recientes.add(row["ticker"])
+            except Exception:
+                pass
+    return recientes
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--telegram", action="store_true")
@@ -76,6 +109,7 @@ def main():
     vistas = _ya_registradas()
 
     hallazgos = []
+    compresiones = []
     for tk in tickers:
         try:
             df = yf.download(tk, start=inicio, auto_adjust=True, progress=False)
@@ -93,14 +127,22 @@ def main():
         n = len(C)
         for (i, tipo, _d) in ev:
             if i >= n - 1:                       # figura formada en la última sesión
+                fz = figuras.fuerza_figura(H, L, C, i)
+                if fz < UMBRAL_FUERZA:           # solo rupturas decisivas (menos ruido)
+                    continue
                 key = (tk, fecha, tipo)
                 if key in vistas:
                     continue
                 vistas.add(key)
                 hallazgos.append({"ticker": tk, "fecha": fecha, "figura": tipo,
-                                  "nombre": figuras.FIGURAS[tipo][0], "precio": float(C[-1])})
+                                  "nombre": figuras.FIGURAS[tipo][0], "precio": float(C[-1]),
+                                  "fuerza": int(fz)})
+        # radar de compresión: estado ACTUAL del valor (a punto de romper)
+        rc = figuras.radar_compresion(H, L, C)
+        if rc:
+            compresiones.append({"ticker": tk, "fecha": fecha, "precio": float(C[-1]), **rc})
 
-    # registrar para forward-test
+    # registrar figuras para forward-test
     nueva = not os.path.exists(LOG)
     with open(LOG, "a", newline="", encoding="utf-8") as fh:
         w = csv.writer(fh)
@@ -109,27 +151,54 @@ def main():
         for h in hallazgos:
             w.writerow([h["ticker"], h["fecha"], h["figura"], f"{h['precio']:.2f}",
                         dt.datetime.now(dt.timezone.utc).isoformat()])
-
     print(f"Figuras nuevas en la última sesión: {len(hallazgos)}")
-    if not hallazgos:
-        return
 
-    fecha = hallazgos[0]["fecha"]
-    lineas = [f"📐 FIGURAS TÉCNICAS · {fecha}",
-              "Detectadas con reglas fijas en el cierre. INFORMATIVO, no señal: en nuestros datos "
-              "las rupturas tienden a REVERTIR, no a continuar.\n"]
-    for h in sorted(hallazgos, key=lambda x: x["nombre"]):
-        lineas.append(f"• {h['nombre']} en {h['ticker']} — {h['precio']:.2f}")
-        lineas.append(f"   {_frase_veredicto(h['figura'], vd)}")
-    lineas.append("\n🌐 tristansuarez.github.io/neural-capital-research")
-    lineas.append("⚠️ Contenido educativo. No es recomendación de inversión.")
-    texto = "\n".join(lineas)
+    # --- mensaje 1: figuras decisivas del día ---
+    if hallazgos:
+        fecha = hallazgos[0]["fecha"]
+        lineas = [f"📐 FIGURAS TÉCNICAS · {fecha}",
+                  "Detectadas con reglas fijas en el cierre. INFORMATIVO, no señal: en nuestros datos "
+                  "las rupturas tienden a REVERTIR, no a continuar.\n"]
+        for h in sorted(hallazgos, key=lambda x: -x.get("fuerza", 0)):
+            lineas.append(f"• {h['nombre']} en {h['ticker']} — {h['precio']:.2f}  (fuerza {h.get('fuerza',0)})")
+            lineas.append(f"   {_frase_veredicto(h['figura'], vd)}")
+        lineas.append("\n🌐 tristansuarez.github.io/neural-capital-research")
+        lineas.append("⚠️ Contenido educativo. No es recomendación de inversión.")
+        texto = "\n".join(lineas)
+        if args.telegram:
+            for trozo in esc.trocear(texto):
+                esc.enviar_telegram(trozo)
+        else:
+            print(texto)
 
-    if args.telegram:
-        for trozo in esc.trocear(texto):
-            esc.enviar_telegram(trozo)
-    else:
-        print(texto)
+    # --- mensaje 2: radar de compresión (las más fuertes, sin repetir) ---
+    recientes = _comp_recientes()
+    nuevas = [c for c in sorted(compresiones, key=lambda x: -x["fuerza"])
+              if c["ticker"] not in recientes][:TOP_COMP]
+    print(f"Compresiones fuertes nuevas: {len(nuevas)}")
+    if nuevas:
+        nuevo = not os.path.exists(LOG_COMP)
+        with open(LOG_COMP, "a", newline="", encoding="utf-8") as fh:
+            w = csv.writer(fh)
+            if nuevo:
+                w.writerow(["ticker", "fecha", "precio", "fuerza", "box_lo", "box_hi", "registrado"])
+            for c in nuevas:
+                w.writerow([c["ticker"], c["fecha"], f"{c['precio']:.2f}", int(c["fuerza"]),
+                            c["box_lo"], c["box_hi"], dt.datetime.now(dt.timezone.utc).isoformat()])
+        fecha = nuevas[0]["fecha"]
+        lineas = [f"🎯 RADAR DE COMPRESIÓN · {fecha}",
+                  "Valores muy contraídos: ruptura probable pronto. Dirección DESCONOCIDA. INFORMATIVO, no señal.",
+                  f"({_veredicto_compresion(vd)})\n"]
+        for c in nuevas:
+            lineas.append(f"• {c['ticker']} — {c['precio']:.2f}  (compresión {int(c['fuerza'])}/100 · "
+                          f"rango {c['box_lo']}–{c['box_hi']})")
+        lineas.append("\n⚠️ Una compresión dice que VA a moverse, no hacia dónde ni que pague. No es recomendación.")
+        texto = "\n".join(lineas)
+        if args.telegram:
+            for trozo in esc.trocear(texto):
+                esc.enviar_telegram(trozo)
+        else:
+            print(texto)
 
 
 if __name__ == "__main__":

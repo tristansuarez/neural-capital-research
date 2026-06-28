@@ -27,6 +27,7 @@ import figuras
 import escaner_senales_telegram as esc
 
 UNIVERSO = 120   # nº de valores escaneados (acotado para no saturar Yahoo)
+UMBRAL_FUERZA = 35   # solo rupturas decisivas
 
 
 def _bar_fresca(ts, horas=3):
@@ -100,8 +101,12 @@ def main():
             n = len(C)
             for (i, tipo, _d) in ev:
                 if i >= n - 1:
+                    fz = figuras.fuerza_figura(H, L, C, i)
+                    if fz < UMBRAL_FUERZA:
+                        continue
                     hall.append({"ticker": tk, "hora": hora, "figura": tipo,
-                                 "nombre": figuras.FIGURAS[tipo][0], "precio": float(C[-1])})
+                                 "nombre": figuras.FIGURAS[tipo][0], "precio": float(C[-1]),
+                                 "fuerza": int(fz)})
 
     print(f"Figuras intradía en la última vela: {len(hall)}")
     if not hall:
@@ -110,8 +115,8 @@ def main():
     hora = hall[0]["hora"]
     lineas = [f"⏱️ FIGURAS INTRADÍA (1h) · {hora}",
               "Detectadas en la última vela horaria. INFORMATIVO, no señal: las rupturas tienden a revertir.\n"]
-    for h in sorted(hall, key=lambda x: x["nombre"]):
-        lineas.append(f"• {h['nombre']} en {h['ticker']} — {h['precio']:.2f}")
+    for h in sorted(hall, key=lambda x: -x.get("fuerza", 0)):
+        lineas.append(f"• {h['nombre']} en {h['ticker']} — {h['precio']:.2f}  (fuerza {h.get('fuerza',0)})")
         lineas.append(f"   {_frase(h['figura'], vd)}")
     lineas.append("\n🌐 tristansuarez.github.io/neural-capital-research")
     lineas.append("⚠️ Contenido educativo. No es recomendación de inversión.")

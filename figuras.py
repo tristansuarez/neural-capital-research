@@ -38,6 +38,7 @@ FIGURAS = {
     "ruptura_tendencia_alcista": ("Ruptura de línea alcista (a la baja)", -1, "#d08a5a"),
     "doble_suelo":               ("Doble suelo", +1, "#b48ad6"),
     "doble_techo":               ("Doble techo", -1, "#e8b23a"),
+    "compresion":                ("Compresión (squeeze)", 0, "#88c0d0"),
 }
 
 
@@ -172,6 +173,61 @@ def _exportar_ticker(O, H, L, C, n_velas=160, max_figs=8):
     return {"velas": velas, "figuras": out}
 
 
+# --------------------------- compresión (squeeze) + fuerza ---------------------------
+def _ratio_compresion(h, l, c, corto=10, largo=50):
+    """Rango medio reciente (corto) / rango medio normal (largo). <1 = contraído."""
+    tr = np.maximum(np.asarray(h, float) - np.asarray(l, float), 1e-9)
+    s = pd.Series(tr)
+    return (s.rolling(corto).mean() / s.rolling(largo).mean()).values
+
+
+def eventos_compresion(h, l, c, corto=10, largo=50, thr=0.55, buf=0.005, win=40):
+    """Eventos para el backtest: cuando una compresión fuerte ROMPE su rango (arriba/abajo)."""
+    n = len(c)
+    ratio = _ratio_compresion(h, l, c, corto, largo)
+    ev, last = [], -10 ** 9
+    for i in range(largo, n):
+        if not np.isfinite(ratio[i]) or ratio[i] >= thr or (i - last) < corto:
+            continue
+        box_hi = float(np.max(h[i - corto + 1:i + 1]))
+        box_lo = float(np.min(l[i - corto + 1:i + 1]))
+        for j in range(i + 1, min(i + win, n)):
+            if c[j] > box_hi * (1 + buf):
+                ev.append((j, "compresion", +1)); last = i; break
+            if c[j] < box_lo * (1 - buf):
+                ev.append((j, "compresion", -1)); last = i; break
+    return ev
+
+
+def radar_compresion(h, l, c, corto=10, largo=50, thr=0.60):
+    """Estado ACTUAL: si el valor está fuertemente comprimido y aún DENTRO del rango
+    (sin haber roto), devuelve su fuerza (0-100). Si no, None."""
+    h = np.asarray(h, float); l = np.asarray(l, float); c = np.asarray(c, float)
+    if len(c) < largo + corto:
+        return None
+    ratio = _ratio_compresion(h, l, c, corto, largo)
+    if len(ratio) == 0 or not np.isfinite(ratio[-1]):
+        return None
+    r = float(ratio[-1])
+    box_hi = float(np.max(h[-corto:])); box_lo = float(np.min(l[-corto:]))
+    if r >= thr or not (box_lo <= c[-1] <= box_hi):
+        return None
+    return {"fuerza": round(min(100.0, 100.0 * (1.0 - r))), "ratio": round(r, 2),
+            "box_hi": round(box_hi, 2), "box_lo": round(box_lo, 2)}
+
+
+def fuerza_figura(h, l, c, i, lookback=20):
+    """Decisión de la ruptura: tamaño del movimiento del día frente al ATR reciente (0-100)."""
+    h = np.asarray(h, float); l = np.asarray(l, float); c = np.asarray(c, float)
+    if i <= 0:
+        return 0.0
+    j0 = max(0, i - lookback)
+    atr = float(np.nanmean(np.maximum(h[j0:i + 1] - l[j0:i + 1], 1e-9)))
+    if atr <= 0:
+        return 0.0
+    return float(min(100.0, round(100.0 * abs(c[i] - c[i - 1]) / (3.0 * atr))))
+
+
 # --------------------------- estadística ---------------------------
 def _boot_media(x, n_boot=2000, bloque=10, seed=7):
     x = np.asarray(x, float); x = x[np.isfinite(x)]
@@ -296,7 +352,7 @@ def backtest_figuras(sintetico=False, n_tickers=60, anos=10, intradia=False, gra
         for _tk, (O, H, L, C) in fuente:
             H = np.asarray(H, float); L = np.asarray(L, float); C = np.asarray(C, float)
             try:
-                ev = detectar(H, L, C)
+                ev = detectar(H, L, C) + eventos_compresion(H, L, C)
             except Exception:
                 continue
             m = len(C)
