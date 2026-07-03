@@ -148,13 +148,14 @@ def detectar_geom(h, l, c, k=5, tol=0.03, win=60, buf=0.005):
     return out
 
 
-def _exportar_ticker(O, H, L, C, n_velas=160, max_figs=5, umbral_fuerza=40):
+def _exportar_ticker(O, H, L, C, fechas=None, n_velas=160, max_figs=5, umbral_fuerza=40):
     """Últimas n_velas (OHLC) + figuras DECISIVAS visibles, reindexadas a la ventana.
     Solo figuras con fuerza suficiente, una por ruptura (la más fuerte) y limitadas,
     para que el gráfico se lea en vez de llenarse de líneas débiles solapadas."""
     n = len(C); s = max(0, n - n_velas)
     velas = [[round(float(O[i]), 2), round(float(H[i]), 2),
               round(float(L[i]), 2), round(float(C[i]), 2)] for i in range(s, n)]
+    etiquetas = list(fechas[s:n]) if fechas is not None else None
 
     # una figura por barra de ruptura: nos quedamos con la más fuerte
     mejor = {}
@@ -184,7 +185,7 @@ def _exportar_ticker(O, H, L, C, n_velas=160, max_figs=5, umbral_fuerza=40):
         out.append({"tipo": f["tipo"], "nombre": f["nombre"], "color": f["color"],
                     "dir": f["dir"], "break": int(f["break"] - s), "fuerza": int(fz), "trazos": tr})
     out.sort(key=lambda x: x["break"])
-    return {"velas": velas, "figuras": out}
+    return {"velas": velas, "fechas": etiquetas, "figuras": out}
 
 
 # --------------------------- compresión (squeeze) + fuerza ---------------------------
@@ -290,7 +291,8 @@ def _ohlc_sintetico(seed, n=2600):
 
 def _muestra_sintetica(n_tickers=25):
     for s in range(n_tickers):
-        yield f"SYN{s}", _ohlc_sintetico(1000 + s)
+        o, h, l, c = _ohlc_sintetico(1000 + s)
+        yield f"SYN{s}", (o, h, l, c, None)
 
 
 def _muestra_real(n_tickers, anos):
@@ -306,7 +308,9 @@ def _muestra_real(n_tickers, anos):
                 df.columns = df.columns.get_level_values(0)
             if df.empty or len(df) < 300:
                 continue
-            yield tk, (df["Open"].values, df["High"].values, df["Low"].values, df["Close"].values)
+            fechas = [d.strftime("%Y-%m-%d") for d in df.index]
+            yield tk, (df["Open"].values, df["High"].values, df["Low"].values,
+                       df["Close"].values, fechas)
         except Exception:
             continue
 
@@ -337,7 +341,9 @@ def _muestra_intradia(n_tickers=60, period="2y"):
                 sub = df[tk].dropna()
                 if len(sub) < 200:
                     continue
-                yield tk, (sub["Open"].values, sub["High"].values, sub["Low"].values, sub["Close"].values)
+                fechas = [d.strftime("%m-%d %Hh") for d in sub.index]
+                yield tk, (sub["Open"].values, sub["High"].values, sub["Low"].values,
+                           sub["Close"].values, fechas)
             except Exception:
                 continue
         time.sleep(2)
@@ -363,7 +369,9 @@ def backtest_figuras(sintetico=False, n_tickers=60, anos=10, intradia=False, gra
     n_eventos = {tipo: 0 for tipo in FIGURAS}
     tickers_usados = []
     try:
-        for _tk, (O, H, L, C) in fuente:
+        for _tk, datos in fuente:
+            O, H, L, C = datos[0], datos[1], datos[2], datos[3]
+            fechas = datos[4] if len(datos) > 4 else None
             H = np.asarray(H, float); L = np.asarray(L, float); C = np.asarray(C, float)
             try:
                 ev = detectar(H, L, C) + eventos_compresion(H, L, C)
@@ -378,7 +386,7 @@ def backtest_figuras(sintetico=False, n_tickers=60, anos=10, intradia=False, gra
                         acc[tipo][h].append(d * (C[i + h] / C[i] - 1.0 - base[h]) * 100.0)
             if graf is not None:
                 try:
-                    graf[_tk] = _exportar_ticker(np.asarray(O, float), H, L, C)
+                    graf[_tk] = _exportar_ticker(np.asarray(O, float), H, L, C, fechas)
                 except Exception:
                     pass
             tickers_usados.append(_tk)

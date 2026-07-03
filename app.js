@@ -674,6 +674,19 @@ function dibujarVelas(datos){
     ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+plotW,y); ctx.stroke();
     ctx.fillText(p.toFixed(2), padL+plotW+6, y+3);
   }
+  // etiquetas de eje X (fechas en diario, horas en intradía)
+  const fechas = datos.fechas;
+  if(fechas && fechas.length===n){
+    ctx.fillStyle='#5c6775'; ctx.font="10px 'JetBrains Mono',monospace";
+    const nlab = Math.min(6, n);
+    for(let k=0;k<nlab;k++){
+      const i = Math.round(k*(n-1)/Math.max(1,nlab-1));
+      if(k===0){ ctx.textAlign='left'; ctx.fillText(fechas[i], padL, cssH-6); }
+      else if(k===nlab-1){ ctx.textAlign='right'; ctx.fillText(fechas[i], padL+plotW, cssH-6); }
+      else { ctx.textAlign='center'; ctx.fillText(fechas[i], X(i), cssH-6); }
+    }
+    ctx.textAlign='left';
+  }
   const bw=Math.max(1, step*0.62);
   velas.forEach((v,i)=>{ const o=v[0],h=v[1],l=v[2],c=v[3]; const col=c>=o?'#6ec08a':'#d2566a'; const x=X(i);
     ctx.strokeStyle=col; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(x,Y(h)); ctx.lineTo(x,Y(l)); ctx.stroke();
