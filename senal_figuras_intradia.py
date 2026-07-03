@@ -17,6 +17,7 @@ es tiempo real (se retrasa) y Yahoo limita; esto es contexto, NO una señal.
 """
 from __future__ import annotations
 import argparse
+import datetime as dt
 import json
 
 import numpy as np
@@ -30,7 +31,23 @@ UNIVERSO = 120   # nº de valores escaneados (acotado para no saturar Yahoo)
 UMBRAL_FUERZA = 35   # solo rupturas decisivas
 
 
-def _bar_fresca(ts, horas=3):
+def _mercado_abierto():
+    """True solo si la bolsa de EE.UU. está en sesión (L-V, 9:30-16:00 hora de
+    Nueva York). A prueba de horario de verano; no depende del reloj del cron,
+    que GitHub Actions puede retrasar."""
+    try:
+        from zoneinfo import ZoneInfo
+        ahora = dt.datetime.now(ZoneInfo("America/New_York"))
+        if ahora.weekday() >= 5:
+            return False
+        return dt.time(9, 30) <= ahora.time() <= dt.time(16, 0)
+    except Exception:
+        # respaldo sin tz: ventana amplia en UTC que cubre verano e invierno
+        u = dt.datetime.now(dt.timezone.utc)
+        return u.weekday() < 5 and dt.time(13, 30) <= u.time() <= dt.time(21, 0)
+
+
+def _bar_fresca(ts, horas=2):
     """True si la última vela cerró hace <= 'horas'. Descarta festivos y mercado cerrado
     sin necesidad de un calendario: si el mercado está cerrado, la última vela es vieja."""
     try:
@@ -73,6 +90,10 @@ def main():
     ap.add_argument("--telegram", action="store_true")
     ap.add_argument("--tickers", nargs="*")
     args = ap.parse_args()
+
+    if not args.tickers and not _mercado_abierto():
+        print("Mercado cerrado: el bot intradía no avisa fuera de sesión (L-V 9:30-16:00 ET).")
+        return
 
     vd = _veredictos()
     tickers = args.tickers or esc.obtener_sp500()[:UNIVERSO]

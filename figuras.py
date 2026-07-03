@@ -148,15 +148,29 @@ def detectar_geom(h, l, c, k=5, tol=0.03, win=60, buf=0.005):
     return out
 
 
-def _exportar_ticker(O, H, L, C, n_velas=160, max_figs=8):
-    """Últimas n_velas (OHLC) + figuras visibles, reindexadas a la ventana."""
+def _exportar_ticker(O, H, L, C, n_velas=160, max_figs=5, umbral_fuerza=40):
+    """Últimas n_velas (OHLC) + figuras DECISIVAS visibles, reindexadas a la ventana.
+    Solo figuras con fuerza suficiente, una por ruptura (la más fuerte) y limitadas,
+    para que el gráfico se lea en vez de llenarse de líneas débiles solapadas."""
     n = len(C); s = max(0, n - n_velas)
     velas = [[round(float(O[i]), 2), round(float(H[i]), 2),
               round(float(L[i]), 2), round(float(C[i]), 2)] for i in range(s, n)]
-    out = []
+
+    # una figura por barra de ruptura: nos quedamos con la más fuerte
+    mejor = {}
     for f in detectar_geom(H, L, C):
-        if f["break"] < s:
+        j = f["break"]
+        if j < s:
             continue
+        fz = fuerza_figura(H, L, C, j)
+        if fz < umbral_fuerza:
+            continue
+        if j not in mejor or fz > mejor[j][0]:
+            mejor[j] = (fz, f)
+
+    seleccion = sorted(mejor.values(), key=lambda x: -x[0])[:max_figs]
+    out = []
+    for fz, f in seleccion:
         tr = []
         for t in f["trazos"]:
             t = dict(t)
@@ -168,8 +182,8 @@ def _exportar_ticker(O, H, L, C, n_velas=160, max_figs=8):
                     t[ky] = round(float(t[ky]), 2)
             tr.append(t)
         out.append({"tipo": f["tipo"], "nombre": f["nombre"], "color": f["color"],
-                    "dir": f["dir"], "break": int(f["break"] - s), "trazos": tr})
-    out = sorted(out, key=lambda x: x["break"])[-max_figs:]
+                    "dir": f["dir"], "break": int(f["break"] - s), "fuerza": int(fz), "trazos": tr})
+    out.sort(key=lambda x: x["break"])
     return {"velas": velas, "figuras": out}
 
 

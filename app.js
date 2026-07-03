@@ -647,7 +647,7 @@ function renderVisor(){
       else if(v.fdr && v.valor>0) txt = `ventaja a favor (rara) · +${v.valor}%`;
       else txt = `sin ventaja fiable · ${v.valor>0?'+':''}${v.valor}%`;
     }
-    return `<div class="vf-row"><span class="dot" style="background:${f.color}"></span><b>${f.nombre}</b><span class="est-obs"> — ${txt}</span></div>`;
+    return `<div class="vf-row"><span class="dot" style="background:${f.color}"></span><b>${f.nombre}</b><span class="est-obs"> — ${txt}${f.fuerza?` · 💪${f.fuerza}`:''}</span></div>`;
   }).join('');
   if(ley) ley.innerHTML = `<div class="chartbox reveal in"><h3>Figuras en este gráfico</h3>${filas || '<div class="ch-sub">No hay figuras en la ventana visible de este valor.</div>'}</div>`;
 }
