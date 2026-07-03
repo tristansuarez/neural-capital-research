@@ -12,6 +12,7 @@ function navHTML(active){
     ['koncorde',      'KONCORDE (S&P 500)'],
     ['figuras_tecnicas', 'Figuras técnicas (S&P 500)'],
     ['figuras_intradia', 'Figuras intradía (1h)'],
+    ['figuras_mensual', 'Figuras mensual'],
   ];
   const mods = modelos.map(([id,n]) =>
     `<a href="lab.html?id=${id}" class="${id===active?'active':''}">${n}</a>`).join('');
@@ -529,7 +530,7 @@ async function initLab(){
 }
 
 // ---------- Visor de gráficos (velas + figuras dibujadas) ----------
-let VISOR = { graf:null, verd:{diario:{}, intradia:{}}, tf:'diario', tk:null };
+let VISOR = { graf:null, verd:{diario:{}, intradia:{}, mensual:{}}, tf:'diario', tk:null };
 
 async function initVisor(){
   mountNav('visor');
@@ -556,6 +557,7 @@ async function initVisor(){
   };
   VISOR.verd.diario   = mapaVerd('figuras_tecnicas','3 meses');
   VISOR.verd.intradia = mapaVerd('figuras_intradia','2 sem');
+  VISOR.verd.mensual  = mapaVerd('figuras_mensual','3 meses');
 
   app.innerHTML = `
     <div class="visor-head">
@@ -566,6 +568,7 @@ async function initVisor(){
       <div class="tf-toggle">
         <button data-tf="diario" class="tf-btn active">Diario</button>
         <button data-tf="intradia" class="tf-btn">Intradía 1h</button>
+        <button data-tf="mensual" class="tf-btn">Mensual</button>
       </div>
       <div class="tk-combo">
         <input id="tk-input" type="text" placeholder="Buscar valor…" autocomplete="off" spellcheck="false" aria-label="Buscar valor">

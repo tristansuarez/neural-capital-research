@@ -1,0 +1,33 @@
+name: Figuras mensuales (Telegram)
+
+on:
+  workflow_dispatch:          # ejecución manual desde la pestaña Actions
+  schedule:
+    # 06:00 UTC del día 1 de cada mes: la vela mensual anterior ya está cerrada.
+    - cron: '0 6 1 * *'
+
+# Sin permiso de escritura: solo envía a Telegram, no commitea nada.
+permissions:
+  contents: read
+
+jobs:
+  mensual:
+    runs-on: ubuntu-latest
+    env:
+      TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+      TELEGRAM_CHANNEL: ${{ secrets.TELEGRAM_CHANNEL }}
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Escanear figuras mensuales y publicar en Telegram
+        continue-on-error: true
+        run: python senal_figuras_mensual.py --telegram

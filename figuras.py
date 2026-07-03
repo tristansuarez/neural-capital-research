@@ -30,6 +30,10 @@ LAB_FIG = {5: "1 sem", 10: "2 sem", 21: "1 mes", 42: "2 meses", 63: "3 meses"}
 HZ_FIG_INTRA = [3, 7, 14, 35, 70]
 LAB_FIG_INTRA = {3: "½ día", 7: "1 día", 14: "2 días", 35: "1 sem", 70: "2 sem"}
 
+# Horizontes mensuales (en velas de 1 mes)
+HZ_FIG_MENSUAL = [1, 2, 3, 6, 12]
+LAB_FIG_MENSUAL = {1: "1 mes", 2: "2 meses", 3: "3 meses", 6: "6 meses", 12: "1 año"}
+
 # tipo -> (nombre legible, dirección por defecto, color, sesgo)
 FIGURAS = {
     "ruptura_resistencia":       ("Ruptura de resistencia", +1, "#5fb7c4"),
@@ -315,6 +319,27 @@ def _muestra_real(n_tickers, anos):
             continue
 
 
+def _muestra_mensual(n_tickers=60, anos=15):
+    """Velas mensuales (interval='1mo'). Pocas barras (~180 en 15 años) pero suficientes."""
+    import datetime as dt
+    import yfinance as yf
+    import escaner_senales_telegram as esc
+    inicio = (dt.date.today() - dt.timedelta(days=int(anos * 365.25))).isoformat()
+    for tk in esc.obtener_sp500()[:n_tickers]:
+        try:
+            df = yf.download(tk, start=inicio, interval="1mo", auto_adjust=True, progress=False)
+            if isinstance(df.columns, pd.MultiIndex):
+                df.columns = df.columns.get_level_values(0)
+            df = df.dropna()
+            if df.empty or len(df) < 40:
+                continue
+            fechas = [d.strftime("%Y-%m") for d in df.index]
+            yield tk, (df["Open"].values, df["High"].values, df["Low"].values,
+                       df["Close"].values, fechas)
+        except Exception:
+            continue
+
+
 def _muestra_intradia(n_tickers=60, period="2y"):
     """Velas de 1 hora por lotes (Yahoo da ~730 días de histórico horario).
     Universo y lotes acotados + pausa entre lotes para no saturar Yahoo."""
@@ -350,8 +375,15 @@ def _muestra_intradia(n_tickers=60, period="2y"):
 
 
 # --------------------------- backtest ---------------------------
-def backtest_figuras(sintetico=False, n_tickers=60, anos=10, intradia=False, graf=None):
-    if intradia:
+def backtest_figuras(sintetico=False, n_tickers=60, anos=10, intradia=False, mensual=False, graf=None):
+    if mensual:
+        hz, lab = HZ_FIG_MENSUAL, LAB_FIG_MENSUAL
+        fuente = _muestra_sintetica(n_tickers=20) if sintetico else _muestra_mensual()
+        id_exp, etiqueta = "figuras_mensual", "Figuras técnicas · mensual"
+        tipo_txt_fmt = "Chartismo mensual · velas 1 mes · event study · {u} valores · ~15 años"
+        intro_extra = (" Detección sobre velas mensuales; la ventaja se mide a horizontes de "
+                       "meses a un año. Con tan pocas velas, las figuras son escasas y lentas.")
+    elif intradia:
         hz, lab = HZ_FIG_INTRA, LAB_FIG_INTRA
         fuente = _muestra_sintetica(n_tickers=20) if sintetico else _muestra_intradia()
         id_exp, etiqueta = "figuras_intradia", "Figuras técnicas · intradía (1h)"
