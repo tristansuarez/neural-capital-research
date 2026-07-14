@@ -1,5 +1,5 @@
 {
-  "generado": "2026-07-13 08:48 UTC",
+  "generado": "2026-07-14 07:47 UTC",
   "sintetico": false,
   "aviso": "Laboratorio de experimentacion de modelos. NO es recomendacion de inversion. Todas las metricas son fuera de muestra (walk-forward) y netas de costes. Un Sharpe con p-valor alto NO es distinguible del azar.",
   "experimentos": [
@@ -13,10 +13,10 @@
         "decimales": 2
       },
       "significancia": {
-        "p_valor": 0.289,
+        "p_valor": 0.284,
         "ic90": [
           -0.269,
-          0.544
+          0.536
         ],
         "etiqueta": "Sharpe"
       },
@@ -43,7 +43,7 @@
         },
         {
           "k": "Días evaluados",
-          "v": "3267",
+          "v": "3268",
           "tono": ""
         },
         {
@@ -1460,7 +1460,7 @@
       "significancia": {
         "p_valor": 1.0,
         "ic90": [
-          -1.17,
+          -1.169,
           0.0
         ],
         "etiqueta": "Sharpe"
@@ -1488,7 +1488,7 @@
         },
         {
           "k": "Días evaluados",
-          "v": "3265",
+          "v": "3266",
           "tono": ""
         },
         {
@@ -2874,23 +2874,23 @@
       "modelo": "buy_and_hold",
       "descripcion": "Comprar y mantener el activo. Es el benchmark: lo que obtienes sin modelo ninguno.",
       "headline": {
-        "valor": 0.627,
+        "valor": 0.614,
         "etiqueta": "Sharpe (anualizado, fuera de muestra)",
         "sufijo": "",
         "decimales": 2
       },
       "significancia": {
-        "p_valor": 0.0065,
+        "p_valor": 0.008,
         "ic90": [
-          0.223,
-          1.051
+          0.21,
+          1.04
         ],
         "etiqueta": "Sharpe"
       },
       "cards": [
         {
           "k": "Rentab. anual (CAGR)",
-          "v": "9.4%",
+          "v": "9.2%",
           "tono": "pos"
         },
         {
@@ -2910,7 +2910,7 @@
         },
         {
           "k": "Días evaluados",
-          "v": "3267",
+          "v": "3268",
           "tono": ""
         },
         {
@@ -4244,15 +4244,15 @@
       "modelo": "buy_and_hold",
       "descripcion": "Comprar y mantener el activo. Es el benchmark: lo que obtienes sin modelo ninguno.",
       "headline": {
-        "valor": 0.426,
+        "valor": 0.417,
         "etiqueta": "Sharpe (anualizado, fuera de muestra)",
         "sufijo": "",
         "decimales": 2
       },
       "significancia": {
-        "p_valor": 0.0435,
+        "p_valor": 0.045,
         "ic90": [
-          0.016,
+          0.014,
           0.846
         ],
         "etiqueta": "Sharpe"
@@ -4260,7 +4260,7 @@
       "cards": [
         {
           "k": "Rentab. anual (CAGR)",
-          "v": "8.8%",
+          "v": "8.5%",
           "tono": "pos"
         },
         {
@@ -4280,7 +4280,7 @@
         },
         {
           "k": "Días evaluados",
-          "v": "3267",
+          "v": "3268",
           "tono": ""
         },
         {
@@ -5672,41 +5672,41 @@
             "h": 5,
             "etiqueta": "1 sem",
             "valor": -0.24,
-            "ic_lo": -0.41,
+            "ic_lo": -0.4,
             "ic_hi": -0.08,
-            "n": 1986
+            "n": 1989
           },
           {
             "h": 10,
             "etiqueta": "2 sem",
             "valor": -0.15,
-            "ic_lo": -0.38,
+            "ic_lo": -0.37,
             "ic_hi": 0.07,
-            "n": 1983
+            "n": 1986
           },
           {
             "h": 21,
             "etiqueta": "1 mes",
             "valor": -0.03,
-            "ic_lo": -0.39,
-            "ic_hi": 0.37,
-            "n": 1973
+            "ic_lo": -0.4,
+            "ic_hi": 0.35,
+            "n": 1977
           },
           {
             "h": 42,
             "etiqueta": "2 meses",
-            "valor": -0.78,
-            "ic_lo": -1.42,
+            "valor": -0.77,
+            "ic_lo": -1.4,
             "ic_hi": -0.12,
-            "n": 1949
+            "n": 1954
           },
           {
             "h": 63,
             "etiqueta": "3 meses",
             "valor": -0.85,
-            "ic_lo": -1.76,
-            "ic_hi": 0.07,
-            "n": 1932
+            "ic_lo": -1.74,
+            "ic_hi": 0.02,
+            "n": 1935
           }
         ],
         "tickers": [
@@ -5770,8 +5770,8 @@
       "significancia": {
         "p_valor": 0.0,
         "ic90": [
-          3.14,
-          6.48
+          3.15,
+          6.45
         ],
         "etiqueta": "mejora vs ingenuo (%)"
       },
@@ -5798,7 +5798,7 @@
         },
         {
           "k": "Días evaluados",
-          "v": "3266",
+          "v": "3267",
           "tono": ""
         }
       ],
@@ -11056,41 +11056,41 @@
             "h": 1,
             "etiqueta": "1 día",
             "valor": 4.8,
-            "ic_lo": 3.14,
-            "ic_hi": 6.48,
-            "n": 3266
+            "ic_lo": 3.15,
+            "ic_hi": 6.45,
+            "n": 3267
           },
           {
             "h": 5,
             "etiqueta": "1 sem",
             "valor": 14.9,
-            "ic_lo": 9.48,
-            "ic_hi": 19.84,
-            "n": 3262
+            "ic_lo": 9.46,
+            "ic_hi": 19.87,
+            "n": 3263
           },
           {
             "h": 10,
             "etiqueta": "2 sem",
             "valor": 22.7,
-            "ic_lo": 13.89,
-            "ic_hi": 30.22,
-            "n": 3257
+            "ic_lo": 14.02,
+            "ic_hi": 30.2,
+            "n": 3258
           },
           {
             "h": 21,
             "etiqueta": "1 mes",
             "valor": 29.7,
-            "ic_lo": 19.6,
-            "ic_hi": 38.65,
-            "n": 3246
+            "ic_lo": 19.52,
+            "ic_hi": 38.54,
+            "n": 3247
           },
           {
             "h": 63,
             "etiqueta": "3 meses",
             "valor": 43.7,
-            "ic_lo": 29.05,
-            "ic_hi": 53.03,
-            "n": 3204
+            "ic_lo": 29.11,
+            "ic_hi": 52.98,
+            "n": 3205
           }
         ],
         "nota": "El baseline ingenuo usa la volatilidad reciente y se queda plano; el GARCH, en cambio, revierte hacia la volatilidad media de largo plazo. Por eso su ventaja relativa crece con el plazo (persistencia 0.99): la curva muestra hasta dónde aporta el modelo."
@@ -11099,67 +11099,67 @@
         "titulo": "Previsión actual de volatilidad del oro",
         "color": "#e8b23a",
         "sub": "Volatilidad anualizada que el GARCH espera DESDE LA ÚLTIMA SESIÓN, para cada horizonte. Es una estimación viva: cambia cada día con los datos nuevos.",
-        "fecha": "2026-07-10",
-        "actual": 23.4,
-        "largo_plazo": 17.7,
-        "regimen": "Movido: la volatilidad está por encima de su media (~17.7%). El modelo espera que se vaya calmando hacia ese nivel.",
+        "fecha": "2026-07-13",
+        "actual": 24.7,
+        "largo_plazo": 17.8,
+        "regimen": "Movido: la volatilidad está por encima de su media (~17.8%). El modelo espera que se vaya calmando hacia ese nivel.",
         "unidad": "%",
         "puntos": [
           {
             "h": 1,
             "etiqueta": "1 día",
-            "vol": 23.4,
-            "lo": 1.0,
-            "hi": 47.6
+            "vol": 24.7,
+            "lo": 1.1,
+            "hi": 50.2
           },
           {
             "h": 5,
             "etiqueta": "1 sem",
-            "vol": 23.2,
-            "lo": 8.7,
-            "hi": 38.2
+            "vol": 24.5,
+            "lo": 9.2,
+            "hi": 40.3
           },
           {
             "h": 10,
             "etiqueta": "2 sem",
-            "vol": 23.1,
-            "lo": 11.2,
-            "hi": 36.9
+            "vol": 24.3,
+            "lo": 11.9,
+            "hi": 39.0
           },
           {
             "h": 21,
             "etiqueta": "1 mes",
-            "vol": 22.7,
-            "lo": 13.6,
-            "hi": 34.8
+            "vol": 23.9,
+            "lo": 14.3,
+            "hi": 36.7
           },
           {
             "h": 42,
             "etiqueta": "2 meses",
-            "vol": 22.1,
-            "lo": 13.7,
-            "hi": 32.4
+            "vol": 23.2,
+            "lo": 14.4,
+            "hi": 34.0
           },
           {
             "h": 63,
             "etiqueta": "3 meses",
-            "vol": 21.6,
-            "lo": 13.3,
-            "hi": 34.4
+            "vol": 22.6,
+            "lo": 13.9,
+            "hi": 35.9
           },
           {
             "h": 126,
             "etiqueta": "6 meses",
-            "vol": 20.5,
-            "lo": 12.6,
-            "hi": 34.1
+            "vol": 21.3,
+            "lo": 13.1,
+            "hi": 35.5
           },
           {
             "h": 252,
             "etiqueta": "1 año",
-            "vol": 19.4,
-            "lo": 11.9,
-            "hi": 28.0
+            "vol": 19.9,
+            "lo": 12.2,
+            "hi": 28.7
           }
         ],
         "nota": "Las bandas reflejan cuánto se ha desviado históricamente la volatilidad real de la prevista a cada plazo (percentiles 5–95). A partir de ~1 año la previsión es ya, en esencia, la volatilidad media de largo plazo: el GARCH no aporta más allá."
@@ -11181,7 +11181,7 @@
       "significancia": {
         "p_valor": 0.0,
         "ic90": [
-          3.56,
+          3.53,
           7.88
         ],
         "etiqueta": "mejora vs ingenuo (%)"
@@ -11209,7 +11209,7 @@
         },
         {
           "k": "Días evaluados",
-          "v": "3266",
+          "v": "3267",
           "tono": ""
         }
       ],
@@ -16467,41 +16467,41 @@
             "h": 1,
             "etiqueta": "1 día",
             "valor": 5.6,
-            "ic_lo": 3.56,
+            "ic_lo": 3.53,
             "ic_hi": 7.88,
-            "n": 3266
+            "n": 3267
           },
           {
             "h": 5,
             "etiqueta": "1 sem",
             "valor": 13.8,
-            "ic_lo": 7.02,
-            "ic_hi": 20.36,
-            "n": 3262
+            "ic_lo": 7.16,
+            "ic_hi": 20.45,
+            "n": 3263
           },
           {
             "h": 10,
             "etiqueta": "2 sem",
             "valor": 16.0,
-            "ic_lo": 6.04,
-            "ic_hi": 25.41,
-            "n": 3257
+            "ic_lo": 6.05,
+            "ic_hi": 25.33,
+            "n": 3258
           },
           {
             "h": 21,
             "etiqueta": "1 mes",
             "valor": 18.0,
-            "ic_lo": 5.77,
-            "ic_hi": 30.37,
-            "n": 3246
+            "ic_lo": 6.07,
+            "ic_hi": 30.3,
+            "n": 3247
           },
           {
             "h": 63,
             "etiqueta": "3 meses",
             "valor": 32.1,
-            "ic_lo": 12.3,
-            "ic_hi": 48.63,
-            "n": 3204
+            "ic_lo": 12.35,
+            "ic_hi": 48.62,
+            "n": 3205
           }
         ],
         "nota": "El baseline ingenuo usa la volatilidad reciente y se queda plano; el GARCH, en cambio, revierte hacia la volatilidad media de largo plazo. Por eso su ventaja relativa crece con el plazo (persistencia 0.99): la curva muestra hasta dónde aporta el modelo."
@@ -16510,8 +16510,8 @@
         "titulo": "Previsión actual de volatilidad de la plata",
         "color": "#c0c5cc",
         "sub": "Volatilidad anualizada que el GARCH espera DESDE LA ÚLTIMA SESIÓN, para cada horizonte. Es una estimación viva: cambia cada día con los datos nuevos.",
-        "fecha": "2026-07-10",
-        "actual": 49.2,
+        "fecha": "2026-07-13",
+        "actual": 49.6,
         "largo_plazo": 34.6,
         "regimen": "Movido: la volatilidad está por encima de su media (~34.6%). El modelo espera que se vaya calmando hacia ese nivel.",
         "unidad": "%",
@@ -16519,58 +16519,58 @@
           {
             "h": 1,
             "etiqueta": "1 día",
-            "vol": 49.2,
+            "vol": 49.6,
             "lo": 2.2,
-            "hi": 103.0
+            "hi": 103.9
           },
           {
             "h": 5,
             "etiqueta": "1 sem",
-            "vol": 49.0,
-            "lo": 16.8,
-            "hi": 84.8
+            "vol": 49.4,
+            "lo": 16.9,
+            "hi": 85.5
           },
           {
             "h": 10,
             "etiqueta": "2 sem",
-            "vol": 48.8,
-            "lo": 21.9,
-            "hi": 78.4
+            "vol": 49.2,
+            "lo": 22.1,
+            "hi": 79.0
           },
           {
             "h": 21,
             "etiqueta": "1 mes",
-            "vol": 48.3,
-            "lo": 26.5,
-            "hi": 77.3
+            "vol": 48.7,
+            "lo": 26.7,
+            "hi": 77.9
           },
           {
             "h": 42,
             "etiqueta": "2 meses",
-            "vol": 47.5,
-            "lo": 26.4,
-            "hi": 77.9
+            "vol": 47.8,
+            "lo": 26.6,
+            "hi": 78.5
           },
           {
             "h": 63,
             "etiqueta": "3 meses",
-            "vol": 46.7,
-            "lo": 25.8,
-            "hi": 79.0
+            "vol": 47.0,
+            "lo": 26.0,
+            "hi": 79.6
           },
           {
             "h": 126,
             "etiqueta": "6 meses",
-            "vol": 44.6,
-            "lo": 26.8,
-            "hi": 85.4
+            "vol": 44.9,
+            "lo": 27.0,
+            "hi": 86.0
           },
           {
             "h": 252,
             "etiqueta": "1 año",
-            "vol": 41.8,
-            "lo": 26.2,
-            "hi": 80.2
+            "vol": 42.1,
+            "lo": 26.3,
+            "hi": 80.8
           }
         ],
         "nota": "Las bandas reflejan cuánto se ha desviado históricamente la volatilidad real de la prevista a cada plazo (percentiles 5–95). A partir de ~1 año la previsión es ya, en esencia, la volatilidad media de largo plazo: el GARCH no aporta más allá."
@@ -16592,7 +16592,7 @@
       "significancia": {
         "p_valor": 0.0,
         "ic90": [
-          1.99,
+          2.04,
           5.79
         ],
         "etiqueta": "mejora vs ingenuo (%)"
@@ -16620,7 +16620,7 @@
         },
         {
           "k": "Días evaluados",
-          "v": "3265",
+          "v": "3266",
           "tono": ""
         }
       ],
@@ -19237,6 +19237,10 @@
         {
           "fecha": "2026-07-06",
           "valor": 42.3
+        },
+        {
+          "fecha": "2026-07-13",
+          "valor": 41.7
         }
       ],
       "curva2": {
@@ -21853,6 +21857,10 @@
           {
             "fecha": "2026-07-06",
             "valor": 43.3
+          },
+          {
+            "fecha": "2026-07-13",
+            "valor": 42.2
           }
         ]
       },
@@ -21870,41 +21878,41 @@
             "h": 1,
             "etiqueta": "1 día",
             "valor": 3.9,
-            "ic_lo": 1.99,
+            "ic_lo": 2.04,
             "ic_hi": 5.79,
-            "n": 3265
+            "n": 3266
           },
           {
             "h": 5,
             "etiqueta": "1 sem",
             "valor": 14.1,
-            "ic_lo": 6.14,
-            "ic_hi": 20.87,
-            "n": 3261
+            "ic_lo": 6.12,
+            "ic_hi": 21.01,
+            "n": 3262
           },
           {
             "h": 10,
             "etiqueta": "2 sem",
             "valor": 18.5,
-            "ic_lo": 6.71,
-            "ic_hi": 28.78,
-            "n": 3256
+            "ic_lo": 6.66,
+            "ic_hi": 28.95,
+            "n": 3257
           },
           {
             "h": 21,
             "etiqueta": "1 mes",
             "valor": 26.5,
-            "ic_lo": 11.92,
-            "ic_hi": 40.67,
-            "n": 3245
+            "ic_lo": 11.83,
+            "ic_hi": 40.71,
+            "n": 3246
           },
           {
             "h": 63,
             "etiqueta": "3 meses",
             "valor": 31.3,
-            "ic_lo": 14.38,
-            "ic_hi": 52.58,
-            "n": 3203
+            "ic_lo": 14.39,
+            "ic_hi": 52.64,
+            "n": 3204
           }
         ],
         "nota": "El baseline ingenuo usa la volatilidad reciente y se queda plano; el GARCH, en cambio, revierte hacia la volatilidad media de largo plazo. Por eso su ventaja relativa crece con el plazo (persistencia 1.00): la curva muestra hasta dónde aporta el modelo."
@@ -21913,67 +21921,67 @@
         "titulo": "Previsión actual de volatilidad del platino",
         "color": "#8fb8c9",
         "sub": "Volatilidad anualizada que el GARCH espera DESDE LA ÚLTIMA SESIÓN, para cada horizonte. Es una estimación viva: cambia cada día con los datos nuevos.",
-        "fecha": "2026-07-10",
-        "actual": 41.4,
-        "largo_plazo": 32.0,
-        "regimen": "Movido: la volatilidad está por encima de su media (~32.0%). El modelo espera que se vaya calmando hacia ese nivel.",
+        "fecha": "2026-07-13",
+        "actual": 40.6,
+        "largo_plazo": 31.8,
+        "regimen": "Movido: la volatilidad está por encima de su media (~31.8%). El modelo espera que se vaya calmando hacia ese nivel.",
         "unidad": "%",
         "puntos": [
           {
             "h": 1,
             "etiqueta": "1 día",
-            "vol": 41.4,
-            "lo": 2.4,
-            "hi": 85.4
+            "vol": 40.6,
+            "lo": 2.3,
+            "hi": 83.7
           },
           {
             "h": 5,
             "etiqueta": "1 sem",
-            "vol": 41.4,
-            "lo": 18.4,
-            "hi": 67.1
+            "vol": 40.5,
+            "lo": 18.1,
+            "hi": 65.8
           },
           {
             "h": 10,
             "etiqueta": "2 sem",
-            "vol": 41.3,
-            "lo": 23.4,
-            "hi": 62.2
+            "vol": 40.5,
+            "lo": 22.9,
+            "hi": 61.0
           },
           {
             "h": 21,
             "etiqueta": "1 mes",
-            "vol": 41.2,
-            "lo": 26.9,
-            "hi": 58.0
+            "vol": 40.4,
+            "lo": 26.4,
+            "hi": 56.8
           },
           {
             "h": 42,
             "etiqueta": "2 meses",
-            "vol": 40.9,
-            "lo": 26.6,
-            "hi": 59.5
+            "vol": 40.1,
+            "lo": 26.1,
+            "hi": 58.3
           },
           {
             "h": 63,
             "etiqueta": "3 meses",
-            "vol": 40.7,
-            "lo": 26.6,
-            "hi": 58.5
+            "vol": 39.9,
+            "lo": 26.1,
+            "hi": 57.4
           },
           {
             "h": 126,
             "etiqueta": "6 meses",
-            "vol": 40.0,
-            "lo": 28.1,
-            "hi": 77.3
+            "vol": 39.2,
+            "lo": 27.6,
+            "hi": 75.9
           },
           {
             "h": 252,
             "etiqueta": "1 año",
-            "vol": 38.8,
-            "lo": 27.2,
-            "hi": 77.8
+            "vol": 38.2,
+            "lo": 26.7,
+            "hi": 76.4
           }
         ],
         "nota": "Las bandas reflejan cuánto se ha desviado históricamente la volatilidad real de la prevista a cada plazo (percentiles 5–95). A partir de ~1 año la previsión es ya, en esencia, la volatilidad media de largo plazo: el GARCH no aporta más allá."
@@ -21995,8 +22003,8 @@
       "significancia": {
         "p_valor": 0.0,
         "ic90": [
-          3.45,
-          7.32
+          3.48,
+          7.31
         ],
         "etiqueta": "mejora vs ingenuo (%)"
       },
@@ -22023,7 +22031,7 @@
         },
         {
           "k": "Días evaluados",
-          "v": "3264",
+          "v": "3265",
           "tono": ""
         }
       ],
@@ -27273,41 +27281,41 @@
             "h": 1,
             "etiqueta": "1 día",
             "valor": 5.4,
-            "ic_lo": 3.45,
-            "ic_hi": 7.32,
-            "n": 3264
+            "ic_lo": 3.48,
+            "ic_hi": 7.31,
+            "n": 3265
           },
           {
             "h": 5,
             "etiqueta": "1 sem",
             "valor": 17.2,
-            "ic_lo": 10.6,
+            "ic_lo": 10.67,
             "ic_hi": 22.98,
-            "n": 3260
+            "n": 3261
           },
           {
             "h": 10,
             "etiqueta": "2 sem",
             "valor": 23.9,
-            "ic_lo": 14.66,
-            "ic_hi": 32.03,
-            "n": 3255
+            "ic_lo": 14.69,
+            "ic_hi": 32.1,
+            "n": 3256
           },
           {
             "h": 21,
             "etiqueta": "1 mes",
             "valor": 31.6,
-            "ic_lo": 19.23,
-            "ic_hi": 42.86,
-            "n": 3244
+            "ic_lo": 19.24,
+            "ic_hi": 42.72,
+            "n": 3245
           },
           {
             "h": 63,
             "etiqueta": "3 meses",
             "valor": 41.8,
-            "ic_lo": 28.59,
-            "ic_hi": 58.49,
-            "n": 3202
+            "ic_lo": 28.58,
+            "ic_hi": 58.52,
+            "n": 3203
           }
         ],
         "nota": "El baseline ingenuo usa la volatilidad reciente y se queda plano; el GARCH, en cambio, revierte hacia la volatilidad media de largo plazo. Por eso su ventaja relativa crece con el plazo (persistencia 0.99): la curva muestra hasta dónde aporta el modelo."
@@ -27316,67 +27324,67 @@
         "titulo": "Previsión actual de volatilidad del paladio",
         "color": "#b48ad6",
         "sub": "Volatilidad anualizada que el GARCH espera DESDE LA ÚLTIMA SESIÓN, para cada horizonte. Es una estimación viva: cambia cada día con los datos nuevos.",
-        "fecha": "2026-07-10",
-        "actual": 43.4,
-        "largo_plazo": 41.2,
-        "regimen": "Movido: la volatilidad está por encima de su media (~41.2%). El modelo espera que se vaya calmando hacia ese nivel.",
+        "fecha": "2026-07-13",
+        "actual": 42.6,
+        "largo_plazo": 41.1,
+        "regimen": "Movido: la volatilidad está por encima de su media (~41.1%). El modelo espera que se vaya calmando hacia ese nivel.",
         "unidad": "%",
         "puntos": [
           {
             "h": 1,
             "etiqueta": "1 día",
-            "vol": 43.4,
+            "vol": 42.6,
             "lo": 2.3,
-            "hi": 90.2
+            "hi": 88.6
           },
           {
             "h": 5,
             "etiqueta": "1 sem",
-            "vol": 43.4,
-            "lo": 17.3,
-            "hi": 78.8
+            "vol": 42.6,
+            "lo": 17.0,
+            "hi": 77.4
           },
           {
             "h": 10,
             "etiqueta": "2 sem",
-            "vol": 43.3,
-            "lo": 22.5,
-            "hi": 73.0
+            "vol": 42.6,
+            "lo": 22.1,
+            "hi": 71.7
           },
           {
             "h": 21,
             "etiqueta": "1 mes",
-            "vol": 43.2,
-            "lo": 26.0,
-            "hi": 71.8
+            "vol": 42.5,
+            "lo": 25.6,
+            "hi": 70.6
           },
           {
             "h": 42,
             "etiqueta": "2 meses",
-            "vol": 43.1,
-            "lo": 27.3,
-            "hi": 69.8
+            "vol": 42.4,
+            "lo": 26.8,
+            "hi": 68.8
           },
           {
             "h": 63,
             "etiqueta": "3 meses",
-            "vol": 42.9,
-            "lo": 29.2,
-            "hi": 70.1
+            "vol": 42.3,
+            "lo": 28.7,
+            "hi": 69.1
           },
           {
             "h": 126,
             "etiqueta": "6 meses",
-            "vol": 42.5,
-            "lo": 27.9,
-            "hi": 76.8
+            "vol": 42.0,
+            "lo": 27.6,
+            "hi": 75.9
           },
           {
             "h": 252,
             "etiqueta": "1 año",
-            "vol": 42.1,
-            "lo": 29.5,
-            "hi": 81.0
+            "vol": 41.7,
+            "lo": 29.3,
+            "hi": 80.3
           }
         ],
         "nota": "Las bandas reflejan cuánto se ha desviado históricamente la volatilidad real de la prevista a cada plazo (percentiles 5–95). A partir de ~1 año la previsión es ya, en esencia, la volatilidad media de largo plazo: el GARCH no aporta más allá."
@@ -27398,8 +27406,8 @@
       "significancia": {
         "p_valor": 0.003,
         "ic90": [
-          1.75,
-          6.02
+          1.78,
+          5.97
         ],
         "etiqueta": "mejora vs ingenuo (%)"
       },
@@ -27426,7 +27434,7 @@
         },
         {
           "k": "Días evaluados",
-          "v": "3267",
+          "v": "3268",
           "tono": ""
         }
       ],
@@ -32684,41 +32692,41 @@
             "h": 1,
             "etiqueta": "1 día",
             "valor": 4.0,
-            "ic_lo": 1.75,
-            "ic_hi": 6.02,
-            "n": 3267
+            "ic_lo": 1.78,
+            "ic_hi": 5.97,
+            "n": 3268
           },
           {
             "h": 5,
             "etiqueta": "1 sem",
             "valor": 14.7,
-            "ic_lo": 7.43,
-            "ic_hi": 20.93,
-            "n": 3263
+            "ic_lo": 7.45,
+            "ic_hi": 20.86,
+            "n": 3264
           },
           {
             "h": 10,
             "etiqueta": "2 sem",
             "valor": 22.5,
-            "ic_lo": 13.51,
-            "ic_hi": 30.4,
-            "n": 3258
+            "ic_lo": 13.44,
+            "ic_hi": 30.32,
+            "n": 3259
           },
           {
             "h": 21,
             "etiqueta": "1 mes",
             "valor": 33.8,
-            "ic_lo": 25.24,
-            "ic_hi": 42.13,
-            "n": 3247
+            "ic_lo": 25.17,
+            "ic_hi": 42.12,
+            "n": 3248
           },
           {
             "h": 63,
             "etiqueta": "3 meses",
             "valor": 45.9,
-            "ic_lo": 33.05,
-            "ic_hi": 60.41,
-            "n": 3205
+            "ic_lo": 32.97,
+            "ic_hi": 60.36,
+            "n": 3206
           }
         ],
         "nota": "El baseline ingenuo usa la volatilidad reciente y se queda plano; el GARCH, en cambio, revierte hacia la volatilidad media de largo plazo. Por eso su ventaja relativa crece con el plazo (persistencia 0.99): la curva muestra hasta dónde aporta el modelo."
@@ -32727,67 +32735,67 @@
         "titulo": "Previsión actual de volatilidad del cobre",
         "color": "#d08a5a",
         "sub": "Volatilidad anualizada que el GARCH espera DESDE LA ÚLTIMA SESIÓN, para cada horizonte. Es una estimación viva: cambia cada día con los datos nuevos.",
-        "fecha": "2026-07-10",
-        "actual": 27.2,
-        "largo_plazo": 27.4,
-        "regimen": "Tranquilo: la volatilidad está por debajo de su media (~27.4%). El modelo espera que repunte hacia ese nivel.",
+        "fecha": "2026-07-13",
+        "actual": 26.7,
+        "largo_plazo": 27.3,
+        "regimen": "Tranquilo: la volatilidad está por debajo de su media (~27.3%). El modelo espera que repunte hacia ese nivel.",
         "unidad": "%",
         "puntos": [
           {
             "h": 1,
             "etiqueta": "1 día",
-            "vol": 27.2,
+            "vol": 26.7,
             "lo": 1.3,
-            "hi": 57.1
+            "hi": 55.9
           },
           {
             "h": 5,
             "etiqueta": "1 sem",
-            "vol": 27.2,
-            "lo": 10.7,
-            "hi": 46.9
+            "vol": 26.7,
+            "lo": 10.5,
+            "hi": 46.0
           },
           {
             "h": 10,
             "etiqueta": "2 sem",
-            "vol": 27.2,
-            "lo": 14.3,
-            "hi": 44.5
+            "vol": 26.7,
+            "lo": 14.0,
+            "hi": 43.7
           },
           {
             "h": 21,
             "etiqueta": "1 mes",
-            "vol": 27.3,
-            "lo": 16.7,
-            "hi": 42.4
+            "vol": 26.7,
+            "lo": 16.4,
+            "hi": 41.5
           },
           {
             "h": 42,
             "etiqueta": "2 meses",
-            "vol": 27.3,
-            "lo": 17.8,
-            "hi": 41.3
+            "vol": 26.8,
+            "lo": 17.5,
+            "hi": 40.5
           },
           {
             "h": 63,
             "etiqueta": "3 meses",
-            "vol": 27.3,
-            "lo": 18.3,
-            "hi": 40.6
+            "vol": 26.8,
+            "lo": 18.0,
+            "hi": 39.8
           },
           {
             "h": 126,
             "etiqueta": "6 meses",
-            "vol": 27.3,
-            "lo": 18.2,
-            "hi": 38.4
+            "vol": 26.9,
+            "lo": 17.9,
+            "hi": 37.8
           },
           {
             "h": 252,
             "etiqueta": "1 año",
-            "vol": 27.3,
-            "lo": 21.3,
-            "hi": 46.6
+            "vol": 27.0,
+            "lo": 21.1,
+            "hi": 46.1
           }
         ],
         "nota": "Las bandas reflejan cuánto se ha desviado históricamente la volatilidad real de la prevista a cada plazo (percentiles 5–95). A partir de ~1 año la previsión es ya, en esencia, la volatilidad media de largo plazo: el GARCH no aporta más allá."
@@ -32804,40 +32812,40 @@
           "nombre": "Oro",
           "metal": "oro",
           "color": "#e8b23a",
-          "actual": 23.4,
-          "largo_plazo": 17.7,
+          "actual": 24.7,
+          "largo_plazo": 17.8,
           "prev": [
             {
               "etiqueta": "1 día",
-              "vol": 23.4
+              "vol": 24.7
             },
             {
               "etiqueta": "1 sem",
-              "vol": 23.2
+              "vol": 24.5
             },
             {
               "etiqueta": "2 sem",
-              "vol": 23.1
+              "vol": 24.3
             },
             {
               "etiqueta": "1 mes",
-              "vol": 22.7
+              "vol": 23.9
             },
             {
               "etiqueta": "2 meses",
-              "vol": 22.1
+              "vol": 23.2
             },
             {
               "etiqueta": "3 meses",
-              "vol": 21.6
+              "vol": 22.6
             },
             {
               "etiqueta": "6 meses",
-              "vol": 20.5
+              "vol": 21.3
             },
             {
               "etiqueta": "1 año",
-              "vol": 19.4
+              "vol": 19.9
             }
           ],
           "hist": [
@@ -34155,40 +34163,40 @@
           "nombre": "Plata",
           "metal": "plata",
           "color": "#c0c5cc",
-          "actual": 49.2,
+          "actual": 49.6,
           "largo_plazo": 34.6,
           "prev": [
             {
               "etiqueta": "1 día",
-              "vol": 49.2
+              "vol": 49.6
             },
             {
               "etiqueta": "1 sem",
-              "vol": 49.0
+              "vol": 49.4
             },
             {
               "etiqueta": "2 sem",
-              "vol": 48.8
+              "vol": 49.2
             },
             {
               "etiqueta": "1 mes",
-              "vol": 48.3
+              "vol": 48.7
             },
             {
               "etiqueta": "2 meses",
-              "vol": 47.5
+              "vol": 47.8
             },
             {
               "etiqueta": "3 meses",
-              "vol": 46.7
+              "vol": 47.0
             },
             {
               "etiqueta": "6 meses",
-              "vol": 44.6
+              "vol": 44.9
             },
             {
               "etiqueta": "1 año",
-              "vol": 41.8
+              "vol": 42.1
             }
           ],
           "hist": [
@@ -35506,40 +35514,40 @@
           "nombre": "Platino",
           "metal": "platino",
           "color": "#8fb8c9",
-          "actual": 41.4,
-          "largo_plazo": 32.0,
+          "actual": 40.6,
+          "largo_plazo": 31.8,
           "prev": [
             {
               "etiqueta": "1 día",
-              "vol": 41.4
+              "vol": 40.6
             },
             {
               "etiqueta": "1 sem",
-              "vol": 41.4
+              "vol": 40.5
             },
             {
               "etiqueta": "2 sem",
-              "vol": 41.3
+              "vol": 40.5
             },
             {
               "etiqueta": "1 mes",
-              "vol": 41.2
+              "vol": 40.4
             },
             {
               "etiqueta": "2 meses",
-              "vol": 40.9
+              "vol": 40.1
             },
             {
               "etiqueta": "3 meses",
-              "vol": 40.7
+              "vol": 39.9
             },
             {
               "etiqueta": "6 meses",
-              "vol": 40.0
+              "vol": 39.2
             },
             {
               "etiqueta": "1 año",
-              "vol": 38.8
+              "vol": 38.2
             }
           ],
           "hist": [
@@ -36857,40 +36865,40 @@
           "nombre": "Paladio",
           "metal": "paladio",
           "color": "#b48ad6",
-          "actual": 43.4,
-          "largo_plazo": 41.2,
+          "actual": 42.6,
+          "largo_plazo": 41.1,
           "prev": [
             {
               "etiqueta": "1 día",
-              "vol": 43.4
+              "vol": 42.6
             },
             {
               "etiqueta": "1 sem",
-              "vol": 43.4
+              "vol": 42.6
             },
             {
               "etiqueta": "2 sem",
-              "vol": 43.3
+              "vol": 42.6
             },
             {
               "etiqueta": "1 mes",
-              "vol": 43.2
-            },
-            {
-              "etiqueta": "2 meses",
-              "vol": 43.1
-            },
-            {
-              "etiqueta": "3 meses",
-              "vol": 42.9
-            },
-            {
-              "etiqueta": "6 meses",
               "vol": 42.5
             },
             {
+              "etiqueta": "2 meses",
+              "vol": 42.4
+            },
+            {
+              "etiqueta": "3 meses",
+              "vol": 42.3
+            },
+            {
+              "etiqueta": "6 meses",
+              "vol": 42.0
+            },
+            {
               "etiqueta": "1 año",
-              "vol": 42.1
+              "vol": 41.7
             }
           ],
           "hist": [
@@ -38208,40 +38216,40 @@
           "nombre": "Cobre",
           "metal": "cobre",
           "color": "#d08a5a",
-          "actual": 27.2,
-          "largo_plazo": 27.4,
+          "actual": 26.7,
+          "largo_plazo": 27.3,
           "prev": [
             {
               "etiqueta": "1 día",
-              "vol": 27.2
+              "vol": 26.7
             },
             {
               "etiqueta": "1 sem",
-              "vol": 27.2
+              "vol": 26.7
             },
             {
               "etiqueta": "2 sem",
-              "vol": 27.2
+              "vol": 26.7
             },
             {
               "etiqueta": "1 mes",
-              "vol": 27.3
+              "vol": 26.7
             },
             {
               "etiqueta": "2 meses",
-              "vol": 27.3
+              "vol": 26.8
             },
             {
               "etiqueta": "3 meses",
-              "vol": 27.3
+              "vol": 26.8
             },
             {
               "etiqueta": "6 meses",
-              "vol": 27.3
+              "vol": 26.9
             },
             {
               "etiqueta": "1 año",
-              "vol": 27.3
+              "vol": 27.0
             }
           ],
           "hist": [
@@ -39647,50 +39655,50 @@
           "tipo": "ruptura_resistencia",
           "nombre": "Ruptura de resistencia",
           "color": "#5fb7c4",
-          "n_eventos": 1577,
+          "n_eventos": 1576,
           "puntos": [
             {
               "etiqueta": "1 sem",
-              "valor": -0.14,
-              "ic_lo": -0.32,
+              "valor": -0.15,
+              "ic_lo": -0.31,
               "ic_hi": 0.03,
-              "n": 1575,
+              "n": 1576,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 sem",
-              "valor": -0.09,
-              "ic_lo": -0.36,
-              "ic_hi": 0.17,
-              "n": 1564,
+              "valor": -0.08,
+              "ic_lo": -0.35,
+              "ic_hi": 0.19,
+              "n": 1566,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 mes",
-              "valor": -0.69,
-              "ic_lo": -1.1,
-              "ic_hi": -0.29,
-              "n": 1561,
+              "valor": -0.66,
+              "ic_lo": -1.09,
+              "ic_hi": -0.25,
+              "n": 1560,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "2 meses",
-              "valor": -1.56,
-              "ic_lo": -2.25,
-              "ic_hi": -0.84,
-              "n": 1545,
+              "valor": -1.52,
+              "ic_lo": -2.2,
+              "ic_hi": -0.82,
+              "n": 1546,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "3 meses",
-              "valor": -1.2,
-              "ic_lo": -2.12,
-              "ic_hi": -0.26,
-              "n": 1539,
+              "valor": -1.16,
+              "ic_lo": -2.08,
+              "ic_hi": -0.23,
+              "n": 1538,
               "sig_cruda": true,
               "sig_fdr": false
             }
@@ -39700,50 +39708,50 @@
           "tipo": "ruptura_soporte",
           "nombre": "Ruptura de soporte",
           "color": "#d2566a",
-          "n_eventos": 894,
+          "n_eventos": 898,
           "puntos": [
             {
               "etiqueta": "1 sem",
-              "valor": 0.13,
-              "ic_lo": -0.23,
-              "ic_hi": 0.53,
-              "n": 894,
+              "valor": 0.11,
+              "ic_lo": -0.28,
+              "ic_hi": 0.48,
+              "n": 898,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 sem",
-              "valor": -0.13,
-              "ic_lo": -0.64,
-              "ic_hi": 0.38,
-              "n": 889,
+              "valor": -0.14,
+              "ic_lo": -0.67,
+              "ic_hi": 0.34,
+              "n": 893,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 mes",
-              "valor": -0.63,
-              "ic_lo": -1.26,
+              "valor": -0.6,
+              "ic_lo": -1.22,
               "ic_hi": 0.04,
-              "n": 884,
+              "n": 889,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 meses",
               "valor": -1.74,
-              "ic_lo": -2.71,
-              "ic_hi": -0.78,
-              "n": 878,
+              "ic_lo": -2.64,
+              "ic_hi": -0.79,
+              "n": 882,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "3 meses",
-              "valor": -2.54,
-              "ic_lo": -3.63,
-              "ic_hi": -1.38,
-              "n": 869,
+              "valor": -2.5,
+              "ic_lo": -3.62,
+              "ic_hi": -1.37,
+              "n": 875,
               "sig_cruda": true,
               "sig_fdr": true
             }
@@ -39753,50 +39761,50 @@
           "tipo": "ruptura_tendencia_bajista",
           "nombre": "Ruptura de línea bajista (al alza)",
           "color": "#6ec08a",
-          "n_eventos": 3425,
+          "n_eventos": 3427,
           "puntos": [
             {
               "etiqueta": "1 sem",
-              "valor": -0.01,
+              "valor": -0.0,
               "ic_lo": -0.13,
-              "ic_hi": 0.12,
-              "n": 3417,
+              "ic_hi": 0.13,
+              "n": 3420,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 sem",
-              "valor": 0.1,
+              "valor": 0.11,
               "ic_lo": -0.08,
               "ic_hi": 0.29,
-              "n": 3405,
+              "n": 3412,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 mes",
-              "valor": 0.22,
-              "ic_lo": -0.1,
-              "ic_hi": 0.54,
-              "n": 3382,
+              "valor": 0.23,
+              "ic_lo": -0.08,
+              "ic_hi": 0.53,
+              "n": 3387,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 meses",
               "valor": 0.27,
-              "ic_lo": -0.21,
-              "ic_hi": 0.75,
-              "n": 3360,
+              "ic_lo": -0.19,
+              "ic_hi": 0.74,
+              "n": 3361,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "3 meses",
-              "valor": 0.35,
-              "ic_lo": -0.27,
-              "ic_hi": 1.01,
-              "n": 3322,
+              "valor": 0.34,
+              "ic_lo": -0.29,
+              "ic_hi": 1.0,
+              "n": 3324,
               "sig_cruda": false,
               "sig_fdr": false
             }
@@ -39806,7 +39814,7 @@
           "tipo": "ruptura_tendencia_alcista",
           "nombre": "Ruptura de línea alcista (a la baja)",
           "color": "#d08a5a",
-          "n_eventos": 4158,
+          "n_eventos": 4156,
           "puntos": [
             {
               "etiqueta": "1 sem",
@@ -39819,37 +39827,37 @@
             },
             {
               "etiqueta": "2 sem",
-              "valor": -0.06,
+              "valor": -0.07,
               "ic_lo": -0.26,
-              "ic_hi": 0.12,
-              "n": 4148,
+              "ic_hi": 0.11,
+              "n": 4146,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 mes",
-              "valor": -0.12,
-              "ic_lo": -0.4,
-              "ic_hi": 0.16,
+              "valor": -0.14,
+              "ic_lo": -0.42,
+              "ic_hi": 0.14,
               "n": 4135,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 meses",
-              "valor": -0.23,
+              "valor": -0.22,
               "ic_lo": -0.64,
-              "ic_hi": 0.19,
-              "n": 4095,
+              "ic_hi": 0.2,
+              "n": 4099,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "3 meses",
-              "valor": -0.39,
-              "ic_lo": -0.96,
-              "ic_hi": 0.19,
-              "n": 4067,
+              "valor": -0.4,
+              "ic_lo": -0.97,
+              "ic_hi": 0.18,
+              "n": 4069,
               "sig_cruda": false,
               "sig_fdr": false
             }
@@ -39859,14 +39867,14 @@
           "tipo": "doble_suelo",
           "nombre": "Doble suelo",
           "color": "#b48ad6",
-          "n_eventos": 2006,
+          "n_eventos": 2001,
           "puntos": [
             {
               "etiqueta": "1 sem",
               "valor": 0.03,
               "ic_lo": -0.11,
               "ic_hi": 0.16,
-              "n": 2005,
+              "n": 2001,
               "sig_cruda": false,
               "sig_fdr": false
             },
@@ -39874,35 +39882,35 @@
               "etiqueta": "2 sem",
               "valor": 0.18,
               "ic_lo": -0.01,
-              "ic_hi": 0.39,
-              "n": 1991,
+              "ic_hi": 0.37,
+              "n": 1993,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 mes",
-              "valor": -0.13,
-              "ic_lo": -0.45,
-              "ic_hi": 0.22,
-              "n": 1973,
+              "valor": -0.14,
+              "ic_lo": -0.48,
+              "ic_hi": 0.19,
+              "n": 1969,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 meses",
-              "valor": -1.06,
-              "ic_lo": -1.52,
-              "ic_hi": -0.6,
-              "n": 1963,
+              "valor": -1.1,
+              "ic_lo": -1.57,
+              "ic_hi": -0.63,
+              "n": 1958,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "3 meses",
-              "valor": -0.99,
-              "ic_lo": -1.54,
-              "ic_hi": -0.45,
-              "n": 1947,
+              "valor": -1.02,
+              "ic_lo": -1.57,
+              "ic_hi": -0.47,
+              "n": 1943,
               "sig_cruda": true,
               "sig_fdr": true
             }
@@ -39925,7 +39933,7 @@
             },
             {
               "etiqueta": "2 sem",
-              "valor": -0.23,
+              "valor": -0.24,
               "ic_lo": -0.49,
               "ic_hi": 0.02,
               "n": 1756,
@@ -39934,18 +39942,18 @@
             },
             {
               "etiqueta": "1 mes",
-              "valor": -0.43,
-              "ic_lo": -0.83,
-              "ic_hi": -0.05,
-              "n": 1750,
+              "valor": -0.44,
+              "ic_lo": -0.84,
+              "ic_hi": -0.06,
+              "n": 1751,
               "sig_cruda": true,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 meses",
-              "valor": -0.66,
-              "ic_lo": -1.2,
-              "ic_hi": -0.14,
+              "valor": -0.67,
+              "ic_lo": -1.21,
+              "ic_hi": -0.17,
               "n": 1728,
               "sig_cruda": true,
               "sig_fdr": false
@@ -39954,8 +39962,8 @@
               "etiqueta": "3 meses",
               "valor": -1.1,
               "ic_lo": -1.79,
-              "ic_hi": -0.44,
-              "n": 1718,
+              "ic_hi": -0.42,
+              "n": 1719,
               "sig_cruda": true,
               "sig_fdr": true
             }
@@ -39969,7 +39977,7 @@
           "puntos": [
             {
               "etiqueta": "1 sem",
-              "valor": -0.31,
+              "valor": -0.3,
               "ic_lo": -0.91,
               "ic_hi": 0.25,
               "n": 111,
@@ -40094,50 +40102,50 @@
           "tipo": "ruptura_resistencia",
           "nombre": "Ruptura de resistencia",
           "color": "#5fb7c4",
-          "n_eventos": 2008,
+          "n_eventos": 2005,
           "puntos": [
             {
               "etiqueta": "½ día",
-              "valor": -0.11,
-              "ic_lo": -0.17,
-              "ic_hi": -0.06,
-              "n": 2007,
+              "valor": -0.1,
+              "ic_lo": -0.16,
+              "ic_hi": -0.04,
+              "n": 2005,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "1 día",
-              "valor": -0.1,
-              "ic_lo": -0.21,
-              "ic_hi": -0.0,
-              "n": 2007,
+              "valor": -0.09,
+              "ic_lo": -0.2,
+              "ic_hi": 0.01,
+              "n": 2001,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 días",
-              "valor": -0.17,
-              "ic_lo": -0.32,
-              "ic_hi": -0.02,
-              "n": 2006,
-              "sig_cruda": true,
+              "valor": -0.15,
+              "ic_lo": -0.31,
+              "ic_hi": -0.0,
+              "n": 2000,
+              "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 sem",
-              "valor": -0.27,
-              "ic_lo": -0.53,
-              "ic_hi": -0.01,
-              "n": 1985,
-              "sig_cruda": true,
+              "valor": -0.26,
+              "ic_lo": -0.52,
+              "ic_hi": 0.01,
+              "n": 1983,
+              "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 sem",
-              "valor": -0.61,
-              "ic_lo": -0.98,
-              "ic_hi": -0.22,
-              "n": 1949,
+              "valor": -0.59,
+              "ic_lo": -0.99,
+              "ic_hi": -0.2,
+              "n": 1946,
               "sig_cruda": true,
               "sig_fdr": true
             }
@@ -40147,30 +40155,30 @@
           "tipo": "ruptura_soporte",
           "nombre": "Ruptura de soporte",
           "color": "#d2566a",
-          "n_eventos": 1652,
+          "n_eventos": 1656,
           "puntos": [
             {
               "etiqueta": "½ día",
               "valor": 0.06,
               "ic_lo": -0.01,
               "ic_hi": 0.13,
-              "n": 1652,
+              "n": 1656,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 día",
-              "valor": 0.07,
-              "ic_lo": -0.05,
-              "ic_hi": 0.19,
-              "n": 1651,
+              "valor": 0.08,
+              "ic_lo": -0.04,
+              "ic_hi": 0.21,
+              "n": 1652,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 días",
-              "valor": -0.08,
-              "ic_lo": -0.23,
+              "valor": -0.07,
+              "ic_lo": -0.24,
               "ic_hi": 0.09,
               "n": 1651,
               "sig_cruda": false,
@@ -40178,19 +40186,19 @@
             },
             {
               "etiqueta": "1 sem",
-              "valor": -0.32,
-              "ic_lo": -0.58,
-              "ic_hi": -0.07,
-              "n": 1638,
+              "valor": -0.41,
+              "ic_lo": -0.68,
+              "ic_hi": -0.15,
+              "n": 1639,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "2 sem",
-              "valor": -0.62,
-              "ic_lo": -0.98,
-              "ic_hi": -0.28,
-              "n": 1631,
+              "valor": -0.68,
+              "ic_lo": -1.04,
+              "ic_hi": -0.33,
+              "n": 1632,
               "sig_cruda": true,
               "sig_fdr": true
             }
@@ -40200,14 +40208,14 @@
           "tipo": "ruptura_tendencia_bajista",
           "nombre": "Ruptura de línea bajista (al alza)",
           "color": "#6ec08a",
-          "n_eventos": 6160,
+          "n_eventos": 6137,
           "puntos": [
             {
               "etiqueta": "½ día",
               "valor": -0.04,
               "ic_lo": -0.07,
               "ic_hi": -0.01,
-              "n": 6151,
+              "n": 6136,
               "sig_cruda": true,
               "sig_fdr": true
             },
@@ -40216,34 +40224,34 @@
               "valor": -0.03,
               "ic_lo": -0.08,
               "ic_hi": 0.03,
-              "n": 6145,
+              "n": 6124,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 días",
-              "valor": -0.01,
+              "valor": -0.0,
               "ic_lo": -0.08,
-              "ic_hi": 0.07,
-              "n": 6128,
+              "ic_hi": 0.08,
+              "n": 6109,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 sem",
-              "valor": -0.0,
+              "valor": -0.01,
               "ic_lo": -0.15,
               "ic_hi": 0.13,
-              "n": 6106,
+              "n": 6078,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 sem",
               "valor": -0.06,
-              "ic_lo": -0.28,
-              "ic_hi": 0.17,
-              "n": 6045,
+              "ic_lo": -0.29,
+              "ic_hi": 0.14,
+              "n": 6018,
               "sig_cruda": false,
               "sig_fdr": false
             }
@@ -40253,50 +40261,50 @@
           "tipo": "ruptura_tendencia_alcista",
           "nombre": "Ruptura de línea alcista (a la baja)",
           "color": "#d08a5a",
-          "n_eventos": 6576,
+          "n_eventos": 6549,
           "puntos": [
             {
               "etiqueta": "½ día",
               "valor": -0.01,
               "ic_lo": -0.04,
               "ic_hi": 0.02,
-              "n": 6573,
+              "n": 6543,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 día",
               "valor": 0.03,
-              "ic_lo": -0.02,
+              "ic_lo": -0.03,
               "ic_hi": 0.08,
-              "n": 6570,
+              "n": 6535,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 días",
-              "valor": 0.07,
-              "ic_lo": -0.01,
-              "ic_hi": 0.15,
-              "n": 6551,
+              "valor": 0.06,
+              "ic_lo": -0.02,
+              "ic_hi": 0.13,
+              "n": 6529,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 sem",
-              "valor": 0.03,
-              "ic_lo": -0.1,
+              "valor": 0.04,
+              "ic_lo": -0.09,
               "ic_hi": 0.17,
-              "n": 6497,
+              "n": 6468,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 sem",
               "valor": -0.11,
-              "ic_lo": -0.33,
-              "ic_hi": 0.1,
-              "n": 6425,
+              "ic_lo": -0.32,
+              "ic_hi": 0.11,
+              "n": 6391,
               "sig_cruda": false,
               "sig_fdr": false
             }
@@ -40306,33 +40314,33 @@
           "tipo": "doble_suelo",
           "nombre": "Doble suelo",
           "color": "#b48ad6",
-          "n_eventos": 4154,
+          "n_eventos": 4146,
           "puntos": [
             {
               "etiqueta": "½ día",
               "valor": -0.07,
               "ic_lo": -0.1,
               "ic_hi": -0.04,
-              "n": 4153,
+              "n": 4145,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "1 día",
-              "valor": -0.11,
-              "ic_lo": -0.17,
+              "valor": -0.1,
+              "ic_lo": -0.16,
               "ic_hi": -0.04,
-              "n": 4151,
+              "n": 4141,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "2 días",
-              "valor": -0.1,
-              "ic_lo": -0.2,
-              "ic_hi": -0.01,
-              "n": 4149,
-              "sig_cruda": true,
+              "valor": -0.09,
+              "ic_lo": -0.18,
+              "ic_hi": 0.01,
+              "n": 4138,
+              "sig_cruda": false,
               "sig_fdr": false
             },
             {
@@ -40340,16 +40348,16 @@
               "valor": -0.2,
               "ic_lo": -0.36,
               "ic_hi": -0.04,
-              "n": 4130,
+              "n": 4127,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "2 sem",
-              "valor": -0.46,
+              "valor": -0.45,
               "ic_lo": -0.69,
-              "ic_hi": -0.22,
-              "n": 4085,
+              "ic_hi": -0.21,
+              "n": 4075,
               "sig_cruda": true,
               "sig_fdr": true
             }
@@ -40359,14 +40367,14 @@
           "tipo": "doble_techo",
           "nombre": "Doble techo",
           "color": "#e8b23a",
-          "n_eventos": 3882,
+          "n_eventos": 3881,
           "puntos": [
             {
               "etiqueta": "½ día",
               "valor": 0.05,
-              "ic_lo": 0.02,
+              "ic_lo": 0.01,
               "ic_hi": 0.09,
-              "n": 3882,
+              "n": 3880,
               "sig_cruda": true,
               "sig_fdr": true
             },
@@ -40375,14 +40383,14 @@
               "valor": 0.11,
               "ic_lo": 0.04,
               "ic_hi": 0.19,
-              "n": 3878,
+              "n": 3877,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "2 días",
               "valor": 0.08,
-              "ic_lo": -0.02,
+              "ic_lo": -0.03,
               "ic_hi": 0.18,
               "n": 3873,
               "sig_cruda": false,
@@ -40390,19 +40398,19 @@
             },
             {
               "etiqueta": "1 sem",
-              "valor": -0.0,
-              "ic_lo": -0.18,
+              "valor": -0.01,
+              "ic_lo": -0.19,
               "ic_hi": 0.16,
-              "n": 3849,
+              "n": 3847,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 sem",
-              "valor": -0.31,
-              "ic_lo": -0.57,
-              "ic_hi": -0.05,
-              "n": 3829,
+              "valor": -0.33,
+              "ic_lo": -0.59,
+              "ic_hi": -0.08,
+              "n": 3826,
               "sig_cruda": true,
               "sig_fdr": true
             }
@@ -40412,50 +40420,50 @@
           "tipo": "compresion",
           "nombre": "Compresión (squeeze)",
           "color": "#88c0d0",
-          "n_eventos": 297,
+          "n_eventos": 294,
           "puntos": [
             {
               "etiqueta": "½ día",
-              "valor": -0.2,
-              "ic_lo": -0.31,
-              "ic_hi": -0.11,
-              "n": 297,
+              "valor": -0.16,
+              "ic_lo": -0.26,
+              "ic_hi": -0.07,
+              "n": 294,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "1 día",
-              "valor": -0.27,
-              "ic_lo": -0.44,
-              "ic_hi": -0.1,
-              "n": 297,
+              "valor": -0.23,
+              "ic_lo": -0.42,
+              "ic_hi": -0.05,
+              "n": 294,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "2 días",
-              "valor": 0.12,
-              "ic_lo": -0.16,
-              "ic_hi": 0.41,
-              "n": 297,
+              "valor": 0.07,
+              "ic_lo": -0.23,
+              "ic_hi": 0.38,
+              "n": 294,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 sem",
-              "valor": -1.16,
-              "ic_lo": -1.62,
-              "ic_hi": -0.7,
-              "n": 297,
+              "valor": -1.15,
+              "ic_lo": -1.67,
+              "ic_hi": -0.64,
+              "n": 294,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "2 sem",
-              "valor": -1.54,
-              "ic_lo": -2.34,
-              "ic_hi": -0.76,
-              "n": 297,
+              "valor": -1.41,
+              "ic_lo": -2.24,
+              "ic_hi": -0.63,
+              "n": 294,
               "sig_cruda": true,
               "sig_fdr": true
             }
@@ -40541,49 +40549,49 @@
           "tipo": "ruptura_resistencia",
           "nombre": "Ruptura de resistencia",
           "color": "#5fb7c4",
-          "n_eventos": 194,
+          "n_eventos": 193,
           "puntos": [
             {
               "etiqueta": "1 mes",
-              "valor": -0.29,
-              "ic_lo": -1.37,
-              "ic_hi": 0.73,
+              "valor": -0.31,
+              "ic_lo": -1.38,
+              "ic_hi": 0.7,
               "n": 193,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 meses",
-              "valor": -1.61,
-              "ic_lo": -3.13,
-              "ic_hi": -0.21,
+              "valor": -1.63,
+              "ic_lo": -3.17,
+              "ic_hi": -0.24,
               "n": 191,
               "sig_cruda": true,
               "sig_fdr": false
             },
             {
               "etiqueta": "3 meses",
-              "valor": -1.52,
-              "ic_lo": -3.13,
-              "ic_hi": 0.01,
+              "valor": -1.55,
+              "ic_lo": -3.16,
+              "ic_hi": -0.0,
               "n": 188,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "6 meses",
-              "valor": -2.09,
-              "ic_lo": -4.68,
-              "ic_hi": 0.41,
+              "valor": -2.18,
+              "ic_lo": -4.77,
+              "ic_hi": 0.33,
               "n": 183,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 año",
-              "valor": -5.41,
+              "valor": -5.4,
               "ic_lo": -8.91,
-              "ic_hi": -1.9,
+              "ic_hi": -1.89,
               "n": 168,
               "sig_cruda": true,
               "sig_fdr": true
@@ -40609,7 +40617,7 @@
               "etiqueta": "2 meses",
               "valor": -0.04,
               "ic_lo": -1.92,
-              "ic_hi": 1.92,
+              "ic_hi": 1.91,
               "n": 89,
               "sig_cruda": false,
               "sig_fdr": false
@@ -40618,16 +40626,16 @@
               "etiqueta": "3 meses",
               "valor": -0.8,
               "ic_lo": -3.53,
-              "ic_hi": 2.29,
+              "ic_hi": 2.3,
               "n": 89,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "6 meses",
-              "valor": 2.9,
-              "ic_lo": -1.74,
-              "ic_hi": 8.19,
+              "valor": 2.88,
+              "ic_lo": -1.76,
+              "ic_hi": 8.2,
               "n": 88,
               "sig_cruda": false,
               "sig_fdr": false
@@ -40635,8 +40643,8 @@
             {
               "etiqueta": "1 año",
               "valor": 4.68,
-              "ic_lo": -3.12,
-              "ic_hi": 12.92,
+              "ic_lo": -3.11,
+              "ic_hi": 12.91,
               "n": 80,
               "sig_cruda": false,
               "sig_fdr": false
@@ -40651,26 +40659,26 @@
           "puntos": [
             {
               "etiqueta": "1 mes",
-              "valor": -1.88,
-              "ic_lo": -3.18,
-              "ic_hi": -0.67,
+              "valor": -1.91,
+              "ic_lo": -3.22,
+              "ic_hi": -0.69,
               "n": 193,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "2 meses",
-              "valor": -3.66,
-              "ic_lo": -5.43,
-              "ic_hi": -1.95,
+              "valor": -3.67,
+              "ic_lo": -5.44,
+              "ic_hi": -1.96,
               "n": 190,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "3 meses",
-              "valor": -3.28,
-              "ic_lo": -5.36,
+              "valor": -3.27,
+              "ic_lo": -5.35,
               "ic_hi": -1.28,
               "n": 187,
               "sig_cruda": true,
@@ -40687,9 +40695,9 @@
             },
             {
               "etiqueta": "1 año",
-              "valor": -8.41,
-              "ic_lo": -13.16,
-              "ic_hi": -3.62,
+              "valor": -8.43,
+              "ic_lo": -13.2,
+              "ic_hi": -3.64,
               "n": 166,
               "sig_cruda": true,
               "sig_fdr": true
