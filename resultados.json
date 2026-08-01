@@ -1,5 +1,5 @@
 {
-  "generado": "2026-08-01 20:43 UTC",
+  "generado": "2026-08-01 20:52 UTC",
   "sintetico": false,
   "aviso": "Laboratorio de experimentacion de modelos. NO es recomendacion de inversion. Todas las metricas son fuera de muestra (walk-forward) y netas de costes. Un Sharpe con p-valor alto NO es distinguible del azar.",
   "experimentos": [
@@ -5671,9 +5671,9 @@
           {
             "h": 5,
             "etiqueta": "1 sem",
-            "valor": -0.22,
-            "ic_lo": -0.39,
-            "ic_hi": -0.04,
+            "valor": -0.21,
+            "ic_lo": -0.38,
+            "ic_hi": -0.05,
             "n": 1978
           },
           {
@@ -5681,30 +5681,30 @@
             "etiqueta": "2 sem",
             "valor": -0.12,
             "ic_lo": -0.34,
-            "ic_hi": 0.1,
+            "ic_hi": 0.09,
             "n": 1970
           },
           {
             "h": 21,
             "etiqueta": "1 mes",
-            "valor": -0.02,
+            "valor": -0.03,
             "ic_lo": -0.39,
-            "ic_hi": 0.34,
+            "ic_hi": 0.33,
             "n": 1961
           },
           {
             "h": 42,
             "etiqueta": "2 meses",
-            "valor": -0.75,
+            "valor": -0.76,
             "ic_lo": -1.39,
-            "ic_hi": -0.13,
+            "ic_hi": -0.14,
             "n": 1941
           },
           {
             "h": 63,
             "etiqueta": "3 meses",
             "valor": -0.87,
-            "ic_lo": -1.75,
+            "ic_lo": -1.78,
             "ic_hi": -0.03,
             "n": 1918
           }
@@ -12497,7 +12497,7 @@
         },
         {
           "fecha": "2019-12-12",
-          "valor": 22.2
+          "valor": 22.1
         },
         {
           "fecha": "2019-12-19",
@@ -42624,8 +42624,8 @@
             {
               "etiqueta": "1 sem",
               "valor": 0.23,
-              "ic_lo": -0.39,
-              "ic_hi": 0.89,
+              "ic_lo": -0.35,
+              "ic_hi": 0.76,
               "n": 45,
               "sig_cruda": false,
               "sig_fdr": false
@@ -42633,8 +42633,8 @@
             {
               "etiqueta": "2 sem",
               "valor": 0.59,
-              "ic_lo": -0.67,
-              "ic_hi": 1.76,
+              "ic_lo": -0.52,
+              "ic_hi": 1.6,
               "n": 45,
               "sig_cruda": false,
               "sig_fdr": false
@@ -42642,8 +42642,8 @@
             {
               "etiqueta": "1 mes",
               "valor": 0.17,
-              "ic_lo": -1.29,
-              "ic_hi": 1.61,
+              "ic_lo": -1.12,
+              "ic_hi": 1.35,
               "n": 45,
               "sig_cruda": false,
               "sig_fdr": false
@@ -42651,8 +42651,8 @@
             {
               "etiqueta": "2 meses",
               "valor": 1.3,
-              "ic_lo": -0.62,
-              "ic_hi": 3.23,
+              "ic_lo": -0.17,
+              "ic_hi": 2.8,
               "n": 45,
               "sig_cruda": false,
               "sig_fdr": false
@@ -42660,10 +42660,10 @@
             {
               "etiqueta": "3 meses",
               "valor": 1.07,
-              "ic_lo": -0.57,
-              "ic_hi": 2.75,
+              "ic_lo": 1.07,
+              "ic_hi": 1.07,
               "n": 45,
-              "sig_cruda": false,
+              "sig_cruda": true,
               "sig_fdr": false
             }
           ]
@@ -42677,8 +42677,8 @@
             {
               "etiqueta": "1 sem",
               "valor": 0.16,
-              "ic_lo": -0.18,
-              "ic_hi": 0.52,
+              "ic_lo": -0.12,
+              "ic_hi": 0.41,
               "n": 48,
               "sig_cruda": false,
               "sig_fdr": false
@@ -42686,8 +42686,8 @@
             {
               "etiqueta": "2 sem",
               "valor": 0.21,
-              "ic_lo": -0.22,
-              "ic_hi": 0.66,
+              "ic_lo": -0.25,
+              "ic_hi": 0.67,
               "n": 48,
               "sig_cruda": false,
               "sig_fdr": false
@@ -42695,8 +42695,8 @@
             {
               "etiqueta": "1 mes",
               "valor": 0.27,
-              "ic_lo": -0.47,
-              "ic_hi": 1.1,
+              "ic_lo": -0.59,
+              "ic_hi": 1.17,
               "n": 48,
               "sig_cruda": false,
               "sig_fdr": false
@@ -42704,17 +42704,17 @@
             {
               "etiqueta": "2 meses",
               "valor": 0.96,
-              "ic_lo": -0.22,
-              "ic_hi": 2.11,
+              "ic_lo": 0.29,
+              "ic_hi": 1.66,
               "n": 48,
-              "sig_cruda": false,
-              "sig_fdr": false
+              "sig_cruda": true,
+              "sig_fdr": true
             },
             {
               "etiqueta": "3 meses",
               "valor": 1.14,
-              "ic_lo": 0.01,
-              "ic_hi": 2.19,
+              "ic_lo": 1.14,
+              "ic_hi": 1.14,
               "n": 48,
               "sig_cruda": true,
               "sig_fdr": false
@@ -42723,8 +42723,8 @@
         }
       ],
       "n_celdas": 10,
-      "n_fdr": 0,
-      "nota_fdr": "Se evalúan 10 combinaciones señal×horizonte. Tras corregir por multiple-testing (Benjamini-Hochberg, FDR 10%), 0 sobreviven. La columna «Tras FDR» es la única que cuenta; la «cruda» es la trampa.",
+      "n_fdr": 1,
+      "nota_fdr": "Se evalúan 10 combinaciones señal×horizonte. Tras corregir por multiple-testing (Benjamini-Hochberg, FDR 10%), 1 sobreviven. La columna «Tras FDR» es la única que cuenta; la «cruda» es la trampa. || Prueba continua (todos los días, 3249 obs, mucha más potencia que los eventos): ¿predice el nivel del VIX el retorno futuro? a 1 mes: correlación +0.13 (p=0.016); a 3 meses: correlación +0.19 (p=0.028). Correlación positiva = la hipótesis contraria se cumple.",
       "nota": "Es UNA hipótesis con fundamento (opinión contraria, Fosback), no una búsqueda a ciegas. Aceptamos el veredicto sea cual sea. Ojo: aunque el efecto exista, suele ser débil y comerse los costes. No es recomendación de inversión."
     },
     {
@@ -42801,52 +42801,52 @@
           "tipo": "ruptura_resistencia",
           "nombre": "Ruptura de resistencia",
           "color": "#5fb7c4",
-          "n_eventos": 1580,
+          "n_eventos": 1583,
           "puntos": [
             {
               "etiqueta": "1 sem",
-              "valor": -0.13,
+              "valor": -0.12,
               "ic_lo": -0.3,
               "ic_hi": 0.05,
-              "n": 1566,
+              "n": 1569,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 sem",
-              "valor": -0.1,
-              "ic_lo": -0.36,
-              "ic_hi": 0.16,
-              "n": 1564,
+              "valor": -0.08,
+              "ic_lo": -0.33,
+              "ic_hi": 0.18,
+              "n": 1567,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 mes",
-              "valor": -0.69,
+              "valor": -0.68,
               "ic_lo": -1.11,
-              "ic_hi": -0.28,
-              "n": 1553,
+              "ic_hi": -0.26,
+              "n": 1556,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "2 meses",
-              "valor": -1.6,
-              "ic_lo": -2.29,
-              "ic_hi": -0.9,
-              "n": 1540,
+              "valor": -1.57,
+              "ic_lo": -2.27,
+              "ic_hi": -0.88,
+              "n": 1543,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "3 meses",
-              "valor": -1.3,
-              "ic_lo": -2.21,
-              "ic_hi": -0.34,
-              "n": 1529,
+              "valor": -1.27,
+              "ic_lo": -2.16,
+              "ic_hi": -0.35,
+              "n": 1532,
               "sig_cruda": true,
-              "sig_fdr": true
+              "sig_fdr": false
             }
           ]
         },
@@ -42860,7 +42860,7 @@
               "etiqueta": "1 sem",
               "valor": 0.1,
               "ic_lo": -0.28,
-              "ic_hi": 0.49,
+              "ic_hi": 0.48,
               "n": 896,
               "sig_cruda": false,
               "sig_fdr": false
@@ -42868,8 +42868,8 @@
             {
               "etiqueta": "2 sem",
               "valor": -0.14,
-              "ic_lo": -0.66,
-              "ic_hi": 0.37,
+              "ic_lo": -0.67,
+              "ic_hi": 0.39,
               "n": 894,
               "sig_cruda": false,
               "sig_fdr": false
@@ -42877,8 +42877,8 @@
             {
               "etiqueta": "1 mes",
               "valor": -0.62,
-              "ic_lo": -1.26,
-              "ic_hi": 0.04,
+              "ic_lo": -1.27,
+              "ic_hi": 0.05,
               "n": 894,
               "sig_cruda": false,
               "sig_fdr": false
@@ -42887,16 +42887,16 @@
               "etiqueta": "2 meses",
               "valor": -1.71,
               "ic_lo": -2.63,
-              "ic_hi": -0.75,
+              "ic_hi": -0.77,
               "n": 882,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "3 meses",
-              "valor": -2.48,
-              "ic_lo": -3.63,
-              "ic_hi": -1.34,
+              "valor": -2.52,
+              "ic_lo": -3.64,
+              "ic_hi": -1.38,
               "n": 876,
               "sig_cruda": true,
               "sig_fdr": true
@@ -42907,50 +42907,50 @@
           "tipo": "ruptura_tendencia_bajista",
           "nombre": "Ruptura de línea bajista (al alza)",
           "color": "#6ec08a",
-          "n_eventos": 3429,
+          "n_eventos": 3428,
           "puntos": [
             {
               "etiqueta": "1 sem",
-              "valor": -0.01,
+              "valor": -0.0,
               "ic_lo": -0.13,
-              "ic_hi": 0.12,
-              "n": 3418,
+              "ic_hi": 0.13,
+              "n": 3417,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 sem",
-              "valor": 0.13,
+              "valor": 0.12,
               "ic_lo": -0.06,
-              "ic_hi": 0.31,
-              "n": 3410,
+              "ic_hi": 0.3,
+              "n": 3409,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 mes",
-              "valor": 0.28,
-              "ic_lo": -0.03,
-              "ic_hi": 0.58,
-              "n": 3397,
+              "valor": 0.3,
+              "ic_lo": -0.01,
+              "ic_hi": 0.6,
+              "n": 3396,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 meses",
-              "valor": 0.29,
-              "ic_lo": -0.19,
-              "ic_hi": 0.76,
-              "n": 3355,
+              "valor": 0.3,
+              "ic_lo": -0.18,
+              "ic_hi": 0.78,
+              "n": 3354,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "3 meses",
-              "valor": 0.32,
-              "ic_lo": -0.29,
-              "ic_hi": 0.99,
-              "n": 3336,
+              "valor": 0.31,
+              "ic_lo": -0.32,
+              "ic_hi": 1.0,
+              "n": 3335,
               "sig_cruda": false,
               "sig_fdr": false
             }
@@ -42960,50 +42960,50 @@
           "tipo": "ruptura_tendencia_alcista",
           "nombre": "Ruptura de línea alcista (a la baja)",
           "color": "#d08a5a",
-          "n_eventos": 4163,
+          "n_eventos": 4159,
           "puntos": [
             {
               "etiqueta": "1 sem",
               "valor": -0.13,
               "ic_lo": -0.27,
               "ic_hi": 0.01,
-              "n": 4153,
+              "n": 4149,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 sem",
               "valor": -0.08,
-              "ic_lo": -0.25,
+              "ic_lo": -0.26,
               "ic_hi": 0.1,
-              "n": 4136,
+              "n": 4132,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 mes",
-              "valor": -0.14,
-              "ic_lo": -0.44,
-              "ic_hi": 0.15,
-              "n": 4118,
+              "valor": -0.16,
+              "ic_lo": -0.45,
+              "ic_hi": 0.13,
+              "n": 4114,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 meses",
-              "valor": -0.19,
-              "ic_lo": -0.6,
-              "ic_hi": 0.24,
-              "n": 4097,
+              "valor": -0.2,
+              "ic_lo": -0.61,
+              "ic_hi": 0.22,
+              "n": 4093,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "3 meses",
-              "valor": -0.36,
-              "ic_lo": -0.93,
-              "ic_hi": 0.2,
-              "n": 4051,
+              "valor": -0.34,
+              "ic_lo": -0.89,
+              "ic_hi": 0.23,
+              "n": 4047,
               "sig_cruda": false,
               "sig_fdr": false
             }
@@ -43013,50 +43013,50 @@
           "tipo": "doble_suelo",
           "nombre": "Doble suelo",
           "color": "#b48ad6",
-          "n_eventos": 2001,
+          "n_eventos": 2005,
           "puntos": [
             {
               "etiqueta": "1 sem",
               "valor": 0.02,
-              "ic_lo": -0.12,
+              "ic_lo": -0.11,
               "ic_hi": 0.16,
-              "n": 1995,
+              "n": 1999,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 sem",
-              "valor": 0.17,
-              "ic_lo": -0.03,
-              "ic_hi": 0.38,
-              "n": 1994,
+              "valor": 0.18,
+              "ic_lo": -0.02,
+              "ic_hi": 0.37,
+              "n": 1998,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 mes",
-              "valor": -0.14,
+              "valor": -0.12,
               "ic_lo": -0.45,
-              "ic_hi": 0.19,
-              "n": 1989,
+              "ic_hi": 0.21,
+              "n": 1993,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 meses",
-              "valor": -1.08,
-              "ic_lo": -1.55,
-              "ic_hi": -0.62,
-              "n": 1959,
+              "valor": -1.07,
+              "ic_lo": -1.54,
+              "ic_hi": -0.6,
+              "n": 1963,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "3 meses",
-              "valor": -1.07,
-              "ic_lo": -1.64,
-              "ic_hi": -0.52,
-              "n": 1947,
+              "valor": -1.06,
+              "ic_lo": -1.63,
+              "ic_hi": -0.5,
+              "n": 1951,
               "sig_cruda": true,
               "sig_fdr": true
             }
@@ -43066,14 +43066,14 @@
           "tipo": "doble_techo",
           "nombre": "Doble techo",
           "color": "#e8b23a",
-          "n_eventos": 1753,
+          "n_eventos": 1750,
           "puntos": [
             {
               "etiqueta": "1 sem",
               "valor": -0.03,
               "ic_lo": -0.22,
-              "ic_hi": 0.15,
-              "n": 1752,
+              "ic_hi": 0.16,
+              "n": 1749,
               "sig_cruda": false,
               "sig_fdr": false
             },
@@ -43082,16 +43082,16 @@
               "valor": -0.23,
               "ic_lo": -0.5,
               "ic_hi": 0.02,
-              "n": 1747,
+              "n": 1744,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 mes",
               "valor": -0.43,
-              "ic_lo": -0.84,
+              "ic_lo": -0.83,
               "ic_hi": -0.07,
-              "n": 1744,
+              "n": 1741,
               "sig_cruda": true,
               "sig_fdr": false
             },
@@ -43099,17 +43099,17 @@
               "etiqueta": "2 meses",
               "valor": -0.72,
               "ic_lo": -1.26,
-              "ic_hi": -0.19,
-              "n": 1733,
+              "ic_hi": -0.2,
+              "n": 1730,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "3 meses",
-              "valor": -1.12,
-              "ic_lo": -1.79,
-              "ic_hi": -0.43,
-              "n": 1711,
+              "valor": -1.09,
+              "ic_lo": -1.77,
+              "ic_hi": -0.4,
+              "n": 1708,
               "sig_cruda": true,
               "sig_fdr": true
             }
@@ -43170,8 +43170,8 @@
         }
       ],
       "n_celdas": 35,
-      "n_fdr": 10,
-      "nota_fdr": "Se han evaluado 35 combinaciones figura×horizonte. Tras corregir por multiple-testing (Benjamini-Hochberg, FDR 10%), 10 sobreviven. La columna «cruda» marca lo que parece significativo sin corregir; la columna «FDR» marca lo que aguanta de verdad. La diferencia es la trampa del data mining.",
+      "n_fdr": 9,
+      "nota_fdr": "Se han evaluado 35 combinaciones figura×horizonte. Tras corregir por multiple-testing (Benjamini-Hochberg, FDR 10%), 9 sobreviven. La columna «cruda» marca lo que parece significativo sin corregir; la columna «FDR» marca lo que aguanta de verdad. La diferencia es la trampa del data mining.",
       "nota": "Estudio de eventos histórico con reglas reproducibles. Si casi todo «abraza el cero» tras la corrección, es coherente con que el chartismo no dé edge fiable. No es recomendación de inversión."
     },
     {
@@ -43695,50 +43695,50 @@
           "tipo": "ruptura_resistencia",
           "nombre": "Ruptura de resistencia",
           "color": "#5fb7c4",
-          "n_eventos": 191,
+          "n_eventos": 190,
           "puntos": [
             {
               "etiqueta": "1 mes",
-              "valor": -0.29,
-              "ic_lo": -1.37,
-              "ic_hi": 0.71,
-              "n": 191,
+              "valor": -0.27,
+              "ic_lo": -1.39,
+              "ic_hi": 0.78,
+              "n": 190,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 meses",
-              "valor": -1.55,
-              "ic_lo": -3.12,
+              "valor": -1.53,
+              "ic_lo": -3.1,
               "ic_hi": -0.04,
-              "n": 189,
+              "n": 188,
               "sig_cruda": true,
               "sig_fdr": false
             },
             {
               "etiqueta": "3 meses",
-              "valor": -1.39,
-              "ic_lo": -3.01,
-              "ic_hi": 0.18,
-              "n": 186,
+              "valor": -1.34,
+              "ic_lo": -3.06,
+              "ic_hi": 0.28,
+              "n": 185,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "6 meses",
-              "valor": -2.23,
-              "ic_lo": -4.9,
-              "ic_hi": 0.28,
-              "n": 181,
+              "valor": -2.18,
+              "ic_lo": -4.81,
+              "ic_hi": 0.33,
+              "n": 180,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 año",
-              "valor": -5.11,
-              "ic_lo": -8.57,
-              "ic_hi": -1.51,
-              "n": 166,
+              "valor": -5.01,
+              "ic_lo": -8.55,
+              "ic_hi": -1.43,
+              "n": 165,
               "sig_cruda": true,
               "sig_fdr": true
             }
