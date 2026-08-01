@@ -20,6 +20,7 @@ import koncorde_forward
 import garch_forward
 import horizonte
 import figuras
+import implied_vol
 from validation import evaluate
 from models import BuyAndHold, GoldSilverPairs, PairsModel
 
@@ -142,6 +143,12 @@ def main(sintetico: bool = False):
         print(f"   {len(panel['metales'])} metales en el panel", flush=True)
     else:
         print("   (no hay suficientes metales con datos)", flush=True)
+
+    # Volatilidad implícita: ¿el GARCH bate al mercado (VIX/GVZ), no solo al ingenuo?
+    print("-> Volatilidad implícita (GARCH vs VIX/GVZ) ...", flush=True)
+    for vi in implied_vol.evaluar_todas(sintetico=sintetico):
+        salida.append(vi)
+        print(f"   {vi['id']}: mejora {vi['headline']['valor']} pts (p={vi['significancia']['p_valor']})", flush=True)
 
     # Figuras técnicas: detección de chartismo + backtest honesto (event study).
     # graf_d / graf_i / graf_m recogen, de paso, las velas + geometría para el visor.

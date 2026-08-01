@@ -22,7 +22,9 @@ function navHTML(active){
   ];
   const vols = `<a href="lab.html?id=panel_metales" class="${active==='panel_metales'?'active':''}"><b>Panel de metales</b></a>`
     + metales.map(([id,n]) =>
-      `<a href="lab.html?id=${id}" class="${id===active?'active':''}">${n}</a>`).join('');
+      `<a href="lab.html?id=${id}" class="${id===active?'active':''}">${n}</a>`).join('')
+    + `<a href="lab.html?id=vol_implicita_sp500" class="${active==='vol_implicita_sp500'?'active':''}"><b>Implícita · S&P 500</b></a>`
+    + `<a href="lab.html?id=vol_implicita_oro" class="${active==='vol_implicita_oro'?'active':''}"><b>Implícita · Oro</b></a>`;
   return `<div class="nav-inner">
     <a class="nav-logo" href="lab.html?id=par_oro_plata">Neural <b>Capital</b> Research</a>
     <div class="nav-menu">
