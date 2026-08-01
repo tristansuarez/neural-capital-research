@@ -81,6 +81,57 @@ def _prueba_continua(vv, p, base, W, hz=(21, 63)):
     return out
 
 
+def _corr_boot(rk, fe, bloque, seed=5, nb=1500):
+    if len(fe) < 100:
+        return None
+    corr = float(np.corrcoef(rk, fe)[0, 1])
+    rng = np.random.default_rng(seed); m = len(fe)
+    k = int(np.ceil(m / bloque)); bidx = np.arange(bloque)
+    cs = np.empty(nb)
+    for i in range(nb):
+        idx = (rng.integers(0, m, size=k)[:, None] + bidx[None, :]).ravel() % m
+        cs[i] = np.corrcoef(rk[idx], fe[idx])[0, 1]
+    p1 = float(np.mean(cs <= 0)) if corr > 0 else float(np.mean(cs >= 0))
+    return (round(corr, 3), round(min(1.0, 2 * p1), 4), len(fe))
+
+
+def robustez_sentimiento(vv, p, base, fechas, W, h=63):
+    """Somete el efecto VIX→retorno a torturas que un artefacto NO supera:
+    sin crisis, fuera de muestra, monotonicidad y concentración."""
+    v = pd.Series(vv)
+    rank = v.rolling(W).apply(lambda a: float((a[:-1] < a[-1]).mean()), raw=True).values
+    n = len(vv)
+    fe, rk, ff = [], [], []
+    for t in range(W, n - h):
+        if np.isfinite(rank[t]):
+            fe.append(p[t + h] / p[t] - 1.0 - base[h]); rk.append(rank[t]); ff.append(fechas[t])
+    fe = np.asarray(fe); rk = np.asarray(rk); ff = np.asarray(ff)
+    if len(fe) < 300:
+        return None
+
+    def _crisis(s):
+        ym = s[:7]
+        return ("2008-08" <= ym <= "2009-06") or ("2020-02" <= ym <= "2020-06") or ("2022-01" <= ym <= "2022-10")
+
+    res = {}
+    res["completo"] = _corr_boot(rk, fe, h)
+    m = np.array([not _crisis(s) for s in ff])
+    res["sin_crisis"] = _corr_boot(rk[m], fe[m], h)
+    mid = len(fe) // 2
+    res["primera"] = _corr_boot(rk[:mid], fe[:mid], h)
+    res["segunda"] = _corr_boot(rk[mid:], fe[mid:], h)
+    # concentración: quitar el 5% de días de más miedo
+    thr = np.quantile(rk, 0.95)
+    m2 = rk < thr
+    res["sin_top5"] = _corr_boot(rk[m2], fe[m2], h)
+    # monotonicidad: retorno medio futuro por quintil del percentil de VIX
+    qs = np.quantile(rk, [0.2, 0.4, 0.6, 0.8])
+    tramos = [(-1, qs[0]), (qs[0], qs[1]), (qs[1], qs[2]), (qs[2], qs[3]), (qs[3], 2)]
+    res["quintiles"] = [round(float(np.mean(fe[(rk > a) & (rk <= b)]) * 100), 2)
+                        if ((rk > a) & (rk <= b)).sum() else None for a, b in tramos]
+    return res
+
+
 def backtest_sentimiento(sintetico=False):
     vix, sp = _sinteticos() if sintetico else _cargar()
     if vix is None or sp is None:
@@ -158,6 +209,22 @@ def backtest_sentimiento(sintetico=False):
         cont_txt = (f" || Prueba continua (todos los días, {nobs} obs, mucha más potencia que los "
                     f"eventos): ¿predice el nivel del VIX el retorno futuro? " + "; ".join(partes)
                     + ". Correlación positiva = la hipótesis contraria se cumple.")
+
+    # Torturas de robustez sobre el efecto a 3 meses
+    rob = robustez_sentimiento(vv, p, base, fechas, W, h=63)
+    rob_txt = ""
+    if rob:
+        def _c(x):
+            return f"corr {x[0]:+.2f} (p={x[1]}, n={x[2]})" if x else "—"
+        qs = rob.get("quintiles", [])
+        rob_txt = (
+            "<br><br><b>Pruebas de robustez (efecto a 3 meses — un artefacto no las supera):</b>"
+            f"<br>• Completo: {_c(rob['completo'])}"
+            f"<br>• <b>Sin crisis</b> (2008, 2020, 2022): {_c(rob['sin_crisis'])} — si aquí desaparece, eran solo las crisis"
+            f"<br>• <b>Fuera de muestra</b>: 1ª mitad {_c(rob['primera'])} · 2ª mitad {_c(rob['segunda'])} — debe aguantar en la 2ª"
+            f"<br>• <b>Sin el 5% de días de más miedo</b>: {_c(rob['sin_top5'])} — si se cae, lo mueven poquísimos días"
+            f"<br>• <b>Monotonicidad</b> (retorno medio a 3m por quintil de VIX, de menos a más miedo, %): "
+            f"{qs} — debería crecer de izquierda a derecha")
     return {
         "id": "sentimiento_vix",
         "etiqueta": "Sentimiento extremo (VIX)",
@@ -176,7 +243,7 @@ def backtest_sentimiento(sintetico=False):
                      f"«Tras FDR» es la única que cuenta; la «cruda» es la trampa." + cont_txt),
         "nota": ("Es UNA hipótesis con fundamento (opinión contraria, Fosback), no una búsqueda a "
                  "ciegas. Aceptamos el veredicto sea cual sea. Ojo: aunque el efecto exista, suele ser "
-                 "débil y comerse los costes. No es recomendación de inversión."),
+                 "débil y comerse los costes. No es recomendación de inversión." + rob_txt),
     }
 
 
