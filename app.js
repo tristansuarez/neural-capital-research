@@ -40,6 +40,7 @@ function navHTML(active){
           <a href="lab.html?id=par_oro_plata#operaciones">Plata</a>
         </div></div>
       <a class="nav-link ${active==='visor'?'active':''}" href="visor.html">Visor</a>
+      <a class="nav-link ${active==='rentabilidades'?'active':''}" href="rentabilidades.html">Rentabilidades</a>
       <div class="nav-item"><button class="nav-trigger" type="button">Metodología ▾</button>
         <div class="nav-drop">
           <a href="metodologia.html#como-se-lee" class="${active==='metodologia'?'active':''}">Cómo se lee</a>
@@ -709,6 +710,97 @@ function dibujarVelas(datos){
   });
 }
 
+// ---------- Panel de rentabilidades (leaderboard de modelos) ----------
+async function initRentabilidades(){
+  mountNav('rentabilidades');
+  document.getElementById('meta').textContent = '';
+  const aviso = document.getElementById('aviso'); if(aviso) aviso.style.display = 'none';
+  const app = document.getElementById('app');
+  let doc;
+  try{ doc = await fetch('resultados.json?ts='+Date.now()).then(r=>{ if(!r.ok) throw 0; return r.json(); }); }
+  catch(e){ app.innerHTML = `<div class="empty"><b>No disponible</b>Aún no hay resultados que mostrar.</div>`; return; }
+  const exps = doc.experimentos || [];
+  const byId = id => exps.find(e => e.id === id);
+
+  const cardVal = (e, keys) => {
+    const c = (e.cards||[]).find(c => keys.some(k => (c.k||'').toUpperCase().includes(k)));
+    return c ? c.v : null;
+  };
+  const rentab = e => cardVal(e, ['CAGR','RENTAB']) ||
+    (e.headline ? `${e.headline.valor>=0?'+':''}${e.headline.valor}${e.headline.sufijo||''}` : '—');
+  const veredicto = e => {
+    const s = e.significancia || {};
+    if(s.p_valor === undefined) return '';
+    const ok = s.p_valor <= 0.05;
+    return `<span class="${ok?'pos':'est-obs'}">p=${s.p_valor}</span>`;
+  };
+
+  // Modelos operables (con curva de rentabilidad / P&L acumulado)
+  const OPERABLES = ['oro_bh','plata_bh','par_oro_plata','par_platino_paladio',
+                     'koncorde','vol_implicita_sp500','vol_implicita_oro'];
+  const oper = OPERABLES.map(byId).filter(Boolean);
+
+  const filasOper = oper.map((e,i) => `
+    <tr>
+      <td><a href="lab.html?id=${e.id}"><b>${e.etiqueta}</b></a><div class="est-obs">${e.tipo||''}</div></td>
+      <td class="mono">${rentab(e)}</td>
+      <td>${veredicto(e)}</td>
+      <td><canvas class="spark" id="sp${i}" width="170" height="42"></canvas></td>
+    </tr>`).join('');
+
+  // Hallazgos de investigación (event studies + volatilidad; no son P&L operable)
+  const invest = exps.filter(e => e.figuras_panel || (e.id||'').startsWith('garch_'));
+  const filasInv = invest.map(e => {
+    let m;
+    if(e.figuras_panel) m = `${e.n_fdr}/${e.n_celdas} celdas superan el FDR`;
+    else m = e.headline ? `mejora vs ingenuo: ${e.headline.valor}${e.headline.sufijo||''}` : '—';
+    return `<tr><td><a href="lab.html?id=${e.id}"><b>${e.etiqueta}</b></a></td><td class="est-obs">${m}</td></tr>`;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="visor-head"><h2 class="ch-title">Rentabilidades de los modelos</h2>
+      <div class="ch-sub">Cómo evoluciona cada modelo operable, actualizado en cada corrida. La miniatura es su curva de capital / P&amp;L acumulado. Fuera de muestra, tras costes. Última corrida: ${doc.generado||''}.</div>
+    </div>
+    <div class="chartbox reveal in">
+      <h3>Modelos operables (abren y cierran posición)</h3>
+      <div class="ops-scroll"><table class="ops rent">
+        <thead><tr><th>Modelo</th><th>Rentabilidad</th><th>Significancia</th><th>Evolución</th></tr></thead>
+        <tbody>${filasOper}</tbody></table></div>
+      <div class="ch-sub" style="margin-top:10px">La vara de medir es «comprar y mantener oro». Si un modelo no la bate, no aporta.</div>
+    </div>
+    <div class="chartbox reveal in">
+      <h3>Hallazgos de investigación (no operables)</h3>
+      <div class="ch-sub" style="margin-bottom:10px">Estos no gestionan posición: son estudios de eventos y de volatilidad. Su «resultado» es un veredicto medido, no una rentabilidad.</div>
+      <div class="ops-scroll"><table class="ops rent">
+        <thead><tr><th>Modelo</th><th>Veredicto</th></tr></thead>
+        <tbody>${filasInv}</tbody></table></div>
+    </div>
+    <div class="chartbox reveal in"><div class="ch-sub">Honestidad por delante: casi todo lo operable no bate a comprar y mantener, y casi toda la investigación no supera el azar tras corregir. Eso es el hallazgo, no un fallo.</div></div>`;
+
+  oper.forEach((e,i) => dibujarSpark('sp'+i, e.curva, e.curva_color || e.color, e.curva_base));
+}
+
+function dibujarSpark(id, curva, color, base){
+  const cv = document.getElementById(id); if(!cv || !curva || !curva.length) return;
+  const ctx = cv.getContext('2d'); const W = cv.width, H = cv.height;
+  ctx.clearRect(0,0,W,H);
+  const vals = curva.map(p => p.valor);
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  if(base !== undefined && base !== null){ lo = Math.min(lo, base); hi = Math.max(hi, base); }
+  const X = i => 4 + i*(W-8)/Math.max(1, vals.length-1);
+  const Y = v => (hi>lo) ? H-4-(v-lo)/(hi-lo)*(H-8) : H/2;
+  if(base !== undefined && base !== null){
+    ctx.strokeStyle='#3a4653'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(4,Y(base)); ctx.lineTo(W-4,Y(base)); ctx.stroke(); ctx.setLineDash([]);
+  }
+  const col = color || '#e8b23a';
+  ctx.strokeStyle = col; ctx.lineWidth = 1.6; ctx.beginPath();
+  vals.forEach((v,i) => { const x=X(i), y=Y(v); i ? ctx.lineTo(x,y) : ctx.moveTo(x,y); });
+  ctx.stroke();
+  const k = vals.length-1;
+  ctx.fillStyle = col; ctx.beginPath(); ctx.arc(X(k), Y(vals[k]), 2.6, 0, 7); ctx.fill();
+}
+
 // ---------- Arranque según la página ----------
 document.addEventListener('DOMContentLoaded', ()=>{
   const page = document.body.dataset.page;
@@ -719,5 +811,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     observeReveals();
   }else if(page === 'visor'){
     initVisor();
+  }else if(page === 'rentabilidades'){
+    initRentabilidades();
   }
 });

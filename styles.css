@@ -248,3 +248,11 @@
 .visor-canvas-wrap canvas{ display:block; width:100%; }
 .vf-row{ display:flex; align-items:center; gap:9px; padding:6px 0; border-bottom:1px solid rgba(38,48,61,.4); }
 .vf-row:last-child{ border-bottom:0; }
+
+/* ---------- Panel de rentabilidades ---------- */
+.spark{ display:block; }
+table.rent td{ vertical-align:middle; padding:11px 12px; }
+table.rent td .est-obs{ font-size:12px; margin-top:2px; }
+td.mono{ font-family:'JetBrains Mono',monospace; font-size:15px; color:#e6edf3; }
+table.rent a{ color:inherit; text-decoration:none; }
+table.rent a:hover{ color:var(--oro,#e8b23a); }
