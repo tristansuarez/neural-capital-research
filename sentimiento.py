@@ -132,6 +132,46 @@ def robustez_sentimiento(vv, p, base, fechas, W, h=63):
     return res
 
 
+def episodios_sentimiento(vv, p, base, fechas, W, h=63, q=0.80, gap=10):
+    """¿Cuántos episodios INDEPENDIENTES de miedo extremo forman el efecto? Agrupa
+    los días del quintil alto en rachas (une huecos <= gap), toma UNA observación por
+    episodio (entrada = primer día de miedo extremo) y hace bootstrap sobre episodios,
+    que es la unidad realmente independiente. Es la prueba de tamaño muestral efectivo."""
+    from collections import Counter
+    v = pd.Series(vv)
+    rank = v.rolling(W).apply(lambda a: float((a[:-1] < a[-1]).mean()), raw=True).values
+    n = len(vv)
+    alto = np.array([bool(np.isfinite(rank[t]) and rank[t] >= q) for t in range(n)])
+
+    eps = []
+    t = W
+    while t < n - h:
+        if alto[t]:
+            ini = t; last = t; tt = t + 1
+            while tt < n and (alto[tt] or (tt - last) <= gap):
+                if alto[tt]:
+                    last = tt
+                tt += 1
+            if ini + h < n:
+                eps.append((fechas[ini], round((p[ini + h] / p[ini] - 1.0 - base[h]) * 100, 2)))
+            t = last + 1
+        else:
+            t += 1
+
+    if len(eps) < 5:
+        return None
+    fes = np.array([e[1] for e in eps]); k = len(fes); m = float(np.mean(fes))
+    rng = np.random.default_rng(7); ms = np.empty(3000)
+    for i in range(3000):
+        ms[i] = fes[rng.integers(0, k, k)].mean()
+    lo, hi = np.percentile(ms, [5, 95]); p1 = float(np.mean(ms <= 0))
+    positivos = int(np.sum(fes > 0))
+    anios = Counter(e[0][:4] for e in eps)
+    return {"n": k, "media": round(m, 2), "ic": [round(float(lo), 2), round(float(hi), 2)],
+            "p": round(min(1.0, 2 * p1), 4), "positivos": positivos,
+            "anios": len(anios), "por_anio": dict(sorted(anios.items()))}
+
+
 def backtest_sentimiento(sintetico=False):
     vix, sp = _sinteticos() if sintetico else _cargar()
     if vix is None or sp is None:
@@ -225,6 +265,18 @@ def backtest_sentimiento(sintetico=False):
             f"<br>• <b>Sin el 5% de días de más miedo</b>: {_c(rob['sin_top5'])} — si se cae, lo mueven poquísimos días"
             f"<br>• <b>Monotonicidad</b> (retorno medio a 3m por quintil de VIX, de menos a más miedo, %): "
             f"{qs} — debería crecer de izquierda a derecha")
+
+    # Episodios independientes: ¿cuántos momentos distintos forman el efecto de cola?
+    ep = episodios_sentimiento(vv, p, base, fechas, W, h=63)
+    if ep:
+        rob_txt += (
+            "<br><br><b>Episodios independientes (la prueba que decide la fiabilidad):</b>"
+            f"<br>El efecto de cola lo forman <b>{ep['n']} episodios</b> distintos de miedo extremo, "
+            f"repartidos en {ep['anios']} años; {ep['positivos']} de {ep['n']} rebotaron. "
+            f"Retorno medio por episodio a 3m: <b>{ep['media']:+.2f}%</b>, IC90 {ep['ic']}, "
+            f"p={ep['p']} (bootstrap sobre episodios, no sobre días). "
+            f"Reparto por año: {ep['por_anio']}. "
+            f"— Si son muchos episodios en muchos años y p sigue baja, es de fiar; si son 4-6 episodios, es frágil.")
     return {
         "id": "sentimiento_vix",
         "etiqueta": "Sentimiento extremo (VIX)",
