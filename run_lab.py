@@ -21,6 +21,7 @@ import garch_forward
 import horizonte
 import figuras
 import implied_vol
+import sentimiento
 from validation import evaluate
 from models import BuyAndHold, GoldSilverPairs, PairsModel
 
@@ -149,6 +150,15 @@ def main(sintetico: bool = False):
     for vi in implied_vol.evaluar_todas(sintetico=sintetico):
         salida.append(vi)
         print(f"   {vi['id']}: mejora {vi['headline']['valor']} pts (p={vi['significancia']['p_valor']})", flush=True)
+
+    # Sentimiento extremo (VIX contrario): hipótesis con fundamento, event study + FDR.
+    print("-> Sentimiento extremo (VIX contrario) ...", flush=True)
+    sent = sentimiento.backtest_sentimiento(sintetico=sintetico)
+    if sent:
+        salida.append(sent)
+        print(f"   {sent['n_celdas']} celdas, {sent['n_fdr']} sobreviven al FDR", flush=True)
+    else:
+        print("   (sin datos de VIX suficientes)", flush=True)
 
     # Figuras técnicas: detección de chartismo + backtest honesto (event study).
     # graf_d / graf_i / graf_m recogen, de paso, las velas + geometría para el visor.

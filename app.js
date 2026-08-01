@@ -10,6 +10,7 @@ function navHTML(active){
     ['oro_bh',        'Oro'],
     ['plata_bh',      'Plata'],
     ['koncorde',      'KONCORDE (S&P 500)'],
+    ['sentimiento_vix', 'Sentimiento extremo (VIX)'],
     ['figuras_tecnicas', 'Figuras técnicas (S&P 500)'],
     ['figuras_intradia', 'Figuras intradía (1h)'],
     ['figuras_mensual', 'Figuras mensual'],
