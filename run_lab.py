@@ -26,6 +26,7 @@ import ml_forward
 import hipotesis
 import pares_sectores
 import hipotesis2
+import momentum_tsm
 from validation import evaluate
 from models import BuyAndHold, GoldSilverPairs, PairsModel
 
@@ -209,6 +210,21 @@ def main(sintetico: bool = False):
         salida.append(hip2)
         try:
             print(f"   {hip2.get('n_celdas')} hipótesis, {hip2.get('n_fdr')} sobreviven al FDR", flush=True)
+        except Exception:
+            pass
+    else:
+        print("   (sin datos suficientes)", flush=True)
+
+    # Momentum de serie temporal: la única hipótesis que cumplió lo que prometía.
+    print("-> Momentum de serie temporal (protección) ...", flush=True)
+    try:
+        tsm = momentum_tsm.evaluar_tsm(sintetico=sintetico)
+    except Exception as e:
+        tsm = None; print(f"   (error: {e})", flush=True)
+    if tsm:
+        salida.append(tsm)
+        try:
+            print(f"   ahorro medio en caída: {tsm['headline']['valor']} pts", flush=True)
         except Exception:
             pass
     else:
