@@ -22,6 +22,7 @@ import horizonte
 import figuras
 import implied_vol
 import sentimiento
+import ml_forward
 from validation import evaluate
 from models import BuyAndHold, GoldSilverPairs, PairsModel
 
@@ -150,6 +151,19 @@ def main(sintetico: bool = False):
     for vi in implied_vol.evaluar_todas(sintetico=sintetico):
         salida.append(vi)
         print(f"   {vi['id']}: mejora {vi['headline']['valor']} pts (p={vi['significancia']['p_valor']})", flush=True)
+
+    # Machine learning con walk-forward estricto (protocolo fijado de antemano).
+    print("-> Machine learning (walk-forward) ...", flush=True)
+    try:
+        mlr = ml_forward.evaluar_ml(sintetico=sintetico)
+    except Exception as e:
+        mlr = None
+        print(f"   (error: {e})", flush=True)
+    if mlr:
+        salida.append(mlr)
+        print(f"   exceso {mlr['headline']['valor']}%/periodo (p={mlr['significancia']['p_valor']})", flush=True)
+    else:
+        print("   (sin datos suficientes)", flush=True)
 
     # Sentimiento extremo (VIX contrario): hipótesis con fundamento, event study + FDR.
     print("-> Sentimiento extremo (VIX contrario) ...", flush=True)

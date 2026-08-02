@@ -11,6 +11,7 @@ function navHTML(active){
     ['plata_bh',      'Plata'],
     ['koncorde',      'KONCORDE (S&P 500)'],
     ['sentimiento_vix', 'Sentimiento extremo (VIX)'],
+    ['ml_forward', 'Machine learning (walk-forward)'],
     ['figuras_tecnicas', 'Figuras técnicas (S&P 500)'],
     ['figuras_intradia', 'Figuras intradía (1h)'],
     ['figuras_mensual', 'Figuras mensual'],
@@ -737,7 +738,7 @@ async function initRentabilidades(){
 
   // Modelos operables (con curva de rentabilidad / P&L acumulado)
   const OPERABLES = ['oro_bh','plata_bh','par_oro_plata','par_platino_paladio',
-                     'koncorde','vol_implicita_sp500','vol_implicita_oro'];
+                     'koncorde','vol_implicita_sp500','vol_implicita_oro','ml_forward'];
   const oper = OPERABLES.map(byId).filter(Boolean);
 
   const filasOper = oper.map((e,i) => `

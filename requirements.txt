@@ -6,3 +6,4 @@ requests
 lxml
 arch
 tzdata
+scikit-learn
