@@ -106,12 +106,15 @@ def h4_momentum_indice(px):
     r = _boot((e - b) * 100)
     return {"nombre": "H4 · Momentum del índice (media 10 meses)", "color": "#6ec08a",
             "razon": ("Estar dentro cuando el índice está sobre su media de 10 meses. Su promesa no es "
-                      "más retorno sino menos caída: se juzga por Sharpe y drawdown."),
+                      "más retorno sino MENOS CAÍDA: por eso se juzga por Sharpe y drawdown, no por "
+                      "exceso de retorno (que puede ser negativo y aun así ser buena)."),
             "n_eventos": len(df),
             "puntos": [{"etiqueta": "exceso mensual", "valor": r["m"], "ic_lo": r["ic"][0],
                         "ic_hi": r["ic"][1], "n": r["n"], "p": r["p"]}],
-            "extra": (f"Sharpe estrategia {sh_e:.2f} vs comprar y mantener {sh_b:.2f}. "
-                      f"Caída máxima {dd_e:.1f}% vs {dd_b:.1f}%.")}
+            "extra": (f"<b>Sharpe {sh_e:.2f} vs {sh_b:.2f}</b> y <b>caída máxima {dd_e:.1f}% vs "
+                      f"{dd_b:.1f}%</b>. Ahí está su valor: retorno parecido con una fracción del "
+                      f"riesgo de ruina. El exceso de retorno negativo es el precio de estar fuera "
+                      f"del mercado en parte de las subidas.")}
 
 
 def h5_baja_volatilidad(px):
@@ -138,13 +141,23 @@ def h5_baja_volatilidad(px):
     r = _boot(dif)
     sh_lo = float(np.mean(lo) / np.std(lo, ddof=1) * np.sqrt(12))
     sh_hi = float(np.mean(hi) / np.std(hi, ddof=1) * np.sqrt(12))
-    return {"nombre": "H5 · Baja volatilidad (quintil bajo − quintil alto)", "color": "#5fb7c4",
+
+    # La anomalía de baja volatilidad se define por RIESGO AJUSTADO, no por retorno
+    # bruto. La prueba correcta: escalar el quintil tranquilo a la misma volatilidad
+    # que el agitado (como haría un inversor apalancándose) y comparar retornos.
+    esc = float(np.std(hi, ddof=1) / np.std(lo, ddof=1)) if np.std(lo) > 0 else 1.0
+    dif_riesgo = (lo * esc - hi) * 100 - COSTE_MES
+    r2 = _boot(dif_riesgo, seed=29)
+    return {"nombre": "H5 · Baja volatilidad (a igual riesgo)", "color": "#5fb7c4",
             "razon": ("Quien no puede apalancarse sobrepaga por las acciones volátiles, abaratando "
-                      "las tranquilas. Se compara el quintil menos volátil contra el más volátil."),
+                      "las tranquilas. La anomalía se define a IGUAL RIESGO: se escala el quintil "
+                      "tranquilo a la volatilidad del agitado y se comparan retornos."),
             "n_eventos": len(lo),
-            "puntos": [{"etiqueta": "exceso mensual", "valor": r["m"], "ic_lo": r["ic"][0],
-                        "ic_hi": r["ic"][1], "n": r["n"], "p": r["p"]}],
-            "extra": f"Sharpe quintil bajo {sh_lo:.2f} vs quintil alto {sh_hi:.2f}."}
+            "puntos": [{"etiqueta": "exceso a igual riesgo", "valor": r2["m"], "ic_lo": r2["ic"][0],
+                        "ic_hi": r2["ic"][1], "n": r2["n"], "p": r2["p"]}],
+            "extra": (f"Sharpe quintil bajo {sh_lo:.2f} vs quintil alto {sh_hi:.2f} "
+                      f"(factor de escala {esc:.2f}×). Sin ajustar por riesgo, el exceso bruto sería "
+                      f"{r['m']:+.2f}%: las tranquilas rinden menos en bruto pero con mucho menos riesgo.")}
 
 
 def h6_reversion_mensual(px):
@@ -175,31 +188,37 @@ def h6_reversion_mensual(px):
 
 
 def h7_tamano(px):
-    """Proxy de tamaño por precio: quintil de menor precio vs mayor (dentro del índice)."""
+    """El precio nominal NO es proxy de tamaño (depende del número de acciones).
+    Se usa la liquidez relativa: los valores con menor recorrido absoluto medio
+    tienden a ser los grandes y estables. Aun así es un proxy pobre y se declara."""
     men = _mensual(px)
     ret = men.pct_change()
+    # proxy: volatilidad de 3 años (las pequeñas son estructuralmente más volátiles)
+    vol3 = px.pct_change().rolling(756).std().resample("ME").last()
     dif = []
     for i in range(1, len(men)):
-        p = men.iloc[i - 1]; r = ret.iloc[i]
-        m = p.notna() & r.notna()
+        v = vol3.iloc[i - 1]; r = ret.iloc[i]
+        m = v.notna() & r.notna()
         if m.sum() < 20:
             continue
-        q = p[m].quantile([0.2, 0.8])
-        peq = r[m][p[m] <= q.iloc[0]].mean()
-        gra = r[m][p[m] >= q.iloc[1]].mean()
+        q = v[m].quantile([0.2, 0.8])
+        peq = r[m][v[m] >= q.iloc[1]].mean()      # más volátiles ≈ más pequeñas
+        gra = r[m][v[m] <= q.iloc[0]].mean()      # menos volátiles ≈ más grandes
         if np.isfinite(peq) and np.isfinite(gra):
             dif.append((peq - gra) * 100 - COSTE_MES)
     if len(dif) < 40:
         return None
     r = _boot(np.array(dif))
-    return {"nombre": "H7 · Tamaño (proxy: precio bajo − precio alto)", "color": "#b48ad6",
-            "razon": ("Los valores más pequeños rinden más por prima de riesgo y menor cobertura. "
-                      "Proxy imperfecto: usamos el precio como aproximación al tamaño, porque no "
-                      "disponemos de capitalización histórica."),
+    return {"nombre": "H7 · Tamaño (proxy por volatilidad estructural)", "color": "#b48ad6",
+            "razon": ("Los valores más pequeños rendirían más por prima de riesgo y menor cobertura. "
+                      "AVISO: dentro del S&P 500 todas las empresas son grandes, y no disponemos de "
+                      "capitalización histórica; el proxy por volatilidad es pobre y solapa con H5. "
+                      "Se reporta por transparencia, no como evidencia del efecto tamaño."),
             "n_eventos": len(dif),
             "puntos": [{"etiqueta": "exceso mensual", "valor": r["m"], "ic_lo": r["ic"][0],
                         "ic_hi": r["ic"][1], "n": r["n"], "p": r["p"]}],
-            "extra": "Ojo: el precio nominal es un proxy pobre del tamaño; tómese con cautela."}
+            "extra": ("El resultado anterior con precio nominal (+1,3%/mes) era un artefacto: el "
+                      "precio no mide tamaño. Este proxy es mejor pero sigue sin ser capitalización.")}
 
 
 def backtest_hipotesis2(sintetico=False):
