@@ -28,7 +28,7 @@ REFIT = 21      # refit del modelo cada N días
 MIN_TRAIN = 756 # ~3 años mínimos de entrenamiento antes de predecir
 COST_BPS = 2.0  # coste por rotación (ida) en puntos básicos
 N_TICKERS = 120
-ANOS = 12
+ANOS = 20       # periodo ampliado: incluye 2008 y varios regímenes bajistas
 
 
 def _features(px: pd.DataFrame) -> dict:
@@ -118,7 +118,11 @@ def evaluar_ml(sintetico=False):
     Y = fwd_rel.values
 
     modelo = None
-    ret_ml, ret_bh, fechas_op = [], [], []
+    ret_ml, ret_bh, ret_mom, regimen, fechas_op = [], [], [], [], []
+    # Régimen causal: media del universo por encima de su media de 200 sesiones
+    idx_eq = px.mean(axis=1)
+    alcista = (idx_eq > idx_eq.rolling(200).mean()).values
+    mom252 = feats["mom252"].values
     t = MIN_TRAIN
     while t < n - H:
         if modelo is None or (t - MIN_TRAIN) % REFIT == 0:
@@ -151,21 +155,67 @@ def evaluar_ml(sintetico=False):
                 coste = 2 * COST_BPS / 10000.0            # entrada + salida
                 ret_ml.append(float(np.nanmean(r_sel)) - coste)
                 ret_bh.append(float(np.nanmean(r_all)))
+                # benchmark: momentum simple a 12 meses, mismas reglas
+                mm = np.where(ok, mom252[t], np.nan)
+                if np.isfinite(mm).sum() >= 20:
+                    u2 = np.nanquantile(mm, 0.80)
+                    s2 = np.where(np.isfinite(mm) & (mm >= u2))[0]
+                    r_mom = float(np.nanmean(px.values[t + H, s2] / px.values[t, s2] - 1.0)) - coste \
+                        if len(s2) >= 3 else np.nan
+                else:
+                    r_mom = np.nan
+                ret_mom.append(r_mom)
+                regimen.append(bool(alcista[t]))
                 fechas_op.append(fechas[t].strftime("%Y-%m-%d"))
         t += H                                            # operaciones no solapadas
 
     if len(ret_ml) < 20:
         return None
     ml = np.array(ret_ml); bh = np.array(ret_bh)
+    mom = np.array(ret_mom, dtype=float); reg = np.array(regimen)
     exceso = (ml - bh) * 100.0
     m_ex, ic_ex, p_ex = _boot(exceso, bloque=1)
     acierto = float(np.mean(ml > bh) * 100)
     cagr_ml = float((np.prod(1 + ml) ** (252 / (H * len(ml))) - 1) * 100)
     cagr_bh = float((np.prod(1 + bh) ** (252 / (H * len(bh))) - 1) * 100)
 
+    # --- TORTURAS ---
+    # 1) quitar los 5 mejores periodos
+    orden = np.argsort(exceso)[::-1]
+    keep = np.ones(len(exceso), bool); keep[orden[:5]] = False
+    m_t5, ic_t5, p_t5 = _boot(exceso[keep], bloque=1)
+    # 2) por régimen (causal: índice sobre/bajo su media de 200 sesiones)
+    m_al, _i, p_al = _boot(exceso[reg], bloque=1) if reg.sum() >= 20 else (float('nan'), None, 1.0)
+    m_ba, _i2, p_ba = _boot(exceso[~reg], bloque=1) if (~reg).sum() >= 20 else (float('nan'), None, 1.0)
+    # 3) ¿bate el ML al momentum simple con las mismas reglas?
+    okm = np.isfinite(mom)
+    if okm.sum() >= 20:
+        ex_mom = (mom[okm] - bh[okm]) * 100.0
+        m_mm, _i3, p_mm = _boot(ex_mom, bloque=1)
+        dif = (ml[okm] - mom[okm]) * 100.0
+        m_df, ic_df, p_df = _boot(dif, bloque=1)
+    else:
+        m_mm = p_mm = m_df = p_df = float('nan'); ic_df = None
+
+    tort = (
+        "<br><br><b>Pruebas de robustez (un artefacto no las supera):</b>"
+        f"<br>• <b>Sin los 5 mejores periodos</b>: exceso {m_t5:+.2f}%/periodo (p={p_t5}) — "
+        f"si aquí desaparece, la ventaja eran cuatro golpes de suerte."
+        f"<br>• <b>Por régimen</b>: mercado alcista {m_al:+.2f}% (p={p_al}, n={int(reg.sum())}) · "
+        f"bajista/lateral {m_ba:+.2f}% (p={p_ba}, n={int((~reg).sum())}) — si solo gana en alcista, "
+        f"es beta disfrazada de alfa."
+        f"<br>• <b>Vs momentum simple</b> (ranking por retorno a 12 meses, mismas reglas): el momentum "
+        f"da {m_mm:+.2f}%/periodo sobre el índice; el ML le saca <b>{m_df:+.2f}%</b> (p={p_df}, "
+        f"IC90 {[round(float(x),2) for x in ic_df] if ic_df else None}) — si no le saca nada, "
+        f"el ML solo redescubrió el momentum.")
+
     eq_ml = np.cumprod(1 + ml); eq_bh = np.cumprod(1 + bh)
     curva = [{"fecha": f, "valor": round(float(v), 4)} for f, v in zip(fechas_op, eq_ml)]
     curva2 = [{"fecha": f, "valor": round(float(v), 4)} for f, v in zip(fechas_op, eq_bh)]
+
+    # Variante causal: operar solo cuando el régimen es alcista (info conocida ese día)
+    ml_filtrado = np.where(reg, ml, 0.0)     # fuera de mercado en régimen no alcista
+    cagr_fil = float((np.prod(1 + ml_filtrado) ** (252 / (H * len(ml_filtrado))) - 1) * 100)
 
     return {
         "id": "ml_forward",
@@ -182,6 +232,7 @@ def evaluar_ml(sintetico=False):
             {"k": "Rentab. anual (CAGR) ML", "v": f"{cagr_ml:.1f}%", "tono": ""},
             {"k": "Rentab. anual (CAGR) comprar y mantener", "v": f"{cagr_bh:.1f}%", "tono": ""},
             {"k": "Periodos que baten al índice", "v": f"{acierto:.1f}%", "tono": ""},
+            {"k": "CAGR ML solo en régimen alcista (filtro causal)", "v": f"{cagr_fil:.1f}%", "tono": ""},
             {"k": "Periodos evaluados", "v": str(len(ml)), "tono": ""},
             {"k": "Coste aplicado", "v": f"{COST_BPS:.0f} pb por operación", "tono": ""},
         ],
@@ -197,5 +248,5 @@ def evaluar_ml(sintetico=False):
                       "de color no supera a la gris, el ML no aporta sobre comprar y mantener."),
         "nota": ("Machine learning honesto: walk-forward estricto, sin lookahead y con una única "
                  "configuración prefijada (probar muchas y quedarse con la mejor fabrica ganadores "
-                 "falsos). El veredicto se acepta tal cual. No es recomendación de inversión."),
+                 "falsos). El veredicto se acepta tal cual. No es recomendación de inversión." + tort),
     }
