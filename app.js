@@ -759,10 +759,17 @@ async function initRentabilidades(){
 
   const filasComp = comp.map((o,i) => {
     const e = o.e, bench = 9.2;
-    const bate = o.cagr !== null && o.cagr > bench;
+    // Cada modelo debe compararse con SU benchmark, no con el oro: el ML opera
+    // acciones del S&P, así que su rival es ese universo comprado y mantenido.
+    const propio = cardVal(e, ['COMPRAR Y MANTENER','B&H','BENCHMARK']);
+    const nprop = propio ? parseFloat(String(propio).replace('%','').replace(',','.')) : null;
+    const rival = (nprop !== null && !isNaN(nprop)) ? nprop : bench;
+    const nombreRival = (nprop !== null && !isNaN(nprop)) ? 'su universo' : 'oro';
+    const bate = o.cagr !== null && o.cagr > rival;
     return `<tr>
       <td><a href="lab.html?id=${e.id}"><b>${e.etiqueta}</b></a><div class="est-obs">${e.tipo||''}</div></td>
       <td class="mono ${o.cagr===null?'':(o.cagr>=0?'pos':'neg')}">${o.cagr===null?'—':(o.cagr>0?'+':'')+o.cagr+'%'}</td>
+      <td class="est-obs">${rival.toFixed(1)}% <span style="font-size:11px">(${nombreRival})</span></td>
       <td>${veredicto(e)}</td>
       <td>${bate?'<span class="pos">sí</span>':'<span class="est-obs">no</span>'}</td>
       <td><canvas class="spark" id="sp${i}" width="150" height="40"></canvas></td>
@@ -799,9 +806,9 @@ async function initRentabilidades(){
     <div class="chartbox reveal in">
       <h3>Rentabilidad anual (comparables entre sí)</h3>
       <div class="ops-scroll"><table class="ops rent">
-        <thead><tr><th>Modelo</th><th>Rentab. anual</th><th>Significancia</th><th>¿Bate al oro?</th><th>Evolución</th></tr></thead>
+        <thead><tr><th>Modelo</th><th>Rentab. anual</th><th>Su benchmark</th><th>Significancia</th><th>¿Lo bate?</th><th>Evolución</th></tr></thead>
         <tbody>${filasComp}</tbody></table></div>
-      <div class="ch-sub" style="margin-top:10px">La vara de medir es «comprar y mantener oro» (9,2% anual). Si un modelo no la bate, no aporta.</div>
+      <div class="ch-sub" style="margin-top:10px">Cada modelo se compara con SU propio benchmark: el ML opera acciones del S&P, así que su rival es ese mismo universo comprado y mantenido, no el oro. Comparar contra el activo equivocado es la forma más común de aparentar un edge que no existe.</div>
     </div>
     <div class="chartbox reveal in">
       <h3>Medidos en otra unidad (no comparables con lo anterior)</h3>
@@ -828,27 +835,37 @@ function dibujarConjunto(exps){
   const COLORES = ['#e8b23a','#c0c5cc','#5fb7c4','#d2566a','#b48ad6','#6ec08a'];
   const conCurva = exps.filter(e => e.curva && e.curva.length > 5);
   if(!conCurva.length) return;
-  // eje común de fechas: el de la curva más larga
-  const base = conCurva.reduce((a,b) => (b.curva.length > a.curva.length ? b : a));
-  const labels = base.curva.map(p => p.fecha);
-  const datasets = conCurva.map((e,i) => {
-    const mapa = new Map(e.curva.map(p => [p.fecha, p.valor]));
-    let ult = null;
-    const datos = labels.map(f => { if(mapa.has(f)) ult = mapa.get(f); return ult; });
-    return {label: e.etiqueta, data: datos, borderColor: COLORES[i % COLORES.length],
-            borderWidth: 2, pointRadius: 0, tension: .1, spanGaps: true};
+  // Eje temporal real: cada punto en su fecha, sin rellenar huecos. Rellenar hacía
+  // que un modelo con pocos puntos (mensual) pareciera una escalera imparable
+  // frente a otros con datos diarios: comparación visual engañosa.
+  const datasets = conCurva.map((e,i) => ({
+    label: e.etiqueta,
+    data: e.curva.map(p => ({x: p.fecha, y: p.valor})),
+    borderColor: COLORES[i % COLORES.length],
+    borderWidth: 2, pointRadius: 0, tension: .1
+  }));
+  // benchmark propio del ML, si lo trae (su universo, no el oro)
+  conCurva.forEach(e => {
+    if(e.curva2 && e.curva2.datos && e.curva2.datos.length > 5){
+      datasets.push({label: `${e.curva2.nombre}`,
+        data: e.curva2.datos.map(p => ({x: p.fecha, y: p.valor})),
+        borderColor: '#8a97a6', borderWidth: 1.4, borderDash:[6,4], pointRadius: 0, tension: .1});
+    }
   });
-  datasets.push({label:'No hacer nada', data: labels.map(()=>1), borderColor:'#5c6775',
+  datasets.push({label:'No hacer nada (1×)', data: [], borderColor:'#5c6775',
                  borderWidth:1, borderDash:[5,5], pointRadius:0});
   if(window.rentChart){ try{ window.rentChart.destroy(); }catch(e){} }
-  window.rentChart = new Chart(ctx, {type:'line', data:{labels, datasets},
-    options:{responsive:true, maintainAspectRatio:false, interaction:{mode:'index', intersect:false},
+  window.rentChart = new Chart(ctx, {type:'line', data:{datasets},
+    options:{responsive:true, maintainAspectRatio:false, parsing:false,
+      interaction:{mode:'nearest', intersect:false},
       plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y?.toFixed(2)}×`}}},
-      scales:{x:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#5c6775', maxTicksLimit:8, font:{family:'JetBrains Mono'}}},
+      scales:{x:{type:'category', grid:{color:'rgba(38,48,61,.4)'},
+                 ticks:{color:'#5c6775', maxTicksLimit:8, font:{family:'JetBrains Mono'}}},
         y:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#5c6775', font:{family:'JetBrains Mono'}, callback:v=>v+'×'}}}}});
   const ley = document.getElementById('rent-leyenda');
   if(ley) ley.innerHTML = conCurva.map((e,i) =>
-    `<span class="lg"><i style="background:${COLORES[i % COLORES.length]}"></i>${e.etiqueta}</span>`).join('');
+    `<span class="lg"><i style="background:${COLORES[i % COLORES.length]}"></i>${e.etiqueta}</span>`).join('')
+    + `<span class="lg"><i style="background:#8a97a6"></i>Benchmark propio de cada modelo</span>`;
 }
 
 function dibujarSpark(id, curva, color, base){
