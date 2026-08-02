@@ -27,6 +27,7 @@ import hipotesis
 import pares_sectores
 import hipotesis2
 import momentum_tsm
+import macro_rotacion
 from validation import evaluate
 from models import BuyAndHold, GoldSilverPairs, PairsModel
 
@@ -225,6 +226,21 @@ def main(sintetico: bool = False):
         salida.append(tsm)
         try:
             print(f"   ahorro medio en caída: {tsm['headline']['valor']} pts", flush=True)
+        except Exception:
+            pass
+    else:
+        print("   (sin datos suficientes)", flush=True)
+
+    # Rotación y filtros macro: estacionalidad, curva, crédito, dólar, defensivos.
+    print("-> Rotación y filtros macro ...", flush=True)
+    try:
+        mac = macro_rotacion.evaluar_macro(sintetico=sintetico)
+    except Exception as e:
+        mac = None; print(f"   (error: {e})", flush=True)
+    if mac:
+        salida.append(mac)
+        try:
+            print(f"   {mac.get('n_celdas')} estrategias, {mac.get('n_fdr')} superan el FDR", flush=True)
         except Exception:
             pass
     else:
