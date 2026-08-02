@@ -1,5 +1,5 @@
 {
-  "generado": "2026-08-02 21:39 UTC",
+  "generado": "2026-08-02 21:47 UTC",
   "sintetico": false,
   "aviso": "Laboratorio de experimentacion de modelos. NO es recomendacion de inversion. Todas las metricas son fuera de muestra (walk-forward) y netas de costes. Un Sharpe con p-valor alto NO es distinguible del azar.",
   "experimentos": [
@@ -5671,7 +5671,7 @@
           {
             "h": 5,
             "etiqueta": "1 sem",
-            "valor": -0.21,
+            "valor": -0.22,
             "ic_lo": -0.39,
             "ic_hi": -0.04,
             "n": 1977
@@ -5688,24 +5688,24 @@
             "h": 21,
             "etiqueta": "1 mes",
             "valor": -0.03,
-            "ic_lo": -0.38,
+            "ic_lo": -0.39,
             "ic_hi": 0.35,
             "n": 1960
           },
           {
             "h": 42,
             "etiqueta": "2 meses",
-            "valor": -0.76,
-            "ic_lo": -1.39,
-            "ic_hi": -0.13,
+            "valor": -0.77,
+            "ic_lo": -1.4,
+            "ic_hi": -0.14,
             "n": 1940
           },
           {
             "h": 63,
             "etiqueta": "3 meses",
-            "valor": -0.88,
-            "ic_lo": -1.75,
-            "ic_hi": -0.03,
+            "valor": -0.89,
+            "ic_lo": -1.78,
+            "ic_hi": -0.05,
             "n": 1917
           }
         ],
@@ -42606,23 +42606,23 @@
       "modelo": "ml",
       "color": "#b48ad6",
       "headline": {
-        "valor": -0.06,
+        "valor": -0.01,
         "etiqueta": "Exceso medio por periodo frente a comprar y mantener",
         "sufijo": "%",
         "decimales": 2
       },
       "significancia": {
-        "p_valor": 0.647,
+        "p_valor": 0.902,
         "ic90": [
-          -0.3016,
-          0.172
+          -0.2475,
+          0.2349
         ],
         "etiqueta": "exceso sobre comprar y mantener (%/periodo)"
       },
       "cards": [
         {
           "k": "Rentab. anual (CAGR) ML",
-          "v": "16.0%",
+          "v": "16.8%",
           "tono": ""
         },
         {
@@ -42632,12 +42632,12 @@
         },
         {
           "k": "Periodos que baten al índice",
-          "v": "47.8%",
+          "v": "49.8%",
           "tono": ""
         },
         {
           "k": "CAGR ML solo en régimen alcista (filtro causal)",
-          "v": "12.6%",
+          "v": "13.2%",
           "tono": ""
         },
         {
@@ -42667,803 +42667,803 @@
         },
         {
           "fecha": "2009-11-02",
-          "valor": 1.0837
+          "valor": 1.0776
         },
         {
           "fecha": "2009-12-02",
-          "valor": 1.13
+          "valor": 1.1287
         },
         {
           "fecha": "2010-01-04",
-          "valor": 1.0633
+          "valor": 1.062
         },
         {
           "fecha": "2010-02-03",
-          "valor": 1.1363
+          "valor": 1.135
         },
         {
           "fecha": "2010-03-05",
-          "valor": 1.1589
+          "valor": 1.1576
         },
         {
           "fecha": "2010-04-06",
-          "valor": 1.1394
+          "valor": 1.1381
         },
         {
           "fecha": "2010-05-05",
-          "valor": 1.0241
+          "valor": 1.0267
         },
         {
           "fecha": "2010-06-04",
-          "valor": 0.9835
+          "valor": 0.966
         },
         {
           "fecha": "2010-07-06",
-          "valor": 1.1369
+          "valor": 1.1167
         },
         {
           "fecha": "2010-08-04",
-          "valor": 1.1128
+          "valor": 1.093
         },
         {
           "fecha": "2010-09-02",
-          "valor": 1.1697
+          "valor": 1.1489
         },
         {
           "fecha": "2010-10-04",
-          "valor": 1.2544
+          "valor": 1.2238
         },
         {
           "fecha": "2010-11-02",
-          "valor": 1.2854
+          "valor": 1.254
         },
         {
           "fecha": "2010-12-02",
-          "valor": 1.3457
+          "valor": 1.3223
         },
         {
           "fecha": "2011-01-03",
-          "valor": 1.3734
+          "valor": 1.3496
         },
         {
           "fecha": "2011-02-02",
-          "valor": 1.3809
+          "valor": 1.3569
         },
         {
           "fecha": "2011-03-04",
-          "valor": 1.3924
+          "valor": 1.3744
         },
         {
           "fecha": "2011-04-04",
-          "valor": 1.4327
+          "valor": 1.4142
         },
         {
           "fecha": "2011-05-04",
-          "valor": 1.3965
+          "valor": 1.3785
         },
         {
           "fecha": "2011-06-03",
-          "valor": 1.4427
+          "valor": 1.4249
         },
         {
           "fecha": "2011-07-05",
-          "valor": 1.344
+          "valor": 1.3275
         },
         {
           "fecha": "2011-08-03",
-          "valor": 1.2825
+          "valor": 1.2667
         },
         {
           "fecha": "2011-09-01",
-          "valor": 1.2103
+          "valor": 1.1954
         },
         {
           "fecha": "2011-10-03",
-          "valor": 1.3574
+          "valor": 1.3406
         },
         {
           "fecha": "2011-11-01",
-          "valor": 1.3968
+          "valor": 1.3796
         },
         {
           "fecha": "2011-12-01",
-          "valor": 1.4496
+          "valor": 1.4317
         },
         {
           "fecha": "2012-01-03",
-          "valor": 1.5005
+          "valor": 1.4794
         },
         {
           "fecha": "2012-02-02",
-          "valor": 1.5294
+          "valor": 1.5079
         },
         {
           "fecha": "2012-03-05",
-          "valor": 1.6059
+          "valor": 1.573
         },
         {
           "fecha": "2012-04-03",
-          "valor": 1.6082
+          "valor": 1.5752
         },
         {
           "fecha": "2012-05-03",
-          "valor": 1.5088
+          "valor": 1.4779
         },
         {
           "fecha": "2012-06-04",
-          "valor": 1.6295
+          "valor": 1.5962
         },
         {
           "fecha": "2012-07-03",
-          "valor": 1.6314
+          "valor": 1.5989
         },
         {
           "fecha": "2012-08-02",
-          "valor": 1.6592
+          "valor": 1.6261
         },
         {
           "fecha": "2012-08-31",
-          "valor": 1.7139
+          "valor": 1.6798
         },
         {
           "fecha": "2012-10-02",
-          "valor": 1.6698
+          "valor": 1.6365
         },
         {
           "fecha": "2012-11-02",
-          "valor": 1.6727
+          "valor": 1.6404
         },
         {
           "fecha": "2012-12-04",
-          "valor": 1.7398
+          "valor": 1.7062
         },
         {
           "fecha": "2013-01-04",
-          "valor": 1.813
+          "valor": 1.7779
         },
         {
           "fecha": "2013-02-05",
-          "valor": 1.8743
+          "valor": 1.8381
         },
         {
           "fecha": "2013-03-07",
-          "valor": 1.9181
+          "valor": 1.881
         },
         {
           "fecha": "2013-04-08",
-          "valor": 2.0192
+          "valor": 1.9802
         },
         {
           "fecha": "2013-05-07",
-          "valor": 2.0424
+          "valor": 2.003
         },
         {
           "fecha": "2013-06-06",
-          "valor": 2.07
+          "valor": 2.03
         },
         {
           "fecha": "2013-07-08",
-          "valor": 2.1498
+          "valor": 2.1083
         },
         {
           "fecha": "2013-08-06",
-          "valor": 2.1343
+          "valor": 2.0931
         },
         {
           "fecha": "2013-09-05",
-          "valor": 2.2168
+          "valor": 2.174
         },
         {
           "fecha": "2013-10-04",
-          "valor": 2.3514
+          "valor": 2.306
         },
         {
           "fecha": "2013-11-04",
-          "valor": 2.3298
+          "valor": 2.2848
         },
         {
           "fecha": "2013-12-04",
-          "valor": 2.4065
+          "valor": 2.3668
         },
         {
           "fecha": "2014-01-06",
-          "valor": 2.2579
+          "valor": 2.2156
         },
         {
           "fecha": "2014-02-05",
-          "valor": 2.4765
+          "valor": 2.4422
         },
         {
           "fecha": "2014-03-07",
-          "valor": 2.3496
+          "valor": 2.317
         },
         {
           "fecha": "2014-04-07",
-          "valor": 2.3995
+          "valor": 2.3663
         },
         {
           "fecha": "2014-05-07",
-          "valor": 2.5231
+          "valor": 2.4881
         },
         {
           "fecha": "2014-06-06",
-          "valor": 2.5445
+          "valor": 2.4977
         },
         {
           "fecha": "2014-07-08",
-          "valor": 2.5258
+          "valor": 2.4794
         },
         {
           "fecha": "2014-08-06",
-          "valor": 2.6501
+          "valor": 2.6013
         },
         {
           "fecha": "2014-09-05",
-          "valor": 2.5581
+          "valor": 2.511
         },
         {
           "fecha": "2014-10-06",
-          "valor": 2.6729
+          "valor": 2.6195
         },
         {
           "fecha": "2014-11-04",
-          "valor": 2.8075
+          "valor": 2.7563
         },
         {
           "fecha": "2014-12-04",
-          "valor": 2.7503
+          "valor": 2.7002
         },
         {
           "fecha": "2015-01-06",
-          "valor": 2.8458
+          "valor": 2.7939
         },
         {
           "fecha": "2015-02-05",
-          "valor": 2.8314
+          "valor": 2.7798
         },
         {
           "fecha": "2015-03-09",
-          "valor": 2.8505
+          "valor": 2.7986
         },
         {
           "fecha": "2015-04-08",
-          "valor": 2.8094
+          "valor": 2.7582
         },
         {
           "fecha": "2015-05-07",
-          "valor": 2.7983
+          "valor": 2.7473
         },
         {
           "fecha": "2015-06-08",
-          "valor": 2.736
+          "valor": 2.6862
         },
         {
           "fecha": "2015-07-08",
-          "valor": 2.7195
+          "valor": 2.6699
         },
         {
           "fecha": "2015-08-06",
-          "valor": 2.4838
+          "valor": 2.4385
         },
         {
           "fecha": "2015-09-04",
-          "valor": 2.5661
+          "valor": 2.5194
         },
         {
           "fecha": "2015-10-06",
-          "valor": 2.6907
+          "valor": 2.6417
         },
         {
           "fecha": "2015-11-04",
-          "valor": 2.7153
+          "valor": 2.6703
         },
         {
           "fecha": "2015-12-04",
-          "valor": 2.586
+          "valor": 2.5432
         },
         {
           "fecha": "2016-01-06",
-          "valor": 2.4451
+          "valor": 2.4046
         },
         {
           "fecha": "2016-02-05",
-          "valor": 2.596
+          "valor": 2.553
         },
         {
           "fecha": "2016-03-08",
-          "valor": 2.7032
+          "valor": 2.6584
         },
         {
           "fecha": "2016-04-07",
-          "valor": 2.782
+          "valor": 2.7466
         },
         {
           "fecha": "2016-05-06",
-          "valor": 2.8569
+          "valor": 2.8205
         },
         {
           "fecha": "2016-06-07",
-          "valor": 2.925
+          "valor": 2.8878
         },
         {
           "fecha": "2016-07-07",
-          "valor": 3.0591
+          "valor": 3.0202
         },
         {
           "fecha": "2016-08-05",
-          "valor": 3.0852
+          "valor": 3.046
         },
         {
           "fecha": "2016-09-06",
-          "valor": 3.072
+          "valor": 3.033
         },
         {
           "fecha": "2016-10-05",
-          "valor": 2.98
+          "valor": 2.9421
         },
         {
           "fecha": "2016-11-03",
-          "valor": 3.0639
+          "valor": 3.0249
         },
         {
           "fecha": "2016-12-05",
-          "valor": 3.2117
+          "valor": 3.1708
         },
         {
           "fecha": "2017-01-05",
-          "valor": 3.3296
+          "valor": 3.2873
         },
         {
           "fecha": "2017-02-06",
-          "valor": 3.3954
+          "valor": 3.3522
         },
         {
           "fecha": "2017-03-08",
-          "valor": 3.3938
+          "valor": 3.3506
         },
         {
           "fecha": "2017-04-06",
-          "valor": 3.4343
+          "valor": 3.3906
         },
         {
           "fecha": "2017-05-08",
-          "valor": 3.488
+          "valor": 3.4437
         },
         {
           "fecha": "2017-06-07",
-          "valor": 3.5258
+          "valor": 3.4809
         },
         {
           "fecha": "2017-07-07",
-          "valor": 3.5993
+          "valor": 3.5535
         },
         {
           "fecha": "2017-08-07",
-          "valor": 3.5617
+          "valor": 3.5164
         },
         {
           "fecha": "2017-09-06",
-          "valor": 3.7143
+          "valor": 3.6671
         },
         {
           "fecha": "2017-10-05",
-          "valor": 3.8142
+          "valor": 3.7657
         },
         {
           "fecha": "2017-11-03",
-          "valor": 3.8468
+          "valor": 3.7979
         },
         {
           "fecha": "2017-12-05",
-          "valor": 3.9753
+          "valor": 3.9247
         },
         {
           "fecha": "2018-01-05",
-          "valor": 3.897
+          "valor": 3.8409
         },
         {
           "fecha": "2018-02-06",
-          "valor": 3.9896
+          "valor": 3.9322
         },
         {
           "fecha": "2018-03-08",
-          "valor": 3.767
+          "valor": 3.7127
         },
         {
           "fecha": "2018-04-09",
-          "valor": 3.894
+          "valor": 3.8373
         },
         {
           "fecha": "2018-05-08",
-          "valor": 4.0434
+          "valor": 3.9845
         },
         {
           "fecha": "2018-06-07",
-          "valor": 4.0132
+          "valor": 3.9548
         },
         {
           "fecha": "2018-07-09",
-          "valor": 4.211
+          "valor": 4.1497
         },
         {
           "fecha": "2018-08-07",
-          "valor": 4.3134
+          "valor": 4.2506
         },
         {
           "fecha": "2018-09-06",
-          "valor": 4.3235
+          "valor": 4.2606
         },
         {
           "fecha": "2018-10-05",
-          "valor": 3.9981
+          "valor": 3.9399
         },
         {
           "fecha": "2018-11-05",
-          "valor": 3.9945
+          "valor": 3.9364
         },
         {
           "fecha": "2018-12-06",
-          "valor": 3.8527
+          "valor": 3.8558
         },
         {
           "fecha": "2019-01-08",
-          "valor": 4.1916
+          "valor": 4.195
         },
         {
           "fecha": "2019-02-07",
-          "valor": 4.3261
+          "valor": 4.3297
         },
         {
           "fecha": "2019-03-11",
-          "valor": 4.4051
+          "valor": 4.4087
         },
         {
           "fecha": "2019-04-09",
-          "valor": 4.4521
+          "valor": 4.4557
         },
         {
           "fecha": "2019-05-09",
-          "valor": 4.6187
+          "valor": 4.6225
         },
         {
           "fecha": "2019-06-10",
-          "valor": 4.6939
+          "valor": 4.6978
         },
         {
           "fecha": "2019-07-10",
-          "valor": 4.6992
+          "valor": 4.7107
         },
         {
           "fecha": "2019-08-08",
-          "valor": 4.7089
+          "valor": 4.7205
         },
         {
           "fecha": "2019-09-09",
-          "valor": 4.6352
+          "valor": 4.6466
         },
         {
           "fecha": "2019-10-08",
-          "valor": 4.9448
+          "valor": 4.9569
         },
         {
           "fecha": "2019-11-06",
-          "valor": 4.9389
+          "valor": 4.9511
         },
         {
           "fecha": "2019-12-06",
-          "valor": 5.2357
+          "valor": 5.2432
         },
         {
           "fecha": "2020-01-08",
-          "valor": 5.2313
+          "valor": 5.2669
         },
         {
           "fecha": "2020-02-07",
-          "valor": 4.2678
+          "valor": 4.4504
         },
         {
           "fecha": "2020-03-10",
-          "valor": 3.9144
+          "valor": 4.0439
         },
         {
           "fecha": "2020-04-08",
-          "valor": 4.2838
+          "valor": 4.4597
         },
         {
           "fecha": "2020-05-08",
-          "valor": 4.7428
+          "valor": 4.9375
         },
         {
           "fecha": "2020-06-09",
-          "valor": 4.8134
+          "valor": 5.0477
         },
         {
           "fecha": "2020-07-09",
-          "valor": 5.0815
+          "valor": 5.4032
         },
         {
           "fecha": "2020-08-07",
-          "valor": 4.9308
+          "valor": 5.243
         },
         {
           "fecha": "2020-09-08",
-          "valor": 5.1431
+          "valor": 5.4688
         },
         {
           "fecha": "2020-10-07",
-          "valor": 5.4728
+          "valor": 5.8193
         },
         {
           "fecha": "2020-11-05",
-          "valor": 6.2699
+          "valor": 6.8613
         },
         {
           "fecha": "2020-12-07",
-          "valor": 6.7632
+          "valor": 7.4012
         },
         {
           "fecha": "2021-01-07",
-          "valor": 7.2611
+          "valor": 7.8938
         },
         {
           "fecha": "2021-02-08",
-          "valor": 7.3469
+          "valor": 7.987
         },
         {
           "fecha": "2021-03-10",
-          "valor": 7.5562
+          "valor": 8.2145
         },
         {
           "fecha": "2021-04-09",
-          "valor": 8.0593
+          "valor": 8.6495
         },
         {
           "fecha": "2021-05-10",
-          "valor": 8.3083
+          "valor": 8.9168
         },
         {
           "fecha": "2021-06-09",
-          "valor": 8.1596
+          "valor": 8.7572
         },
         {
           "fecha": "2021-07-09",
-          "valor": 8.1418
+          "valor": 8.7381
         },
         {
           "fecha": "2021-08-09",
-          "valor": 8.1936
+          "valor": 8.7937
         },
         {
           "fecha": "2021-09-08",
-          "valor": 8.0708
+          "valor": 8.6619
         },
         {
           "fecha": "2021-10-07",
-          "valor": 8.9554
+          "valor": 9.6113
         },
         {
           "fecha": "2021-11-05",
-          "valor": 8.6252
+          "valor": 9.2569
         },
         {
           "fecha": "2021-12-07",
-          "valor": 8.765
+          "valor": 9.4069
         },
         {
           "fecha": "2022-01-06",
-          "valor": 8.3013
+          "valor": 8.9093
         },
         {
           "fecha": "2022-02-07",
-          "valor": 7.7911
+          "valor": 8.3617
         },
         {
           "fecha": "2022-03-09",
-          "valor": 8.1835
+          "valor": 8.8088
         },
         {
           "fecha": "2022-04-07",
-          "valor": 7.1135
+          "valor": 7.7018
         },
         {
           "fecha": "2022-05-09",
-          "valor": 7.4331
+          "valor": 8.0479
         },
         {
           "fecha": "2022-06-08",
-          "valor": 6.4412
+          "valor": 7.1495
         },
         {
           "fecha": "2022-07-11",
-          "valor": 7.2498
+          "valor": 8.0471
         },
         {
           "fecha": "2022-08-09",
-          "valor": 7.1664
+          "valor": 7.9544
         },
         {
           "fecha": "2022-09-08",
-          "valor": 6.4831
+          "valor": 7.196
         },
         {
           "fecha": "2022-10-07",
-          "valor": 7.125
+          "valor": 7.9085
         },
         {
           "fecha": "2022-11-07",
-          "valor": 7.3788
+          "valor": 8.2699
         },
         {
           "fecha": "2022-12-07",
-          "valor": 7.3387
+          "valor": 8.2249
         },
         {
           "fecha": "2023-01-09",
-          "valor": 8.2384
+          "valor": 9.2332
         },
         {
           "fecha": "2023-02-08",
-          "valor": 7.7628
+          "valor": 8.7002
         },
         {
           "fecha": "2023-03-10",
-          "valor": 8.2557
+          "valor": 9.2526
         },
         {
           "fecha": "2023-04-11",
-          "valor": 8.506
+          "valor": 9.4992
         },
         {
           "fecha": "2023-05-10",
-          "valor": 8.4915
+          "valor": 9.4589
         },
         {
           "fecha": "2023-06-09",
-          "valor": 8.9544
+          "valor": 9.9746
         },
         {
           "fecha": "2023-07-12",
-          "valor": 9.1118
+          "valor": 10.1847
         },
         {
           "fecha": "2023-08-10",
-          "valor": 9.084
+          "valor": 10.1535
         },
         {
           "fecha": "2023-09-11",
-          "valor": 8.5055
+          "valor": 9.507
         },
         {
           "fecha": "2023-10-10",
-          "valor": 8.3883
+          "valor": 9.376
         },
         {
           "fecha": "2023-11-08",
-          "valor": 8.8933
+          "valor": 9.9404
         },
         {
           "fecha": "2023-12-08",
-          "valor": 9.119
+          "valor": 10.1927
         },
         {
           "fecha": "2024-01-10",
-          "valor": 9.3925
+          "valor": 10.4915
         },
         {
           "fecha": "2024-02-09",
-          "valor": 9.6544
+          "valor": 10.784
         },
         {
           "fecha": "2024-03-12",
-          "valor": 9.6354
+          "valor": 10.7628
         },
         {
           "fecha": "2024-04-11",
-          "valor": 9.8254
+          "valor": 10.9051
         },
         {
           "fecha": "2024-05-10",
-          "valor": 9.7491
+          "valor": 10.8203
         },
         {
           "fecha": "2024-06-11",
-          "valor": 9.9075
+          "valor": 10.9961
         },
         {
           "fecha": "2024-07-12",
-          "valor": 9.2846
+          "valor": 10.3048
         },
         {
           "fecha": "2024-08-12",
-          "valor": 9.6279
+          "valor": 10.6858
         },
         {
           "fecha": "2024-09-11",
-          "valor": 9.9912
+          "valor": 11.0924
         },
         {
           "fecha": "2024-10-10",
-          "valor": 10.614
+          "valor": 11.784
         },
         {
           "fecha": "2024-11-08",
-          "valor": 10.6525
+          "valor": 11.8267
         },
         {
           "fecha": "2024-12-10",
-          "valor": 10.4377
+          "valor": 11.6528
         },
         {
           "fecha": "2025-01-13",
-          "valor": 10.7524
+          "valor": 12.0041
         },
         {
           "fecha": "2025-02-12",
-          "valor": 10.5791
+          "valor": 11.8106
         },
         {
           "fecha": "2025-03-14",
-          "valor": 10.1759
+          "valor": 11.3605
         },
         {
           "fecha": "2025-04-14",
-          "valor": 10.2495
+          "valor": 11.4427
         },
         {
           "fecha": "2025-05-14",
-          "valor": 10.5733
+          "valor": 11.7836
         },
         {
           "fecha": "2025-06-13",
-          "valor": 10.9186
+          "valor": 12.1685
         },
         {
           "fecha": "2025-07-16",
-          "valor": 11.3952
+          "valor": 12.7568
         },
         {
           "fecha": "2025-08-14",
-          "valor": 11.4073
+          "valor": 12.7704
         },
         {
           "fecha": "2025-09-15",
-          "valor": 11.4223
+          "valor": 12.7872
         },
         {
           "fecha": "2025-10-14",
-          "valor": 11.1864
+          "valor": 12.5231
         },
         {
           "fecha": "2025-11-12",
-          "valor": 11.5446
+          "valor": 12.9241
         },
         {
           "fecha": "2025-12-12",
-          "valor": 12.1945
+          "valor": 13.6517
         },
         {
           "fecha": "2026-01-14",
-          "valor": 12.4866
+          "valor": 13.9787
         },
         {
           "fecha": "2026-02-13",
-          "valor": 12.1457
+          "valor": 13.5971
         },
         {
           "fecha": "2026-03-17",
-          "valor": 12.9743
+          "valor": 14.5247
         },
         {
           "fecha": "2026-04-16",
-          "valor": 12.3111
+          "valor": 13.7822
         },
         {
           "fecha": "2026-05-15",
-          "valor": 12.4864
+          "valor": 13.9784
         },
         {
           "fecha": "2026-06-16",
-          "valor": 12.3913
+          "valor": 13.872
         }
       ],
       "curva2": {
@@ -44288,7 +44288,7 @@
       "curva_base": 1.0,
       "curva_titulo": "Capital acumulado: ML walk-forward vs comprar y mantener",
       "curva_sub": "Protocolo fijado de antemano: una sola configuración, entrenamiento solo con el pasado, refit periódico, operaciones no solapadas y costes aplicados. Si la línea de color no supera a la gris, el ML no aporta sobre comprar y mantener.",
-      "nota": "Machine learning honesto: walk-forward estricto, sin lookahead y con una única configuración prefijada (probar muchas y quedarse con la mejor fabrica ganadores falsos). El veredicto se acepta tal cual. No es recomendación de inversión.<br><br><b>Pruebas de robustez (un artefacto no las supera):</b><br>• <b>Sin los 5 mejores periodos</b>: exceso -0.22%/periodo (p=0.081) — si aquí desaparece, la ventaja eran cuatro golpes de suerte.<br>• <b>Por régimen</b>: mercado alcista -0.06% (p=0.667, n=175) · bajista/lateral -0.09% (p=1.0, n=28) — si solo gana en alcista, es beta disfrazada de alfa.<br>• <b>Vs momentum simple</b> (ranking por retorno a 12 meses, mismas reglas): el momentum da -0.06%/periodo sobre el índice; el ML le saca <b>-0.00%</b> (p=0.98, IC90 [-0.3, 0.29]) — si no le saca nada, el ML solo redescubrió el momentum."
+      "nota": "Machine learning honesto: walk-forward estricto, sin lookahead y con una única configuración prefijada (probar muchas y quedarse con la mejor fabrica ganadores falsos). El veredicto se acepta tal cual. No es recomendación de inversión.<br><br><b>Pruebas de robustez (un artefacto no las supera):</b><br>• <b>Sin los 5 mejores periodos</b>: exceso -0.19%/periodo (p=0.138) — si aquí desaparece, la ventaja eran cuatro golpes de suerte.<br>• <b>Por régimen</b>: mercado alcista -0.01% (p=0.945, n=175) · bajista/lateral -0.02% (p=1.0, n=28) — si solo gana en alcista, es beta disfrazada de alfa.<br>• <b>Vs momentum simple</b> (ranking por retorno a 12 meses, mismas reglas): el momentum da -0.06%/periodo sobre el índice; el ML le saca <b>+0.05%</b> (p=0.81, IC90 [-0.26, 0.37]) — si no le saca nada, el ML solo redescubrió el momentum."
     },
     {
       "id": "hipotesis_clasicas",
@@ -44353,9 +44353,9 @@
         },
         {
           "tipo": "H2 · Reversión tras caída fuerte (−10% en 5d)",
-          "nombre": "H2 · Reversión tras caída fuerte (−10% en 5d) · 1525 eventos",
+          "nombre": "H2 · Reversión tras caída fuerte (−10% en 5d) · 1527 eventos",
           "color": "#d2566a",
-          "n_eventos": 1525,
+          "n_eventos": 1527,
           "razon": "Tras una caída fuerte y rápida, debería haber rebote: las ventas forzadas (liquidez, margin calls) empujan el precio por debajo de su valor.",
           "puntos": [
             {
@@ -44363,8 +44363,8 @@
               "etiqueta": "1 sem",
               "valor": 1.18,
               "ic_lo": 0.85,
-              "ic_hi": 1.5,
-              "n": 1521,
+              "ic_hi": 1.49,
+              "n": 1523,
               "p": 0.0,
               "sig_cruda": true,
               "sig_fdr": true
@@ -44373,10 +44373,10 @@
               "h": 10,
               "etiqueta": "2 sem",
               "valor": 0.71,
-              "ic_lo": 0.31,
-              "ic_hi": 1.1,
-              "n": 1519,
-              "p": 0.0,
+              "ic_lo": 0.33,
+              "ic_hi": 1.08,
+              "n": 1521,
+              "p": 0.002,
               "sig_cruda": true,
               "sig_fdr": true
             },
@@ -44384,9 +44384,9 @@
               "h": 21,
               "etiqueta": "1 mes",
               "valor": 1.51,
-              "ic_lo": 0.95,
+              "ic_lo": 0.96,
               "ic_hi": 2.05,
-              "n": 1513,
+              "n": 1515,
               "p": 0.0,
               "sig_cruda": true,
               "sig_fdr": true
@@ -44394,10 +44394,10 @@
             {
               "h": 63,
               "etiqueta": "3 meses",
-              "valor": 4.13,
-              "ic_lo": 2.88,
-              "ic_hi": 5.29,
-              "n": 1487,
+              "valor": 4.14,
+              "ic_lo": 2.93,
+              "ic_hi": 5.28,
+              "n": 1489,
               "p": 0.0,
               "sig_cruda": true,
               "sig_fdr": true
@@ -44461,7 +44461,7 @@
       "n_celdas": 12,
       "n_fdr": 6,
       "nota_fdr": "Se prueban 12 combinaciones hipótesis×horizonte A LA VEZ. La corrección de Benjamini-Hochberg (FDR 10%) se aplica al CONJUNTO, porque probar varias hipótesis sube el listón de todas: 6 sobreviven. Sin esa corrección, probar muchas cosas garantiza encontrar «ganadoras» por azar.",
-      "nota": "Anomalías documentadas en la literatura, testeadas aquí con datos propios y sin búsqueda de parámetros: umbrales fijados de antemano (gap 5%, caída 10% en 5 días). El veredicto se acepta tal cual. No es recomendación de inversión.<br><br><b>Escrutinio de H2 (reversión a 3 meses) — las mismas pruebas que tumbaron otros hallazgos de este laboratorio:</b><br>• Por evento, bruto: +4.13% (IC90 [3.11, 5.18], p=0.0, n=1487)<br>• <b>Por evento, neto de 1% de costes</b> (spread ancho tras desplome): +3.13% (IC90 [2.11, 4.18], p=0.0, n=1487)<br>• <b>Por EPISODIO independiente</b> (un dato por mes; los desplomes se agrupan en pánicos, así que esta es la unidad real): +1.98% (IC90 [0.04, 4.11], p=0.092, n=171) — 171 meses distintos en 16 años<br>• Por episodio, <b>neto de costes</b>: +0.98% (IC90 [-0.96, 3.11], p=0.4027, n=171)<br>• <b>Sin crisis</b> (2008, 2020, 2022): +2.12% (IC90 [0.04, 4.36], p=0.0967, n=156)<br>• <b>Fuera de muestra</b>: 1ª mitad +2.29% (IC90 [-0.84, 5.52], p=0.2313, n=85) · 2ª mitad +1.67% (IC90 [-0.93, 4.31], p=0.282, n=86)<br>• Reparto por año: {'2011': 4, '2012': 12, '2013': 11, '2014': 11, '2015': 10, '2016': 12, '2017': 11, '2018': 12, '2019': 12, '2020': 12, '2021': 12, '2022': 12, '2023': 12, '2024': 12, '2025': 12, '2026': 4}<br><br><b>Sensibilidad al coste (por episodio, a 3 meses):</b> comisión + spread + slippage, ida y vuelta. La comisión de un bróker moderno es ~0,05-0,1%; el resto es spread y slippage, que no dependen del bróker.<div class='ops-scroll' style='margin-top:8px'><table class='ops'><thead><tr><th>Coste total</th><th>Exceso neto</th><th>IC 90%</th><th>p</th></tr></thead><tbody><tr><td>0.00%</td><td class='pos'>+1.98%</td><td class='est-obs'>[0.04, 4.11]</td><td class='pos'>0.092</td></tr><tr><td>0.10%</td><td class='pos'>+1.88%</td><td class='est-obs'>[-0.06, 4.01]</td><td class='est-obs'>0.11</td></tr><tr><td>0.25%</td><td class='pos'>+1.73%</td><td class='est-obs'>[-0.21, 3.86]</td><td class='est-obs'>0.1453</td></tr><tr><td>0.50%</td><td class='pos'>+1.48%</td><td class='est-obs'>[-0.46, 3.61]</td><td class='est-obs'>0.2187</td></tr><tr><td>0.75%</td><td class='pos'>+1.23%</td><td class='est-obs'>[-0.71, 3.36]</td><td class='est-obs'>0.2973</td></tr><tr><td>1.00%</td><td class='pos'>+0.98%</td><td class='est-obs'>[-0.96, 3.11]</td><td class='est-obs'>0.4027</td></tr><tr><td>1.50%</td><td class='pos'>+0.48%</td><td class='est-obs'>[-1.46, 2.61]</td><td class='est-obs'>0.694</td></tr><tr><td>2.00%</td><td class='neg'>-0.02%</td><td class='est-obs'>[-1.96, 2.11]</td><td class='est-obs'>0.9927</td></tr></tbody></table></div><div class='ch-sub' style='margin-top:8px'>Deja de ser distinguible del azar a partir de un coste total del <b>0.10%</b> por operación. Cada cual puede situarse en la fila que corresponda a su estructura de costes real.</div><br><i>Si aguanta por episodio, neto de costes y sin crisis, es un hallazgo real. Si se cae al pasar a episodios, era pseudo-replicación (muchos días del mismo pánico contados como datos independientes).</i>"
+      "nota": "Anomalías documentadas en la literatura, testeadas aquí con datos propios y sin búsqueda de parámetros: umbrales fijados de antemano (gap 5%, caída 10% en 5 días). El veredicto se acepta tal cual. No es recomendación de inversión.<br><br><b>Escrutinio de H2 (reversión a 3 meses) — las mismas pruebas que tumbaron otros hallazgos de este laboratorio:</b><br>• Por evento, bruto: +4.14% (IC90 [3.09, 5.2], p=0.0, n=1489)<br>• <b>Por evento, neto de 1% de costes</b> (spread ancho tras desplome): +3.14% (IC90 [2.09, 4.2], p=0.0, n=1489)<br>• <b>Por EPISODIO independiente</b> (un dato por mes; los desplomes se agrupan en pánicos, así que esta es la unidad real): +1.98% (IC90 [0.05, 4.12], p=0.0913, n=171) — 171 meses distintos en 16 años<br>• Por episodio, <b>neto de costes</b>: +0.98% (IC90 [-0.95, 3.12], p=0.402, n=171)<br>• <b>Sin crisis</b> (2008, 2020, 2022): +2.12% (IC90 [0.05, 4.36], p=0.096, n=156)<br>• <b>Fuera de muestra</b>: 1ª mitad +2.29% (IC90 [-0.84, 5.52], p=0.2313, n=85) · 2ª mitad +1.68% (IC90 [-0.92, 4.32], p=0.2807, n=86)<br>• Reparto por año: {'2011': 4, '2012': 12, '2013': 11, '2014': 11, '2015': 10, '2016': 12, '2017': 11, '2018': 12, '2019': 12, '2020': 12, '2021': 12, '2022': 12, '2023': 12, '2024': 12, '2025': 12, '2026': 4}<br><br><b>Sensibilidad al coste (por episodio, a 3 meses):</b> comisión + spread + slippage, ida y vuelta. La comisión de un bróker moderno es ~0,05-0,1%; el resto es spread y slippage, que no dependen del bróker.<div class='ops-scroll' style='margin-top:8px'><table class='ops'><thead><tr><th>Coste total</th><th>Exceso neto</th><th>IC 90%</th><th>p</th></tr></thead><tbody><tr><td>0.00%</td><td class='pos'>+1.98%</td><td class='est-obs'>[0.05, 4.12]</td><td class='pos'>0.0913</td></tr><tr><td>0.10%</td><td class='pos'>+1.88%</td><td class='est-obs'>[-0.05, 4.02]</td><td class='est-obs'>0.11</td></tr><tr><td>0.25%</td><td class='pos'>+1.73%</td><td class='est-obs'>[-0.2, 3.87]</td><td class='est-obs'>0.1447</td></tr><tr><td>0.50%</td><td class='pos'>+1.48%</td><td class='est-obs'>[-0.45, 3.62]</td><td class='est-obs'>0.2173</td></tr><tr><td>0.75%</td><td class='pos'>+1.23%</td><td class='est-obs'>[-0.7, 3.37]</td><td class='est-obs'>0.296</td></tr><tr><td>1.00%</td><td class='pos'>+0.98%</td><td class='est-obs'>[-0.95, 3.12]</td><td class='est-obs'>0.402</td></tr><tr><td>1.50%</td><td class='pos'>+0.48%</td><td class='est-obs'>[-1.45, 2.62]</td><td class='est-obs'>0.692</td></tr><tr><td>2.00%</td><td class='neg'>-0.02%</td><td class='est-obs'>[-1.95, 2.12]</td><td class='est-obs'>0.9933</td></tr></tbody></table></div><div class='ch-sub' style='margin-top:8px'>Deja de ser distinguible del azar a partir de un coste total del <b>0.10%</b> por operación. Cada cual puede situarse en la fila que corresponda a su estructura de costes real.</div><br><i>Si aguanta por episodio, neto de costes y sin crisis, es un hallazgo real. Si se cae al pasar a episodios, era pseudo-replicación (muchos días del mismo pánico contados como datos independientes).</i>"
     },
     {
       "id": "pares_sectores",
@@ -44508,11 +44508,11 @@
           "puntos": [
             {
               "etiqueta": "exceso a igual riesgo",
-              "valor": 0.216,
-              "ic_lo": -0.596,
-              "ic_hi": 1.027,
+              "valor": 0.217,
+              "ic_lo": -0.595,
+              "ic_hi": 1.029,
               "n": 227,
-              "p": 0.6593,
+              "p": 0.6567,
               "sig_cruda": false,
               "sig_fdr": false
             }
@@ -46652,52 +46652,52 @@
           "tipo": "ruptura_resistencia",
           "nombre": "Ruptura de resistencia",
           "color": "#5fb7c4",
-          "n_eventos": 1582,
+          "n_eventos": 1584,
           "puntos": [
             {
               "etiqueta": "1 sem",
-              "valor": -0.14,
-              "ic_lo": -0.31,
-              "ic_hi": 0.04,
-              "n": 1568,
+              "valor": -0.12,
+              "ic_lo": -0.29,
+              "ic_hi": 0.06,
+              "n": 1570,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 sem",
-              "valor": -0.09,
-              "ic_lo": -0.36,
-              "ic_hi": 0.17,
-              "n": 1566,
+              "valor": -0.08,
+              "ic_lo": -0.34,
+              "ic_hi": 0.18,
+              "n": 1568,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 mes",
-              "valor": -0.67,
-              "ic_lo": -1.09,
-              "ic_hi": -0.25,
-              "n": 1555,
+              "valor": -0.69,
+              "ic_lo": -1.13,
+              "ic_hi": -0.27,
+              "n": 1557,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "2 meses",
-              "valor": -1.58,
-              "ic_lo": -2.29,
-              "ic_hi": -0.85,
-              "n": 1542,
+              "valor": -1.59,
+              "ic_lo": -2.27,
+              "ic_hi": -0.88,
+              "n": 1544,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "3 meses",
               "valor": -1.27,
-              "ic_lo": -2.16,
-              "ic_hi": -0.33,
-              "n": 1531,
+              "ic_lo": -2.15,
+              "ic_hi": -0.34,
+              "n": 1532,
               "sig_cruda": true,
-              "sig_fdr": true
+              "sig_fdr": false
             }
           ]
         },
@@ -46710,16 +46710,16 @@
             {
               "etiqueta": "1 sem",
               "valor": 0.14,
-              "ic_lo": -0.23,
-              "ic_hi": 0.52,
+              "ic_lo": -0.24,
+              "ic_hi": 0.53,
               "n": 891,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 sem",
-              "valor": -0.1,
-              "ic_lo": -0.64,
+              "valor": -0.09,
+              "ic_lo": -0.62,
               "ic_hi": 0.43,
               "n": 889,
               "sig_cruda": false,
@@ -46728,7 +46728,7 @@
             {
               "etiqueta": "1 mes",
               "valor": -0.62,
-              "ic_lo": -1.29,
+              "ic_lo": -1.3,
               "ic_hi": 0.06,
               "n": 889,
               "sig_cruda": false,
@@ -46736,18 +46736,18 @@
             },
             {
               "etiqueta": "2 meses",
-              "valor": -1.69,
-              "ic_lo": -2.64,
-              "ic_hi": -0.74,
+              "valor": -1.67,
+              "ic_lo": -2.63,
+              "ic_hi": -0.72,
               "n": 877,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "3 meses",
-              "valor": -2.47,
-              "ic_lo": -3.58,
-              "ic_hi": -1.32,
+              "valor": -2.48,
+              "ic_lo": -3.6,
+              "ic_hi": -1.33,
               "n": 871,
               "sig_cruda": true,
               "sig_fdr": true
@@ -46758,14 +46758,14 @@
           "tipo": "ruptura_tendencia_bajista",
           "nombre": "Ruptura de línea bajista (al alza)",
           "color": "#6ec08a",
-          "n_eventos": 3433,
+          "n_eventos": 3427,
           "puntos": [
             {
               "etiqueta": "1 sem",
               "valor": -0.01,
-              "ic_lo": -0.14,
+              "ic_lo": -0.13,
               "ic_hi": 0.12,
-              "n": 3422,
+              "n": 3416,
               "sig_cruda": false,
               "sig_fdr": false
             },
@@ -46774,34 +46774,34 @@
               "valor": 0.12,
               "ic_lo": -0.06,
               "ic_hi": 0.3,
-              "n": 3414,
+              "n": 3408,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 mes",
-              "valor": 0.28,
+              "valor": 0.29,
               "ic_lo": -0.02,
-              "ic_hi": 0.58,
-              "n": 3401,
+              "ic_hi": 0.59,
+              "n": 3395,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 meses",
-              "valor": 0.28,
-              "ic_lo": -0.19,
-              "ic_hi": 0.75,
-              "n": 3359,
+              "valor": 0.3,
+              "ic_lo": -0.18,
+              "ic_hi": 0.79,
+              "n": 3353,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "3 meses",
-              "valor": 0.31,
-              "ic_lo": -0.33,
+              "valor": 0.32,
+              "ic_lo": -0.32,
               "ic_hi": 1.0,
-              "n": 3340,
+              "n": 3334,
               "sig_cruda": false,
               "sig_fdr": false
             }
@@ -46811,23 +46811,23 @@
           "tipo": "ruptura_tendencia_alcista",
           "nombre": "Ruptura de línea alcista (a la baja)",
           "color": "#d08a5a",
-          "n_eventos": 4157,
+          "n_eventos": 4158,
           "puntos": [
             {
               "etiqueta": "1 sem",
-              "valor": -0.14,
-              "ic_lo": -0.27,
-              "ic_hi": -0.0,
-              "n": 4147,
+              "valor": -0.13,
+              "ic_lo": -0.26,
+              "ic_hi": 0.01,
+              "n": 4148,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 sem",
-              "valor": -0.09,
-              "ic_lo": -0.27,
-              "ic_hi": 0.1,
-              "n": 4130,
+              "valor": -0.07,
+              "ic_lo": -0.26,
+              "ic_hi": 0.11,
+              "n": 4131,
               "sig_cruda": false,
               "sig_fdr": false
             },
@@ -46835,26 +46835,26 @@
               "etiqueta": "1 mes",
               "valor": -0.15,
               "ic_lo": -0.44,
-              "ic_hi": 0.14,
-              "n": 4112,
+              "ic_hi": 0.13,
+              "n": 4113,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 meses",
-              "valor": -0.2,
-              "ic_lo": -0.61,
-              "ic_hi": 0.22,
-              "n": 4091,
+              "valor": -0.22,
+              "ic_lo": -0.63,
+              "ic_hi": 0.21,
+              "n": 4092,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "3 meses",
-              "valor": -0.35,
+              "valor": -0.34,
               "ic_lo": -0.91,
               "ic_hi": 0.24,
-              "n": 4045,
+              "n": 4046,
               "sig_cruda": false,
               "sig_fdr": false
             }
@@ -46864,32 +46864,32 @@
           "tipo": "doble_suelo",
           "nombre": "Doble suelo",
           "color": "#b48ad6",
-          "n_eventos": 2004,
+          "n_eventos": 2003,
           "puntos": [
             {
               "etiqueta": "1 sem",
-              "valor": 0.02,
-              "ic_lo": -0.12,
+              "valor": 0.03,
+              "ic_lo": -0.11,
               "ic_hi": 0.16,
-              "n": 1998,
-              "sig_cruda": false,
-              "sig_fdr": false
-            },
-            {
-              "etiqueta": "2 sem",
-              "valor": 0.18,
-              "ic_lo": -0.02,
-              "ic_hi": 0.38,
               "n": 1997,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
+              "etiqueta": "2 sem",
+              "valor": 0.19,
+              "ic_lo": -0.01,
+              "ic_hi": 0.38,
+              "n": 1996,
+              "sig_cruda": false,
+              "sig_fdr": false
+            },
+            {
               "etiqueta": "1 mes",
-              "valor": -0.13,
-              "ic_lo": -0.46,
-              "ic_hi": 0.2,
-              "n": 1992,
+              "valor": -0.12,
+              "ic_lo": -0.44,
+              "ic_hi": 0.21,
+              "n": 1991,
               "sig_cruda": false,
               "sig_fdr": false
             },
@@ -46897,17 +46897,17 @@
               "etiqueta": "2 meses",
               "valor": -1.08,
               "ic_lo": -1.55,
-              "ic_hi": -0.62,
-              "n": 1962,
+              "ic_hi": -0.6,
+              "n": 1961,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "3 meses",
               "valor": -1.07,
-              "ic_lo": -1.64,
-              "ic_hi": -0.52,
-              "n": 1950,
+              "ic_lo": -1.63,
+              "ic_hi": -0.51,
+              "n": 1949,
               "sig_cruda": true,
               "sig_fdr": true
             }
@@ -46917,14 +46917,14 @@
           "tipo": "doble_techo",
           "nombre": "Doble techo",
           "color": "#e8b23a",
-          "n_eventos": 1750,
+          "n_eventos": 1748,
           "puntos": [
             {
               "etiqueta": "1 sem",
               "valor": -0.03,
-              "ic_lo": -0.22,
+              "ic_lo": -0.21,
               "ic_hi": 0.15,
-              "n": 1749,
+              "n": 1747,
               "sig_cruda": false,
               "sig_fdr": false
             },
@@ -46933,34 +46933,34 @@
               "valor": -0.23,
               "ic_lo": -0.49,
               "ic_hi": 0.02,
-              "n": 1744,
+              "n": 1742,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 mes",
-              "valor": -0.44,
-              "ic_lo": -0.84,
-              "ic_hi": -0.07,
-              "n": 1741,
+              "valor": -0.43,
+              "ic_lo": -0.83,
+              "ic_hi": -0.06,
+              "n": 1739,
               "sig_cruda": true,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 meses",
               "valor": -0.72,
-              "ic_lo": -1.24,
-              "ic_hi": -0.17,
-              "n": 1730,
+              "ic_lo": -1.27,
+              "ic_hi": -0.19,
+              "n": 1728,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "3 meses",
-              "valor": -1.1,
-              "ic_lo": -1.79,
-              "ic_hi": -0.41,
-              "n": 1708,
+              "valor": -1.09,
+              "ic_lo": -1.78,
+              "ic_hi": -0.42,
+              "n": 1706,
               "sig_cruda": true,
               "sig_fdr": true
             }
@@ -47021,8 +47021,8 @@
         }
       ],
       "n_celdas": 35,
-      "n_fdr": 10,
-      "nota_fdr": "Se han evaluado 35 combinaciones figura×horizonte. Tras corregir por multiple-testing (Benjamini-Hochberg, FDR 10%), 10 sobreviven. La columna «cruda» marca lo que parece significativo sin corregir; la columna «FDR» marca lo que aguanta de verdad. La diferencia es la trampa del data mining.",
+      "n_fdr": 9,
+      "nota_fdr": "Se han evaluado 35 combinaciones figura×horizonte. Tras corregir por multiple-testing (Benjamini-Hochberg, FDR 10%), 9 sobreviven. La columna «cruda» marca lo que parece significativo sin corregir; la columna «FDR» marca lo que aguanta de verdad. La diferencia es la trampa del data mining.",
       "nota": "Estudio de eventos histórico con reglas reproducibles. Si casi todo «abraza el cero» tras la corrección, es coherente con que el chartismo no dé edge fiable. No es recomendación de inversión."
     },
     {
@@ -47099,50 +47099,50 @@
           "tipo": "ruptura_resistencia",
           "nombre": "Ruptura de resistencia",
           "color": "#5fb7c4",
-          "n_eventos": 2026,
+          "n_eventos": 2025,
           "puntos": [
             {
               "etiqueta": "½ día",
-              "valor": -0.12,
-              "ic_lo": -0.18,
+              "valor": -0.11,
+              "ic_lo": -0.17,
               "ic_hi": -0.06,
-              "n": 2026,
+              "n": 2025,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "1 día",
-              "valor": -0.1,
-              "ic_lo": -0.21,
-              "ic_hi": -0.01,
-              "n": 2023,
-              "sig_cruda": true,
+              "valor": -0.09,
+              "ic_lo": -0.2,
+              "ic_hi": 0.0,
+              "n": 2022,
+              "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 días",
-              "valor": -0.16,
-              "ic_lo": -0.31,
-              "ic_hi": -0.02,
-              "n": 2021,
-              "sig_cruda": true,
+              "valor": -0.15,
+              "ic_lo": -0.3,
+              "ic_hi": 0.0,
+              "n": 2020,
+              "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 sem",
-              "valor": -0.28,
-              "ic_lo": -0.53,
-              "ic_hi": -0.03,
-              "n": 1990,
-              "sig_cruda": true,
+              "valor": -0.26,
+              "ic_lo": -0.51,
+              "ic_hi": 0.0,
+              "n": 1989,
+              "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 sem",
-              "valor": -0.61,
-              "ic_lo": -1.01,
-              "ic_hi": -0.26,
-              "n": 1978,
+              "valor": -0.56,
+              "ic_lo": -0.95,
+              "ic_hi": -0.2,
+              "n": 1977,
               "sig_cruda": true,
               "sig_fdr": true
             }
@@ -47152,50 +47152,50 @@
           "tipo": "ruptura_soporte",
           "nombre": "Ruptura de soporte",
           "color": "#d2566a",
-          "n_eventos": 1633,
+          "n_eventos": 1642,
           "puntos": [
             {
               "etiqueta": "½ día",
               "valor": 0.06,
-              "ic_lo": -0.02,
+              "ic_lo": -0.01,
               "ic_hi": 0.13,
-              "n": 1633,
+              "n": 1642,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 día",
-              "valor": 0.04,
-              "ic_lo": -0.08,
-              "ic_hi": 0.16,
-              "n": 1627,
+              "valor": 0.06,
+              "ic_lo": -0.07,
+              "ic_hi": 0.18,
+              "n": 1636,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 días",
-              "valor": -0.12,
+              "valor": -0.11,
               "ic_lo": -0.28,
-              "ic_hi": 0.04,
-              "n": 1625,
+              "ic_hi": 0.06,
+              "n": 1634,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 sem",
-              "valor": -0.32,
-              "ic_lo": -0.59,
-              "ic_hi": -0.05,
-              "n": 1621,
+              "valor": -0.38,
+              "ic_lo": -0.66,
+              "ic_hi": -0.12,
+              "n": 1630,
               "sig_cruda": true,
-              "sig_fdr": false
+              "sig_fdr": true
             },
             {
               "etiqueta": "2 sem",
-              "valor": -0.57,
-              "ic_lo": -0.91,
-              "ic_hi": -0.21,
-              "n": 1602,
+              "valor": -0.6,
+              "ic_lo": -0.95,
+              "ic_hi": -0.25,
+              "n": 1610,
               "sig_cruda": true,
               "sig_fdr": true
             }
@@ -47205,14 +47205,14 @@
           "tipo": "ruptura_tendencia_bajista",
           "nombre": "Ruptura de línea bajista (al alza)",
           "color": "#6ec08a",
-          "n_eventos": 6202,
+          "n_eventos": 6173,
           "puntos": [
             {
               "etiqueta": "½ día",
               "valor": -0.04,
               "ic_lo": -0.07,
               "ic_hi": -0.01,
-              "n": 6193,
+              "n": 6164,
               "sig_cruda": true,
               "sig_fdr": true
             },
@@ -47221,7 +47221,7 @@
               "valor": -0.02,
               "ic_lo": -0.07,
               "ic_hi": 0.03,
-              "n": 6188,
+              "n": 6159,
               "sig_cruda": false,
               "sig_fdr": false
             },
@@ -47229,17 +47229,17 @@
               "etiqueta": "2 días",
               "valor": 0.02,
               "ic_lo": -0.06,
-              "ic_hi": 0.1,
-              "n": 6173,
+              "ic_hi": 0.09,
+              "n": 6144,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 sem",
-              "valor": -0.03,
-              "ic_lo": -0.17,
-              "ic_hi": 0.11,
-              "n": 6141,
+              "valor": -0.04,
+              "ic_lo": -0.18,
+              "ic_hi": 0.1,
+              "n": 6112,
               "sig_cruda": false,
               "sig_fdr": false
             },
@@ -47248,7 +47248,7 @@
               "valor": -0.06,
               "ic_lo": -0.28,
               "ic_hi": 0.16,
-              "n": 6065,
+              "n": 6037,
               "sig_cruda": false,
               "sig_fdr": false
             }
@@ -47258,50 +47258,50 @@
           "tipo": "ruptura_tendencia_alcista",
           "nombre": "Ruptura de línea alcista (a la baja)",
           "color": "#d08a5a",
-          "n_eventos": 6575,
+          "n_eventos": 6561,
           "puntos": [
             {
               "etiqueta": "½ día",
               "valor": -0.01,
               "ic_lo": -0.04,
               "ic_hi": 0.02,
-              "n": 6570,
+              "n": 6556,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 día",
-              "valor": 0.03,
+              "valor": 0.02,
               "ic_lo": -0.03,
-              "ic_hi": 0.08,
-              "n": 6559,
+              "ic_hi": 0.07,
+              "n": 6545,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 días",
               "valor": 0.09,
-              "ic_lo": 0.02,
-              "ic_hi": 0.17,
-              "n": 6536,
+              "ic_lo": 0.01,
+              "ic_hi": 0.16,
+              "n": 6522,
               "sig_cruda": true,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 sem",
-              "valor": 0.02,
-              "ic_lo": -0.11,
+              "valor": 0.03,
+              "ic_lo": -0.1,
               "ic_hi": 0.16,
-              "n": 6509,
+              "n": 6495,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 sem",
-              "valor": -0.02,
-              "ic_lo": -0.23,
+              "valor": -0.03,
+              "ic_lo": -0.24,
               "ic_hi": 0.2,
-              "n": 6434,
+              "n": 6422,
               "sig_cruda": false,
               "sig_fdr": false
             }
@@ -47311,14 +47311,14 @@
           "tipo": "doble_suelo",
           "nombre": "Doble suelo",
           "color": "#b48ad6",
-          "n_eventos": 4162,
+          "n_eventos": 4158,
           "puntos": [
             {
               "etiqueta": "½ día",
-              "valor": -0.06,
+              "valor": -0.07,
               "ic_lo": -0.1,
               "ic_hi": -0.03,
-              "n": 4162,
+              "n": 4158,
               "sig_cruda": true,
               "sig_fdr": true
             },
@@ -47327,34 +47327,34 @@
               "valor": -0.07,
               "ic_lo": -0.13,
               "ic_hi": -0.0,
-              "n": 4162,
+              "n": 4158,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 días",
-              "valor": -0.07,
-              "ic_lo": -0.16,
+              "valor": -0.06,
+              "ic_lo": -0.15,
               "ic_hi": 0.03,
-              "n": 4159,
+              "n": 4155,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 sem",
-              "valor": -0.2,
-              "ic_lo": -0.36,
+              "valor": -0.21,
+              "ic_lo": -0.37,
               "ic_hi": -0.04,
-              "n": 4109,
+              "n": 4106,
               "sig_cruda": true,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 sem",
-              "valor": -0.44,
-              "ic_lo": -0.67,
-              "ic_hi": -0.19,
-              "n": 4080,
+              "valor": -0.43,
+              "ic_lo": -0.66,
+              "ic_hi": -0.18,
+              "n": 4077,
               "sig_cruda": true,
               "sig_fdr": true
             }
@@ -47364,50 +47364,50 @@
           "tipo": "doble_techo",
           "nombre": "Doble techo",
           "color": "#e8b23a",
-          "n_eventos": 3875,
+          "n_eventos": 3887,
           "puntos": [
             {
               "etiqueta": "½ día",
               "valor": 0.05,
               "ic_lo": 0.01,
               "ic_hi": 0.09,
-              "n": 3875,
+              "n": 3887,
               "sig_cruda": true,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 día",
               "valor": 0.07,
-              "ic_lo": -0.0,
-              "ic_hi": 0.15,
-              "n": 3870,
+              "ic_lo": 0.0,
+              "ic_hi": 0.14,
+              "n": 3882,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 días",
               "valor": 0.03,
-              "ic_lo": -0.07,
+              "ic_lo": -0.08,
               "ic_hi": 0.12,
-              "n": 3862,
+              "n": 3874,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 sem",
-              "valor": -0.04,
-              "ic_lo": -0.22,
-              "ic_hi": 0.13,
-              "n": 3852,
+              "valor": -0.05,
+              "ic_lo": -0.23,
+              "ic_hi": 0.12,
+              "n": 3864,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 sem",
               "valor": -0.3,
-              "ic_lo": -0.54,
-              "ic_hi": -0.04,
-              "n": 3811,
+              "ic_lo": -0.55,
+              "ic_hi": -0.03,
+              "n": 3823,
               "sig_cruda": true,
               "sig_fdr": false
             }
@@ -47417,14 +47417,14 @@
           "tipo": "compresion",
           "nombre": "Compresión (squeeze)",
           "color": "#88c0d0",
-          "n_eventos": 287,
+          "n_eventos": 281,
           "puntos": [
             {
               "etiqueta": "½ día",
               "valor": -0.17,
-              "ic_lo": -0.28,
-              "ic_hi": -0.05,
-              "n": 287,
+              "ic_lo": -0.27,
+              "ic_hi": -0.07,
+              "n": 281,
               "sig_cruda": true,
               "sig_fdr": true
             },
@@ -47432,35 +47432,35 @@
               "etiqueta": "1 día",
               "valor": -0.22,
               "ic_lo": -0.41,
-              "ic_hi": -0.02,
-              "n": 287,
+              "ic_hi": -0.03,
+              "n": 281,
               "sig_cruda": true,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 días",
-              "valor": 0.18,
-              "ic_lo": -0.12,
-              "ic_hi": 0.49,
-              "n": 287,
+              "valor": 0.09,
+              "ic_lo": -0.21,
+              "ic_hi": 0.41,
+              "n": 281,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 sem",
-              "valor": -1.23,
-              "ic_lo": -1.72,
-              "ic_hi": -0.73,
-              "n": 287,
+              "valor": -1.24,
+              "ic_lo": -1.74,
+              "ic_hi": -0.69,
+              "n": 281,
               "sig_cruda": true,
               "sig_fdr": true
             },
             {
               "etiqueta": "2 sem",
-              "valor": -1.59,
-              "ic_lo": -2.39,
-              "ic_hi": -0.79,
-              "n": 285,
+              "valor": -1.46,
+              "ic_lo": -2.32,
+              "ic_hi": -0.67,
+              "n": 281,
               "sig_cruda": true,
               "sig_fdr": true
             }
@@ -47468,8 +47468,8 @@
         }
       ],
       "n_celdas": 35,
-      "n_fdr": 9,
-      "nota_fdr": "Se han evaluado 35 combinaciones figura×horizonte. Tras corregir por multiple-testing (Benjamini-Hochberg, FDR 10%), 9 sobreviven. La columna «cruda» marca lo que parece significativo sin corregir; la columna «FDR» marca lo que aguanta de verdad. La diferencia es la trampa del data mining.",
+      "n_fdr": 10,
+      "nota_fdr": "Se han evaluado 35 combinaciones figura×horizonte. Tras corregir por multiple-testing (Benjamini-Hochberg, FDR 10%), 10 sobreviven. La columna «cruda» marca lo que parece significativo sin corregir; la columna «FDR» marca lo que aguanta de verdad. La diferencia es la trampa del data mining.",
       "nota": "Estudio de eventos histórico con reglas reproducibles. Si casi todo «abraza el cero» tras la corrección, es coherente con que el chartismo no dé edge fiable. No es recomendación de inversión."
     },
     {
@@ -47546,50 +47546,50 @@
           "tipo": "ruptura_resistencia",
           "nombre": "Ruptura de resistencia",
           "color": "#5fb7c4",
-          "n_eventos": 191,
+          "n_eventos": 190,
           "puntos": [
             {
               "etiqueta": "1 mes",
-              "valor": -0.29,
-              "ic_lo": -1.37,
-              "ic_hi": 0.71,
-              "n": 191,
+              "valor": -0.27,
+              "ic_lo": -1.39,
+              "ic_hi": 0.78,
+              "n": 190,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "2 meses",
-              "valor": -1.55,
-              "ic_lo": -3.12,
+              "valor": -1.53,
+              "ic_lo": -3.1,
               "ic_hi": -0.04,
-              "n": 189,
+              "n": 188,
               "sig_cruda": true,
               "sig_fdr": false
             },
             {
               "etiqueta": "3 meses",
-              "valor": -1.39,
-              "ic_lo": -3.01,
-              "ic_hi": 0.18,
-              "n": 186,
+              "valor": -1.34,
+              "ic_lo": -3.06,
+              "ic_hi": 0.28,
+              "n": 185,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "6 meses",
-              "valor": -2.23,
-              "ic_lo": -4.9,
-              "ic_hi": 0.28,
-              "n": 181,
+              "valor": -2.18,
+              "ic_lo": -4.81,
+              "ic_hi": 0.33,
+              "n": 180,
               "sig_cruda": false,
               "sig_fdr": false
             },
             {
               "etiqueta": "1 año",
-              "valor": -5.11,
-              "ic_lo": -8.57,
-              "ic_hi": -1.51,
-              "n": 166,
+              "valor": -5.01,
+              "ic_lo": -8.55,
+              "ic_hi": -1.43,
+              "n": 165,
               "sig_cruda": true,
               "sig_fdr": true
             }
