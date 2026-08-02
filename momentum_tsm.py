@@ -68,6 +68,50 @@ def _tsm(men, ventana, coste=COSTE_MES):
             "peor_12m": round(peor, 1), "peor_fecha": peor_f}
 
 
+def _submuestras(men, ventana, coste=COSTE_MES):
+    """¿Aguanta en subperiodos? Divide la historia en dos mitades y en décadas."""
+    ret = men.pct_change()
+    ma = men.rolling(ventana).mean()
+    dentro = (men.shift(1) > ma.shift(1))
+    cambios = dentro.astype(float).diff().abs().fillna(0)
+    est = ret.where(dentro, 0.0) - cambios * (coste / 100.0)
+    df = pd.DataFrame({"est": est, "bh": ret}).dropna()
+    if len(df) < 60:
+        return None
+    out = {}
+    mid = len(df) // 2
+    for etq, sub in (("1ª mitad", df.iloc[:mid]), ("2ª mitad", df.iloc[mid:])):
+        me, mb = _metricas(sub["est"].values), _metricas(sub["bh"].values)
+        if me and mb:
+            out[etq] = {"sharpe_est": me["sharpe"], "sharpe_bh": mb["sharpe"],
+                        "dd_est": me["dd"], "dd_bh": mb["dd"],
+                        "cagr_est": me["cagr"], "cagr_bh": mb["cagr"]}
+    return out
+
+
+def _sensibilidad_inicio(men, ventana, n=12, coste=COSTE_MES):
+    """¿Depende del mes en que empiezas? Recalcula desplazando el arranque."""
+    ret = men.pct_change()
+    ma = men.rolling(ventana).mean()
+    dentro = (men.shift(1) > ma.shift(1))
+    cambios = dentro.astype(float).diff().abs().fillna(0)
+    est = (ret.where(dentro, 0.0) - cambios * (coste / 100.0))
+    df = pd.DataFrame({"est": est, "bh": ret}).dropna()
+    difs = []
+    for k in range(n):
+        sub = df.iloc[k:]
+        if len(sub) < 60:
+            break
+        me, mb = _metricas(sub["est"].values), _metricas(sub["bh"].values)
+        if me and mb:
+            difs.append(me["cagr"] - mb["cagr"])
+    if not difs:
+        return None
+    return {"min": round(min(difs), 1), "max": round(max(difs), 1),
+            "media": round(float(np.mean(difs)), 1), "n": len(difs),
+            "positivos": int(sum(1 for d in difs if d > 0))}
+
+
 def evaluar_tsm(sintetico=False):
     activos = []
     if sintetico:
@@ -108,6 +152,47 @@ def evaluar_tsm(sintetico=False):
                 f"<td class='neg'>{r['peor_12m']:.0f}%</td></tr>")
     if not bloques:
         return None
+
+    # --- Exprimir: ¿aguanta en subperiodos y con otro punto de partida? ---
+    rob_filas, sens_filas = [], []
+    for nombre, px in activos:
+        men = _serie_mensual(px)
+        for v in (6, 12):
+            sm = _submuestras(men, v)
+            if sm:
+                for etq, m in sm.items():
+                    gana = m["cagr_est"] > m["cagr_bh"]
+                    rob_filas.append(
+                        f"<tr><td>{nombre}</td><td>{v}m</td><td>{etq}</td>"
+                        f"<td class='{'pos' if gana else 'neg'}'>{m['cagr_est']:.1f}%</td>"
+                        f"<td class='est-obs'>{m['cagr_bh']:.1f}%</td>"
+                        f"<td class='{'pos' if m['dd_est'] > m['dd_bh'] else 'neg'}'>{m['dd_est']:.0f}%</td>"
+                        f"<td class='est-obs'>{m['dd_bh']:.0f}%</td></tr>")
+            se = _sensibilidad_inicio(men, v)
+            if se:
+                sens_filas.append(
+                    f"<tr><td>{nombre}</td><td>{v}m</td>"
+                    f"<td class='{'pos' if se['media'] > 0 else 'neg'}'>{se['media']:+.1f} pts</td>"
+                    f"<td class='est-obs'>[{se['min']:+.1f}, {se['max']:+.1f}]</td>"
+                    f"<td class='{'pos' if se['positivos'] > se['n']/2 else 'est-obs'}'>"
+                    f"{se['positivos']}/{se['n']}</td></tr>")
+
+    exprimir = ""
+    if rob_filas:
+        exprimir += ("<br><br><b>¿Aguanta por subperiodos?</b> Si el efecto solo aparece en una mitad "
+                     "de la historia, es casualidad de ese ciclo."
+                     "<div class='ops-scroll'><table class='ops'><thead><tr><th>Activo</th>"
+                     "<th>Media</th><th>Periodo</th><th>CAGR est.</th><th>CAGR B&H</th>"
+                     "<th>Caída est.</th><th>Caída B&H</th></tr></thead>"
+                     f"<tbody>{''.join(rob_filas)}</tbody></table></div>")
+    if sens_filas:
+        exprimir += ("<br><b>¿Depende de cuándo empieces?</b> Se recalcula desplazando el mes de "
+                     "arranque 12 veces. Si el resultado cambia de signo según el mes de inicio, "
+                     "no es fiable."
+                     "<div class='ops-scroll'><table class='ops'><thead><tr><th>Activo</th>"
+                     "<th>Media</th><th>Ventaja media</th><th>Rango [mín, máx]</th>"
+                     "<th>Arranques favorables</th></tr></thead>"
+                     f"<tbody>{''.join(sens_filas)}</tbody></table></div>")
 
     # ¿en cuántas combinaciones mejora Sharpe y reduce caída?
     tot = sum(len(r) for _n, r in bloques)
@@ -171,5 +256,5 @@ def evaluar_tsm(sintetico=False):
                  "año: ese es el precio psicológico de la protección, ver al mercado subir estando "
                  "fuera. Si el efecto solo apareciera con una media concreta, sería ajuste de "
                  "parámetro; que aparezca con varias y en varios activos es señal de robustez. "
-                 "Coste de 0,05% por cambio de posición. No es recomendación de inversión."),
+                 "Coste de 0,05% por cambio de posición. No es recomendación de inversión." + exprimir),
     }
