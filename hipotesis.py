@@ -144,6 +144,69 @@ def _medir_estacional(px):
             "puntos": pts}
 
 
+def _boot_simple(x, n_boot=3000, seed=13):
+    x = np.asarray(x, float); x = x[np.isfinite(x)]
+    k = len(x)
+    if k < 8:
+        return None
+    rng = np.random.default_rng(seed)
+    ms = np.array([x[rng.integers(0, k, k)].mean() for _ in range(n_boot)])
+    lo, hi = np.percentile(ms, [5, 95]); m = float(np.mean(x))
+    p = float(np.mean(ms <= 0)) if m > 0 else float(np.mean(ms >= 0))
+    return {"n": k, "media": round(m, 2), "ic": [round(float(lo), 2), round(float(hi), 2)],
+            "p": round(min(1.0, 2 * p), 4), "positivos": int(np.sum(x > 0))}
+
+
+def robustez_reversion(px, h=63, umbral=-0.10, w=5, lb=15, coste_pct=1.0):
+    """Torturas para H2, las mismas que mataron al VIX y al ML:
+    episodios independientes, costes de spread, sin crisis y fuera de muestra."""
+    from collections import Counter
+    fechas = [d.strftime("%Y-%m-%d") for d in px.index]
+    bruto, por_fecha = [], {}
+    for tk in px.columns:
+        s = px[tk].dropna()
+        c = s.values
+        if len(c) < 300:
+            continue
+        idx = [fechas[px.index.get_loc(d)] if d in px.index else None for d in s.index]
+        m = len(c)
+        base = float(np.nanmean(c[h:] / c[:-h] - 1.0))
+        last = -10 ** 9
+        for i in range(w + lb, m - h):
+            if (c[i] / c[i - w] - 1.0) <= umbral and (i - last) >= lb:
+                last = i
+                ex = (c[i + h] / c[i] - 1.0 - base) * 100.0
+                bruto.append(ex)
+                f = idx[i]
+                if f:
+                    por_fecha.setdefault(f[:7], []).append(ex)   # agrupa por mes
+
+    if len(bruto) < 40:
+        return None
+    res = {}
+    res["bruto"] = _boot_simple(np.array(bruto))
+    res["neto"] = _boot_simple(np.array(bruto) - coste_pct)      # coste de spread ida+vuelta
+
+    # EPISODIOS: un dato por mes-calendario (los eventos se agrupan en pánicos)
+    meses = sorted(por_fecha.keys())
+    ep = np.array([float(np.mean(por_fecha[mm])) for mm in meses])
+    res["episodios"] = _boot_simple(ep)
+    res["episodios_neto"] = _boot_simple(ep - coste_pct)
+    res["n_meses"] = len(meses)
+    res["anios"] = len(Counter(mm[:4] for mm in meses))
+
+    def _crisis(mm):
+        return ("2008-08" <= mm <= "2009-06") or ("2020-02" <= mm <= "2020-06") or ("2022-01" <= mm <= "2022-10")
+    sin = np.array([float(np.mean(por_fecha[mm])) for mm in meses if not _crisis(mm)])
+    res["sin_crisis"] = _boot_simple(sin) if len(sin) >= 8 else None
+
+    mid = len(ep) // 2
+    res["primera"] = _boot_simple(ep[:mid]) if mid >= 8 else None
+    res["segunda"] = _boot_simple(ep[mid:]) if len(ep) - mid >= 8 else None
+    res["por_anio"] = dict(sorted(Counter(mm[:4] for mm in meses).items()))
+    return res
+
+
 def backtest_hipotesis(sintetico=False):
     px = _panel(sintetico)
     if px is None or px.shape[1] < 10:
@@ -180,6 +243,32 @@ def backtest_hipotesis(sintetico=False):
     for b in bloques:
         b["nombre"] = f"{b['nombre']} · {b['n_eventos']} eventos"
 
+    # Torturas sobre H2 (la única candidata seria): el mismo escrutinio que mató al VIX
+    rob_txt = ""
+    try:
+        rb = robustez_reversion(px)
+    except Exception:
+        rb = None
+    if rb:
+        def _f(x):
+            return (f"{x['media']:+.2f}% (IC90 {x['ic']}, p={x['p']}, n={x['n']})"
+                    if x else "—")
+        rob_txt = (
+            "<br><br><b>Escrutinio de H2 (reversión a 3 meses) — las mismas pruebas que tumbaron "
+            "otros hallazgos de este laboratorio:</b>"
+            f"<br>• Por evento, bruto: {_f(rb['bruto'])}"
+            f"<br>• <b>Por evento, neto de 1% de costes</b> (spread ancho tras desplome): {_f(rb['neto'])}"
+            f"<br>• <b>Por EPISODIO independiente</b> (un dato por mes; los desplomes se agrupan en "
+            f"pánicos, así que esta es la unidad real): {_f(rb['episodios'])} — "
+            f"{rb['n_meses']} meses distintos en {rb['anios']} años"
+            f"<br>• Por episodio, <b>neto de costes</b>: {_f(rb['episodios_neto'])}"
+            f"<br>• <b>Sin crisis</b> (2008, 2020, 2022): {_f(rb['sin_crisis'])}"
+            f"<br>• <b>Fuera de muestra</b>: 1ª mitad {_f(rb['primera'])} · 2ª mitad {_f(rb['segunda'])}"
+            f"<br>• Reparto por año: {rb['por_anio']}"
+            "<br><i>Si aguanta por episodio, neto de costes y sin crisis, es un hallazgo real. "
+            "Si se cae al pasar a episodios, era pseudo-replicación (muchos días del mismo pánico "
+            "contados como datos independientes).</i>")
+
     return {
         "id": "hipotesis_clasicas",
         "etiqueta": "Hipótesis clásicas (anomalías documentadas)",
@@ -198,5 +287,5 @@ def backtest_hipotesis(sintetico=False):
                      f"probar muchas cosas garantiza encontrar «ganadoras» por azar."),
         "nota": ("Anomalías documentadas en la literatura, testeadas aquí con datos propios y sin "
                  "búsqueda de parámetros: umbrales fijados de antemano (gap 5%, caída 10% en 5 días). "
-                 "El veredicto se acepta tal cual. No es recomendación de inversión."),
+                 "El veredicto se acepta tal cual. No es recomendación de inversión." + rob_txt),
     }
