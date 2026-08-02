@@ -17,6 +17,7 @@ function navHTML(active){
     ['hipotesis_nuevas', 'Hipótesis nuevas'],
     ['momentum_tsm', 'Momentum de serie temporal'],
     ['macro_rotacion', 'Rotación y filtros macro'],
+    ['combinaciones', 'Combinaciones y estacionalidad'],
     ['figuras_tecnicas', 'Figuras técnicas (S&P 500)'],
     ['figuras_intradia', 'Figuras intradía (1h)'],
     ['figuras_mensual', 'Figuras mensual'],

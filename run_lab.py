@@ -28,6 +28,7 @@ import pares_sectores
 import hipotesis2
 import momentum_tsm
 import macro_rotacion
+import combinaciones
 from validation import evaluate
 from models import BuyAndHold, GoldSilverPairs, PairsModel
 
@@ -241,6 +242,21 @@ def main(sintetico: bool = False):
         salida.append(mac)
         try:
             print(f"   {mac.get('n_celdas')} estrategias, {mac.get('n_fdr')} superan el FDR", flush=True)
+        except Exception:
+            pass
+    else:
+        print("   (sin datos suficientes)", flush=True)
+
+    # Combinaciones y estacionalidad larga: exprimir lo que ha aportado.
+    print("-> Combinaciones y estacionalidad larga ...", flush=True)
+    try:
+        cmb = combinaciones.evaluar_combinaciones(sintetico=sintetico)
+    except Exception as e:
+        cmb = None; print(f"   (error: {e})", flush=True)
+    if cmb:
+        salida.append(cmb)
+        try:
+            print(f"   {cmb.get('n_celdas')} variantes, {cmb.get('n_fdr')} superan el FDR", flush=True)
         except Exception:
             pass
     else:
