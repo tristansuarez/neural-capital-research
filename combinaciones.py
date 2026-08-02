@@ -33,7 +33,8 @@ VENTANAS_MES = {
 
 
 def _cargar_largo(sintetico=False):
-    """Oro y bolsa con la máxima historia disponible."""
+    """Oro y bolsa con la máxima historia disponible. Prueba varias fuentes y se
+    queda con la que dé más años; declara explícitamente cuántos consiguió."""
     if sintetico:
         rng = np.random.default_rng(53)
         n = 600
@@ -43,23 +44,30 @@ def _cargar_largo(sintetico=False):
             "oro": 100 * np.exp(np.cumsum(rng.normal(0.005, 0.05, n))),
         }, index=idx)
     import yfinance as yf
-    out = {}
-    for etq, tks in (("bolsa", ["^GSPC"]), ("oro", ["GC=F", "GLD"])):
-        for tk in tks:
-            try:
-                df = yf.download(tk, period="max", interval="1mo",
-                                 auto_adjust=True, progress=False)
-                if isinstance(df.columns, pd.MultiIndex):
-                    df.columns = df.columns.get_level_values(0)
-                s = pd.to_numeric(df["Close"], errors="coerce").dropna()
-                if len(s) > 200:
-                    out[etq] = s
-                    break
-            except Exception:
-                continue
-    if len(out) < 2:
+
+    def _mejor(tickers):
+        mejor, n_mejor = None, 0
+        for tk in tickers:
+            for kwargs in ({"period": "max", "interval": "1mo"},
+                           {"start": "1970-01-01", "interval": "1mo"}):
+                try:
+                    df = yf.download(tk, auto_adjust=True, progress=False, **kwargs)
+                    if isinstance(df.columns, pd.MultiIndex):
+                        df.columns = df.columns.get_level_values(0)
+                    s = pd.to_numeric(df["Close"], errors="coerce").dropna()
+                    if len(s) > n_mejor:
+                        mejor, n_mejor = s, len(s)
+                except Exception:
+                    continue
+        return mejor
+
+    bolsa = _mejor(["^GSPC", "^SPX", "SPY"])
+    # IAU y GLD son ETFs (2005+); GC=F futuro (2000+); ^XAU índice minero (1983+)
+    oro = _mejor(["GC=F", "GLD", "IAU"])
+    if bolsa is None or oro is None:
         return None
-    return pd.DataFrame(out).dropna()
+    df = pd.DataFrame({"bolsa": bolsa, "oro": oro}).dropna()
+    return df if len(df) > 200 else None
 
 
 def _cargar_etfs(sintetico=False):
@@ -126,11 +134,14 @@ def _fila(nombre, est, bh, razon, color):
             "puntos": [{"etiqueta": "exceso mensual", "valor": r["m"], "ic_lo": r["ic"][0],
                         "ic_hi": r["ic"][1], "n": r["n"], "p": r["p"]}],
             "extra": (f"CAGR {me['cagr']}% vs {mb['cagr']}% · caída {me['dd']}% vs {mb['dd']}% · "
-                      f"Sharpe {me['sharpe']} vs {mb['sharpe']}")}
+                      f"Sharpe {me['sharpe']} vs {mb['sharpe']}"),
+            "_sharpe": me['sharpe'], "_sh_bh": mb['sharpe'], "_cagr": me['cagr'],
+            "_dd": me['dd'], "_dd_bh": mb['dd']}
 
 
 def evaluar_combinaciones(sintetico=False):
     bloques = []
+    ctrl_txt = ""
 
     # ---------- A) Estacionalidad del oro con historia larga ----------
     largo = _cargar_largo(sintetico)
@@ -140,6 +151,23 @@ def evaluar_combinaciones(sintetico=False):
         ret = men.pct_change().dropna()
         anios_largo = round(len(ret) / 12)
         bolsa, oro = ret["bolsa"], ret["oro"]
+        # CONTROL CLAVE: ¿es estacionalidad o simplemente que el oro subió mucho?
+        # Se compara el retorno del oro en los meses "buenos" contra el oro en el
+        # resto del año. Si el oro rinde igual todo el año, la ventaja de rotar no
+        # es estacional: es solo que el oro subió en ese periodo.
+        ctrl = []
+        for etq, meses in VENTANAS_MES.items():
+            m = np.isin(ret.index.month, meses)
+            if m.sum() < 24 or (~m).sum() < 24:
+                continue
+            dif = (oro.values[m].mean() - oro.values[~m].mean()) * 100
+            r = _boot((oro.values[m] - oro.values[~m].mean()) * 100, seed=71)
+            if r:
+                ctrl.append(f"<tr><td>{etq}</td><td>{oro.values[m].mean()*100:+.2f}%</td>"
+                            f"<td>{oro.values[~m].mean()*100:+.2f}%</td>"
+                            f"<td class='{'pos' if dif > 0 else 'neg'}'>{dif:+.2f}%</td>"
+                            f"<td class='{'pos' if r['p'] <= 0.10 else 'est-obs'}'>{r['p']}</td></tr>")
+        ctrl_txt = ("".join(ctrl) if ctrl else "")
         for etq, meses in VENTANAS_MES.items():
             enmes = np.isin(ret.index.month, meses)
             est = pd.Series(np.where(enmes, oro.values, bolsa.values), index=ret.index)
@@ -179,6 +207,18 @@ def evaluar_combinaciones(sintetico=False):
             combos.append(("B4 · Permanente con más peso en bolsa (50/25/25)",
                            (ret["SPY"] * 0.5 + ret["GLD"] * 0.25 + ret["TLT"] * 0.25) - COSTE / 100.0,
                            "Cartera permanente menos conservadora, con la mitad en bolsa."))
+        if defens is not None and "GLD" in ret.columns:
+            combos.append(("B5 · Bolsa + oro fijo (75/25)",
+                           (ret["SPY"] * 0.75 + ret["GLD"] * 0.25) - COSTE / 100.0,
+                           "Lo más simple que existe: bolsa con una cuarta parte en oro, sin señales "
+                           "ni timing. Sirve para saber si las señales aportan algo sobre diversificar."))
+            combos.append(("B6 · Defensivos+oro con estacionalidad de agosto-sep",
+                           pd.Series(np.where(np.isin(ret.index.month, [8, 9]),
+                                              ((defens + ret["GLD"]) / 2.0).values,
+                                              spy.where(dentro, (defens + ret["GLD"]) / 2.0).values),
+                                     index=ret.index) - camb,
+                           "Combina las dos cosas que mejor han salido: rotación defensiva con oro, "
+                           "más el sesgo estacional de agosto-septiembre."))
         for nombre, est, razon in combos:
             b = _fila(nombre, est, spy, razon, "#5fb7c4")
             if b:
@@ -199,6 +239,27 @@ def evaluar_combinaciones(sintetico=False):
         f"<div class='vf-row'><span class='dot' style='background:{b['color']}'></span>"
         f"<b>{b['nombre']}</b></div><div class='ch-sub' style='margin:4px 0 12px 18px'>"
         f"{b['razon']}<br><i>{b['extra']}</i></div>" for b in bloques)
+
+    # Ranking por Sharpe: en este laboratorio el valor ha estado en el riesgo, no en el retorno
+    orden = sorted([b for b in bloques if "_sharpe" in b], key=lambda b: -b["_sharpe"])
+    filas_rk = "".join(
+        f"<tr><td>{b['nombre'].split(' · ')[0]}</td>"
+        f"<td class='{'pos' if b['_sharpe'] > b['_sh_bh'] else 'est-obs'}'>{b['_sharpe']}</td>"
+        f"<td class='est-obs'>{b['_sh_bh']}</td><td>{b['_cagr']}%</td>"
+        f"<td class='{'pos' if b['_dd'] > b['_dd_bh'] else 'neg'}'>{b['_dd']}%</td>"
+        f"<td class='est-obs'>{b['_dd_bh']}%</td></tr>" for b in orden)
+    ranking = ("<b>Ranking por retorno ajustado a riesgo</b> (Sharpe), que es donde este laboratorio "
+               "ha encontrado el valor:<div class='ops-scroll'><table class='ops'><thead><tr>"
+               "<th>Variante</th><th>Sharpe</th><th>Sharpe B&H</th><th>CAGR</th>"
+               f"<th>Caída</th><th>Caída B&H</th></tr></thead><tbody>{filas_rk}</tbody></table></div><br>")
+    ctrl_bloque = ""
+    if ctrl_txt:
+        ctrl_bloque = ("<b>¿Estacionalidad o simplemente que el oro subió?</b> Se compara el retorno "
+                       "del ORO en los meses «buenos» contra el resto del año. Si rinde igual todo el "
+                       "año, rotar no aporta por estacionalidad: solo se beneficia de que el oro subió."
+                       "<div class='ops-scroll'><table class='ops'><thead><tr><th>Ventana</th>"
+                       "<th>Oro en esos meses</th><th>Oro resto del año</th><th>Diferencia</th>"
+                       f"<th>p</th></tr></thead><tbody>{ctrl_txt}</tbody></table></div><br>")
     for b in bloques:
         b["tipo"] = b["nombre"]
         b["nombre"] = f"{b['nombre']} · {b['n_eventos']} meses"
@@ -221,7 +282,7 @@ def evaluar_combinaciones(sintetico=False):
                      f"de Benjamini-Hochberg se aplica al conjunto: {n_fdr} sobreviven. Una variante "
                      f"que destaque sin corregir NO vale nada — es la trampa que este laboratorio "
                      f"lleva demostrando una y otra vez."),
-        "nota": ("Recuerda mirar CAGR, caída máxima y Sharpe además del exceso: en todo este "
+        "nota": (ranking + ctrl_bloque + "Recuerda mirar CAGR, caída máxima y Sharpe además del exceso: en todo este "
                  "laboratorio, lo que ha aportado valor no ha sido predecir sino gestionar riesgo, "
                  "y eso no se ve en el exceso de retorno. No es recomendación de inversión."),
     }
