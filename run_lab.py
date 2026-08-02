@@ -33,6 +33,19 @@ from validation import evaluate
 from models import BuyAndHold, GoldSilverPairs, PairsModel
 
 
+
+def _limpiar_json(o):
+    """NaN/Infinity son válidos para Python pero NO son JSON estándar: el navegador
+    rechaza el archivo entero y la web se queda en blanco. Se sustituyen por None."""
+    import math
+    if isinstance(o, float):
+        return None if (math.isnan(o) or math.isinf(o)) else o
+    if isinstance(o, dict):
+        return {k: _limpiar_json(v) for k, v in o.items()}
+    if isinstance(o, (list, tuple)):
+        return [_limpiar_json(v) for v in o]
+    return o
+
 def construir_experimentos():
     """Define el menu del desplegable: que modelo va con que activos."""
     return [
@@ -320,7 +333,7 @@ def main(sintetico: bool = False):
         "mensual": graf_m,
     }
     with open("graficos.json", "w", encoding="utf-8") as f:
-        json.dump(graf_doc, f, ensure_ascii=False)
+        json.dump(_limpiar_json(graf_doc), f, ensure_ascii=False, allow_nan=False)
     print(f"   graficos.json: {len(graf_d)} diario / {len(graf_i)} intradía / {len(graf_m)} mensual", flush=True)
 
     doc = {
@@ -335,7 +348,7 @@ def main(sintetico: bool = False):
         "experimentos": salida,
     }
     with open("resultados.json", "w", encoding="utf-8") as f:
-        json.dump(doc, f, ensure_ascii=False, indent=2)
+        json.dump(_limpiar_json(doc), f, ensure_ascii=False, indent=2, allow_nan=False)
     print(f"\nresultados.json escrito con {len(salida)} experimentos.")
 
 

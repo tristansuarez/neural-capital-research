@@ -212,10 +212,19 @@ def evaluar_tsm(sintetico=False):
             cambios = dentro.astype(float).diff().abs().fillna(0)
             est = (ret.where(dentro, 0.0) - cambios * (COSTE_MES / 100.0)).dropna()
             bh = ret.reindex(est.index)
-            eq_e = np.cumprod(1 + est.values); eq_b = np.cumprod(1 + bh.values)
-            fechas = [d.strftime("%Y-%m-%d") for d in est.index]
-            curva = [{"fecha": f, "valor": round(float(v), 3)} for f, v in zip(fechas, eq_e)]
-            curva2 = [{"fecha": f, "valor": round(float(v), 3)} for f, v in zip(fechas, eq_b)]
+            est = (ret.where(dentro, 0.0) - cambios * (COSTE_MES / 100.0)).dropna()
+            bh = ret.reindex(est.index)
+            # alinear y descartar meses sin dato en cualquiera de las dos series:
+            # un NaN aquí rompe el JSON en el navegador (NaN no es JSON válido)
+            comun = pd.DataFrame({"e": est, "b": bh}).dropna()
+            if len(comun) < 24:
+                continue
+            eq_e = np.cumprod(1 + comun["e"].values); eq_b = np.cumprod(1 + comun["b"].values)
+            fechas = [d.strftime("%Y-%m-%d") for d in comun.index]
+            curva = [{"fecha": f, "valor": round(float(v), 3)} for f, v in zip(fechas, eq_e)
+                     if np.isfinite(v)]
+            curva2 = [{"fecha": f, "valor": round(float(v), 3)} for f, v in zip(fechas, eq_b)
+                      if np.isfinite(v)]
             titulo = f"Momentum de serie temporal · {nombre} · media de 10 meses"
             break
 
