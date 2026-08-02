@@ -14,6 +14,7 @@ function navHTML(active){
     ['ml_forward', 'Machine learning (walk-forward)'],
     ['hipotesis_clasicas', 'Hipótesis clásicas'],
     ['pares_sectores', 'Pares sectoriales'],
+    ['hipotesis_nuevas', 'Hipótesis nuevas'],
     ['figuras_tecnicas', 'Figuras técnicas (S&P 500)'],
     ['figuras_intradia', 'Figuras intradía (1h)'],
     ['figuras_mensual', 'Figuras mensual'],

@@ -25,6 +25,7 @@ import sentimiento
 import ml_forward
 import hipotesis
 import pares_sectores
+import hipotesis2
 from validation import evaluate
 from models import BuyAndHold, GoldSilverPairs, PairsModel
 
@@ -193,6 +194,21 @@ def main(sintetico: bool = False):
         salida.append(ps)
         try:
             print(f"   {ps.get('tipo','')} | {ps.get('n_fdr','sin')} celdas superan el FDR", flush=True)
+        except Exception:
+            pass
+    else:
+        print("   (sin datos suficientes)", flush=True)
+
+    # Hipótesis nuevas (momentum de índice, baja volatilidad, reversión mensual, tamaño).
+    print("-> Hipótesis nuevas (momentum, baja vol, reversión, tamaño) ...", flush=True)
+    try:
+        hip2 = hipotesis2.backtest_hipotesis2(sintetico=sintetico)
+    except Exception as e:
+        hip2 = None; print(f"   (error: {e})", flush=True)
+    if hip2:
+        salida.append(hip2)
+        try:
+            print(f"   {hip2.get('n_celdas')} hipótesis, {hip2.get('n_fdr')} sobreviven al FDR", flush=True)
         except Exception:
             pass
     else:
