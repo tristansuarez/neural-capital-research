@@ -742,18 +742,40 @@ async function initRentabilidades(){
     return `<span class="${ok?'pos':'est-obs'}">p=${s.p_valor}</span>`;
   };
 
-  // Modelos operables (con curva de rentabilidad / P&L acumulado)
-  const OPERABLES = ['oro_bh','plata_bh','par_oro_plata','par_platino_paladio',
-                     'koncorde','vol_implicita_sp500','vol_implicita_oro','ml_forward','momentum_tsm'];
-  const oper = OPERABLES.map(byId).filter(Boolean);
+  // --- Solo son comparables entre sí los que rinden en % anual sobre capital ---
+  const COMPARABLES = ['oro_bh','plata_bh','par_oro_plata','par_platino_paladio','ml_forward'];
+  const OTRA_UNIDAD = ['vol_implicita_sp500','vol_implicita_oro','momentum_tsm','koncorde'];
 
-  const filasOper = oper.map((e,i) => `
-    <tr>
+  const numCagr = e => {
+    const v = cardVal(e, ['CAGR','RENTAB']);
+    if(!v) return null;
+    const n = parseFloat(String(v).replace('%','').replace(',','.'));
+    return isNaN(n) ? null : n;
+  };
+
+  const comp = COMPARABLES.map(byId).filter(Boolean)
+    .map(e => ({e, cagr: numCagr(e)}))
+    .sort((a,b) => (b.cagr ?? -999) - (a.cagr ?? -999));
+
+  const filasComp = comp.map((o,i) => {
+    const e = o.e, bench = 9.2;
+    const bate = o.cagr !== null && o.cagr > bench;
+    return `<tr>
       <td><a href="lab.html?id=${e.id}"><b>${e.etiqueta}</b></a><div class="est-obs">${e.tipo||''}</div></td>
-      <td class="mono">${rentab(e)}</td>
+      <td class="mono ${o.cagr===null?'':(o.cagr>=0?'pos':'neg')}">${o.cagr===null?'—':(o.cagr>0?'+':'')+o.cagr+'%'}</td>
       <td>${veredicto(e)}</td>
-      <td><canvas class="spark" id="sp${i}" width="170" height="42"></canvas></td>
-    </tr>`).join('');
+      <td>${bate?'<span class="pos">sí</span>':'<span class="est-obs">no</span>'}</td>
+      <td><canvas class="spark" id="sp${i}" width="150" height="40"></canvas></td>
+    </tr>`;
+  }).join('');
+
+  const filasOtra = OTRA_UNIDAD.map(byId).filter(Boolean).map(e => {
+    const h = e.headline;
+    const val = h ? `${h.valor>=0?'+':''}${h.valor}${h.sufijo||''}` : '—';
+    return `<tr><td><a href="lab.html?id=${e.id}"><b>${e.etiqueta}</b></a>
+      <div class="est-obs">${e.tipo||''}</div></td>
+      <td class="mono">${val}</td><td class="est-obs">${h?h.etiqueta:''}</td></tr>`;
+  }).join('');
 
   // Hallazgos de investigación (event studies + volatilidad; no son P&L operable)
   const invest = exps.filter(e => e.figuras_panel || (e.id||'').startsWith('garch_'));
@@ -766,14 +788,27 @@ async function initRentabilidades(){
 
   app.innerHTML = `
     <div class="visor-head"><h2 class="ch-title">Rentabilidades de los modelos</h2>
-      <div class="ch-sub">Cómo evoluciona cada modelo operable, actualizado en cada corrida. La miniatura es su curva de capital / P&amp;L acumulado. Fuera de muestra, tras costes. Última corrida: ${doc.generado||''}.</div>
+      <div class="ch-sub">Ordenados de mayor a menor rentabilidad anual. Fuera de muestra y tras costes. Última corrida: ${doc.generado||''}.</div>
     </div>
     <div class="chartbox reveal in">
-      <h3>Modelos operables (abren y cierran posición)</h3>
+      <h3>Comparación conjunta</h3>
+      <div class="ch-sub">Crecimiento de 1 unidad invertida en cada modelo comparable. La línea discontinua es no hacer nada.</div>
+      <div class="canvas-h" style="height:300px"><canvas id="rent-todos"></canvas></div>
+      <div id="rent-leyenda" class="lg-row" style="margin-top:10px"></div>
+    </div>
+    <div class="chartbox reveal in">
+      <h3>Rentabilidad anual (comparables entre sí)</h3>
       <div class="ops-scroll"><table class="ops rent">
-        <thead><tr><th>Modelo</th><th>Rentabilidad</th><th>Significancia</th><th>Evolución</th></tr></thead>
-        <tbody>${filasOper}</tbody></table></div>
-      <div class="ch-sub" style="margin-top:10px">La vara de medir es «comprar y mantener oro». Si un modelo no la bate, no aporta.</div>
+        <thead><tr><th>Modelo</th><th>Rentab. anual</th><th>Significancia</th><th>¿Bate al oro?</th><th>Evolución</th></tr></thead>
+        <tbody>${filasComp}</tbody></table></div>
+      <div class="ch-sub" style="margin-top:10px">La vara de medir es «comprar y mantener oro» (9,2% anual). Si un modelo no la bate, no aporta.</div>
+    </div>
+    <div class="chartbox reveal in">
+      <h3>Medidos en otra unidad (no comparables con lo anterior)</h3>
+      <div class="ch-sub" style="margin-bottom:10px">Estos no se miden en rentabilidad anual sobre capital, así que ponerlos en la misma columna engañaría: la volatilidad implícita se mide en puntos de volatilidad y el momentum en puntos de caída máxima evitada.</div>
+      <div class="ops-scroll"><table class="ops rent">
+        <thead><tr><th>Modelo</th><th>Valor</th><th>Qué mide</th></tr></thead>
+        <tbody>${filasOtra}</tbody></table></div>
     </div>
     <div class="chartbox reveal in">
       <h3>Hallazgos de investigación (no operables)</h3>
@@ -784,7 +819,36 @@ async function initRentabilidades(){
     </div>
     <div class="chartbox reveal in"><div class="ch-sub">Honestidad por delante: casi todo lo operable no bate a comprar y mantener, y casi toda la investigación no supera el azar tras corregir. Eso es el hallazgo, no un fallo.</div></div>`;
 
-  oper.forEach((e,i) => dibujarSpark('sp'+i, e.curva, e.curva_color || e.color, e.curva_base));
+  comp.forEach((o,i) => dibujarSpark('sp'+i, o.e.curva, o.e.curva_color || o.e.color, o.e.curva_base));
+  dibujarConjunto(comp.map(o => o.e));
+}
+
+function dibujarConjunto(exps){
+  const ctx = document.getElementById('rent-todos'); if(!ctx) return;
+  const COLORES = ['#e8b23a','#c0c5cc','#5fb7c4','#d2566a','#b48ad6','#6ec08a'];
+  const conCurva = exps.filter(e => e.curva && e.curva.length > 5);
+  if(!conCurva.length) return;
+  // eje común de fechas: el de la curva más larga
+  const base = conCurva.reduce((a,b) => (b.curva.length > a.curva.length ? b : a));
+  const labels = base.curva.map(p => p.fecha);
+  const datasets = conCurva.map((e,i) => {
+    const mapa = new Map(e.curva.map(p => [p.fecha, p.valor]));
+    let ult = null;
+    const datos = labels.map(f => { if(mapa.has(f)) ult = mapa.get(f); return ult; });
+    return {label: e.etiqueta, data: datos, borderColor: COLORES[i % COLORES.length],
+            borderWidth: 2, pointRadius: 0, tension: .1, spanGaps: true};
+  });
+  datasets.push({label:'No hacer nada', data: labels.map(()=>1), borderColor:'#5c6775',
+                 borderWidth:1, borderDash:[5,5], pointRadius:0});
+  if(window.rentChart){ try{ window.rentChart.destroy(); }catch(e){} }
+  window.rentChart = new Chart(ctx, {type:'line', data:{labels, datasets},
+    options:{responsive:true, maintainAspectRatio:false, interaction:{mode:'index', intersect:false},
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y?.toFixed(2)}×`}}},
+      scales:{x:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#5c6775', maxTicksLimit:8, font:{family:'JetBrains Mono'}}},
+        y:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#5c6775', font:{family:'JetBrains Mono'}, callback:v=>v+'×'}}}}});
+  const ley = document.getElementById('rent-leyenda');
+  if(ley) ley.innerHTML = conCurva.map((e,i) =>
+    `<span class="lg"><i style="background:${COLORES[i % COLORES.length]}"></i>${e.etiqueta}</span>`).join('');
 }
 
 function dibujarSpark(id, curva, color, base){
