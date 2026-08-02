@@ -150,7 +150,11 @@ def main(sintetico: bool = False):
 
     # Volatilidad implícita: ¿el GARCH bate al mercado (VIX/GVZ), no solo al ingenuo?
     print("-> Volatilidad implícita (GARCH vs VIX/GVZ) ...", flush=True)
-    for vi in implied_vol.evaluar_todas(sintetico=sintetico):
+    try:
+        _vis = implied_vol.evaluar_todas(sintetico=sintetico)
+    except Exception as e:
+        _vis = []; print(f"   (error vol implícita: {e})", flush=True)
+    for vi in _vis:
         salida.append(vi)
         print(f"   {vi['id']}: mejora {vi['headline']['valor']} pts (p={vi['significancia']['p_valor']})", flush=True)
 
@@ -193,7 +197,10 @@ def main(sintetico: bool = False):
 
     # Sentimiento extremo (VIX contrario): hipótesis con fundamento, event study + FDR.
     print("-> Sentimiento extremo (VIX contrario) ...", flush=True)
-    sent = sentimiento.backtest_sentimiento(sintetico=sintetico)
+    try:
+        sent = sentimiento.backtest_sentimiento(sintetico=sintetico)
+    except Exception as e:
+        sent = None; print(f"   (error sentimiento: {e})", flush=True)
     if sent:
         salida.append(sent)
         print(f"   {sent['n_celdas']} celdas, {sent['n_fdr']} sobreviven al FDR", flush=True)
@@ -204,7 +211,10 @@ def main(sintetico: bool = False):
     # graf_d / graf_i / graf_m recogen, de paso, las velas + geometría para el visor.
     graf_d, graf_i, graf_m = {}, {}, {}
     print("-> Figuras técnicas (S&P 500) ...", flush=True)
-    fig = figuras.backtest_figuras(sintetico=sintetico, graf=graf_d)
+    try:
+        fig = figuras.backtest_figuras(sintetico=sintetico, graf=graf_d)
+    except Exception as e:
+        fig = None; print(f"   (error figuras: {e})", flush=True)
     if fig:
         salida.append(fig)
         print(f"   {fig['n_celdas']} celdas evaluadas, {fig['n_fdr']} sobreviven al FDR", flush=True)
@@ -213,7 +223,10 @@ def main(sintetico: bool = False):
 
     # Figuras intradía (velas de 1h, ~2 años): mismo motor, otra temporalidad.
     print("-> Figuras técnicas intradía (1h) ...", flush=True)
-    figi = figuras.backtest_figuras(sintetico=sintetico, intradia=True, graf=graf_i)
+    try:
+        figi = figuras.backtest_figuras(sintetico=sintetico, intradia=True, graf=graf_i)
+    except Exception as e:
+        figi = None; print(f"   (error figuras: {e})", flush=True)
     if figi:
         salida.append(figi)
         print(f"   {figi['n_celdas']} celdas evaluadas, {figi['n_fdr']} sobreviven al FDR", flush=True)
@@ -222,7 +235,10 @@ def main(sintetico: bool = False):
 
     # Figuras mensuales (velas de 1 mes, ~15 años): pocas y lentas, pero medidas.
     print("-> Figuras técnicas mensual ...", flush=True)
-    figm = figuras.backtest_figuras(sintetico=sintetico, mensual=True, graf=graf_m)
+    try:
+        figm = figuras.backtest_figuras(sintetico=sintetico, mensual=True, graf=graf_m)
+    except Exception as e:
+        figm = None; print(f"   (error figuras: {e})", flush=True)
     if figm:
         salida.append(figm)
         print(f"   {figm['n_celdas']} celdas evaluadas, {figm['n_fdr']} sobreviven al FDR", flush=True)

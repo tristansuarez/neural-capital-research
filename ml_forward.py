@@ -27,7 +27,7 @@ H = 21          # horizonte de predicción (días)
 REFIT = 21      # refit del modelo cada N días
 MIN_TRAIN = 756 # ~3 años mínimos de entrenamiento antes de predecir
 COST_BPS = 2.0  # coste por rotación (ida) en puntos básicos
-N_TICKERS = 120
+N_TICKERS = 80
 ANOS = 20       # periodo ampliado: incluye 2008 y varios regímenes bajistas
 
 
@@ -134,11 +134,11 @@ def evaluar_ml(sintetico=False):
             if m.sum() < 5000:
                 t += REFIT; continue
             Xtr, ytr = Xtr[m], ytr[m]
-            if len(ytr) > 300000:                        # muestreo para acotar tiempo
-                sel = np.random.default_rng(0).choice(len(ytr), 300000, replace=False)
+            if len(ytr) > 150000:                        # muestreo para acotar tiempo
+                sel = np.random.default_rng(0).choice(len(ytr), 150000, replace=False)
                 Xtr, ytr = Xtr[sel], ytr[sel]
             modelo = HistGradientBoostingRegressor(
-                max_depth=3, max_iter=200, learning_rate=0.05,
+                max_depth=3, max_iter=120, learning_rate=0.05,
                 min_samples_leaf=200, l2_regularization=1.0, random_state=0)
             modelo.fit(Xtr, ytr)
 
