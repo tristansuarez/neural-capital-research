@@ -191,7 +191,10 @@ def main(sintetico: bool = False):
         ps = None; print(f"   (error: {e})", flush=True)
     if ps:
         salida.append(ps)
-        print(f"   {ps['tipo']} | {ps['n_fdr']} celdas superan el FDR", flush=True)
+        try:
+            print(f"   {ps.get('tipo','')} | {ps.get('n_fdr','sin')} celdas superan el FDR", flush=True)
+        except Exception:
+            pass
     else:
         print("   (sin datos suficientes)", flush=True)
 
