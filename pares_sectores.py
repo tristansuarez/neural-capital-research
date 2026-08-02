@@ -72,7 +72,16 @@ def _cargar(sintetico=False):
             continue
     if len(cierres) < 6:
         return None
-    return pd.DataFrame(cierres).dropna()
+    # Alinea por fechas comunes pero sin dejar que un ETF de historia corta
+    # (p. ej. XLRE, que nace en 2015) recorte todo el panel: descarta los que
+    # reducirían demasiado la muestra.
+    largos = sorted(cierres, key=lambda t: len(cierres[t]), reverse=True)
+    ref = len(cierres[largos[0]])
+    usar = [t for t in largos if len(cierres[t]) >= 0.7 * ref]
+    if len(usar) < 6:
+        usar = largos[:max(6, len(largos) // 2)]
+    px = pd.DataFrame({t: cierres[t] for t in usar}).dropna()
+    return px if len(px) > 800 else None
 
 
 def _boot_ep(x, n_boot=3000, seed=17):
@@ -111,6 +120,30 @@ def evaluar_pares_sectores(sintetico=False):
         return None
     mask = figuras._bh(pv, q=0.10)
     cointegrados = [(pares[k], pv[k]) for k in range(len(pares)) if mask[k]]
+    mejores = sorted(zip(pares, pv), key=lambda x: x[1])[:8]
+
+    def _sin_resultado(motivo):
+        """Un «no cointegra nada» es un resultado válido: se publica, no se oculta."""
+        lst = ", ".join(f"{SECTORES.get(a, a)}–{SECTORES.get(b, b)} (p={p:.3f})"
+                        for (a, b), p in mejores)
+        return {
+            "id": "pares_sectores",
+            "etiqueta": "Pares sectoriales (cointegración)",
+            "tipo": f"{len(pares)} pares probados · {len(cointegrados)} cointegran tras FDR",
+            "modelo": "pares_sectores",
+            "sin_datos": True,
+            "intro": motivo,
+            "nota": (f"Se probaron {len(pares)} pares de ETFs sectoriales. Tras corregir por "
+                     f"multiple-testing (Benjamini-Hochberg, FDR 10%), cointegran {len(cointegrados)}. "
+                     f"Pares con menor p-valor: {lst}. "
+                     f"Que casi ningún par de sectores mantenga una relación estacionaria estable en "
+                     f"15 años es en sí un resultado: las relaciones entre sectores se rompen con los "
+                     f"cambios de ciclo y de composición. No es recomendación de inversión."),
+        }
+
+    if not cointegrados:
+        return _sin_resultado("Ningún par de sectores supera el test de cointegración tras la "
+                              "corrección por multiple-testing.")
 
     # 2) reversión de los pares que cointegran (agregado, por episodio)
     acc = {h: [] for h in HZ}
@@ -157,7 +190,8 @@ def evaluar_pares_sectores(sintetico=False):
                        "ep_p": rep["p"] if rep else None,
                        "ep_n": rep["n"] if rep else None})
     if not puntos:
-        return None
+        return _sin_resultado("Hay pares cointegrados, pero no se acumulan suficientes eventos de "
+                              "divergencia (≥2σ) para medir la reversión con fiabilidad.")
 
     mask2 = figuras._bh([p["p"] for p in puntos], q=0.10)
     for p, ok in zip(puntos, mask2):
