@@ -23,6 +23,7 @@ import figuras
 import implied_vol
 import sentimiento
 import ml_forward
+import hipotesis
 from validation import evaluate
 from models import BuyAndHold, GoldSilverPairs, PairsModel
 
@@ -162,6 +163,18 @@ def main(sintetico: bool = False):
     if mlr:
         salida.append(mlr)
         print(f"   exceso {mlr['headline']['valor']}%/periodo (p={mlr['significancia']['p_valor']})", flush=True)
+    else:
+        print("   (sin datos suficientes)", flush=True)
+
+    # Hipótesis clásicas (anomalías con fundamento) con FDR conjunto.
+    print("-> Hipótesis clásicas (deriva, reversión, estacionalidad) ...", flush=True)
+    try:
+        hip = hipotesis.backtest_hipotesis(sintetico=sintetico)
+    except Exception as e:
+        hip = None; print(f"   (error: {e})", flush=True)
+    if hip:
+        salida.append(hip)
+        print(f"   {hip['n_celdas']} celdas, {hip['n_fdr']} sobreviven al FDR conjunto", flush=True)
     else:
         print("   (sin datos suficientes)", flush=True)
 

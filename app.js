@@ -12,6 +12,7 @@ function navHTML(active){
     ['koncorde',      'KONCORDE (S&P 500)'],
     ['sentimiento_vix', 'Sentimiento extremo (VIX)'],
     ['ml_forward', 'Machine learning (walk-forward)'],
+    ['hipotesis_clasicas', 'Hipótesis clásicas'],
     ['figuras_tecnicas', 'Figuras técnicas (S&P 500)'],
     ['figuras_intradia', 'Figuras intradía (1h)'],
     ['figuras_mensual', 'Figuras mensual'],
