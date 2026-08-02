@@ -204,6 +204,20 @@ def robustez_reversion(px, h=63, umbral=-0.10, w=5, lb=15, coste_pct=1.0):
     res["primera"] = _boot_simple(ep[:mid]) if mid >= 8 else None
     res["segunda"] = _boot_simple(ep[mid:]) if len(ep) - mid >= 8 else None
     res["por_anio"] = dict(sorted(Counter(mm[:4] for mm in meses).items()))
+
+    # Sensibilidad al coste: ¿a partir de qué coste total deja de ser rentable?
+    niveles = [0.0, 0.10, 0.25, 0.50, 0.75, 1.00, 1.50, 2.00]
+    sens = []
+    for cst in niveles:
+        r = _boot_simple(ep - cst)
+        if r:
+            sens.append({"coste": cst, "media": r["media"], "ic": r["ic"], "p": r["p"]})
+    res["sensibilidad"] = sens
+    umbral_break = None
+    for s in sens:
+        if s["p"] > 0.10:
+            umbral_break = s["coste"]; break
+    res["coste_limite"] = umbral_break
     return res
 
 
@@ -264,7 +278,29 @@ def backtest_hipotesis(sintetico=False):
             f"<br>• Por episodio, <b>neto de costes</b>: {_f(rb['episodios_neto'])}"
             f"<br>• <b>Sin crisis</b> (2008, 2020, 2022): {_f(rb['sin_crisis'])}"
             f"<br>• <b>Fuera de muestra</b>: 1ª mitad {_f(rb['primera'])} · 2ª mitad {_f(rb['segunda'])}"
-            f"<br>• Reparto por año: {rb['por_anio']}"
+            f"<br>• Reparto por año: {rb['por_anio']}")
+        if rb.get("sensibilidad"):
+            filas = "".join(
+                f"<tr><td>{s['coste']:.2f}%</td>"
+                f"<td class='{'pos' if s['media']>0 else 'neg'}'>{s['media']:+.2f}%</td>"
+                f"<td class='est-obs'>{s['ic']}</td>"
+                f"<td class='{'pos' if s['p']<=0.10 else 'est-obs'}'>{s['p']}</td></tr>"
+                for s in rb["sensibilidad"])
+            lim = rb.get("coste_limite")
+            lim_txt = (f"Deja de ser distinguible del azar a partir de un coste total del "
+                       f"<b>{lim:.2f}%</b> por operación."
+                       if lim is not None else
+                       "Aguanta en todo el rango de costes evaluado (hasta 2%).")
+            rob_txt += (
+                "<br><br><b>Sensibilidad al coste (por episodio, a 3 meses):</b> comisión + spread + "
+                "slippage, ida y vuelta. La comisión de un bróker moderno es ~0,05-0,1%; el resto es "
+                "spread y slippage, que no dependen del bróker."
+                "<div class='ops-scroll' style='margin-top:8px'><table class='ops'>"
+                "<thead><tr><th>Coste total</th><th>Exceso neto</th><th>IC 90%</th><th>p</th></tr></thead>"
+                f"<tbody>{filas}</tbody></table></div>"
+                f"<div class='ch-sub' style='margin-top:8px'>{lim_txt} Cada cual puede situarse en la "
+                f"fila que corresponda a su estructura de costes real.</div>")
+        rob_txt += (
             "<br><i>Si aguanta por episodio, neto de costes y sin crisis, es un hallazgo real. "
             "Si se cae al pasar a episodios, era pseudo-replicación (muchos días del mismo pánico "
             "contados como datos independientes).</i>")
