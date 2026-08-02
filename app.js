@@ -852,16 +852,35 @@ function dibujarConjunto(exps){
         borderColor: '#8a97a6', borderWidth: 1.4, borderDash:[6,4], pointRadius: 0, tension: .1});
     }
   });
-  datasets.push({label:'No hacer nada (1×)', data: [], borderColor:'#5c6775',
-                 borderWidth:1, borderDash:[5,5], pointRadius:0});
   if(window.rentChart){ try{ window.rentChart.destroy(); }catch(e){} }
-  window.rentChart = new Chart(ctx, {type:'line', data:{datasets},
-    options:{responsive:true, maintainAspectRatio:false, parsing:false,
+  // Si el adaptador de fechas no cargó, usar eje de categorías con las fechas de
+  // la serie más larga (menos preciso, pero el gráfico se ve igualmente).
+  const hayTime = !!(Chart && Chart._adapters && Chart._adapters._date &&
+                     Chart._adapters._date.override !== undefined);
+  let cfgX;
+  if(hayTime){
+    cfgX = {type:'time', time:{unit:'year'}, grid:{color:'rgba(38,48,61,.4)'},
+            ticks:{color:'#5c6775', maxTicksLimit:8, font:{family:'JetBrains Mono'}}};
+  }else{
+    const larga = conCurva.reduce((a,b)=> b.curva.length > a.curva.length ? b : a);
+    const labels = larga.curva.map(p=>p.fecha);
+    datasets.forEach(ds=>{
+      const m = new Map(ds.data.map(p=>[p.x, p.y]));
+      let u = null;
+      ds.data = labels.map(f=>{ if(m.has(f)) u = m.get(f); return u; });
+      ds.spanGaps = true;
+    });
+    cfgX = {type:'category', labels, grid:{color:'rgba(38,48,61,.4)'},
+            ticks:{color:'#5c6775', maxTicksLimit:8, font:{family:'JetBrains Mono'}}};
+  }
+  window.rentChart = new Chart(ctx, {type:'line',
+    data: hayTime ? {datasets} : {labels: conCurva.reduce((a,b)=> b.curva.length>a.curva.length?b:a).curva.map(p=>p.fecha), datasets},
+    options:{responsive:true, maintainAspectRatio:false,
       interaction:{mode:'nearest', intersect:false},
       plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y?.toFixed(2)}×`}}},
-      scales:{x:{type:'category', grid:{color:'rgba(38,48,61,.4)'},
-                 ticks:{color:'#5c6775', maxTicksLimit:8, font:{family:'JetBrains Mono'}}},
-        y:{grid:{color:'rgba(38,48,61,.4)'}, ticks:{color:'#5c6775', font:{family:'JetBrains Mono'}, callback:v=>v+'×'}}}}});
+      scales:{x:cfgX,
+        y:{type:'logarithmic', grid:{color:'rgba(38,48,61,.4)'},
+           ticks:{color:'#5c6775', font:{family:'JetBrains Mono'}, callback:v=>v+'×'}}}}});
   const ley = document.getElementById('rent-leyenda');
   if(ley) ley.innerHTML = conCurva.map((e,i) =>
     `<span class="lg"><i style="background:${COLORES[i % COLORES.length]}"></i>${e.etiqueta}</span>`).join('')
