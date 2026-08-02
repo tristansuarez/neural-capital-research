@@ -24,6 +24,7 @@ import implied_vol
 import sentimiento
 import ml_forward
 import hipotesis
+import pares_sectores
 from validation import evaluate
 from models import BuyAndHold, GoldSilverPairs, PairsModel
 
@@ -175,6 +176,18 @@ def main(sintetico: bool = False):
     if hip:
         salida.append(hip)
         print(f"   {hip['n_celdas']} celdas, {hip['n_fdr']} sobreviven al FDR conjunto", flush=True)
+    else:
+        print("   (sin datos suficientes)", flush=True)
+
+    # Pares sectoriales cointegrados (ETFs líquidos): reversión con FDR y costes.
+    print("-> Pares sectoriales (cointegración entre sectores) ...", flush=True)
+    try:
+        ps = pares_sectores.evaluar_pares_sectores(sintetico=sintetico)
+    except Exception as e:
+        ps = None; print(f"   (error: {e})", flush=True)
+    if ps:
+        salida.append(ps)
+        print(f"   {ps['tipo']} | {ps['n_fdr']} celdas superan el FDR", flush=True)
     else:
         print("   (sin datos suficientes)", flush=True)
 
