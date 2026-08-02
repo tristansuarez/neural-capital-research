@@ -835,52 +835,52 @@ function dibujarConjunto(exps){
   const COLORES = ['#e8b23a','#c0c5cc','#5fb7c4','#d2566a','#b48ad6','#6ec08a'];
   const conCurva = exps.filter(e => e.curva && e.curva.length > 5);
   if(!conCurva.length) return;
-  // Eje temporal real: cada punto en su fecha, sin rellenar huecos. Rellenar hacía
-  // que un modelo con pocos puntos (mensual) pareciera una escalera imparable
-  // frente a otros con datos diarios: comparación visual engañosa.
+
+  // Eje común: todas las fechas de todas las series, ordenadas. Cada serie se
+  // dibuja SOLO donde tiene dato real (null en el resto, sin spanGaps), así una
+  // serie mensual no aparenta una escalera frente a otra diaria.
+  const todas = new Set();
+  conCurva.forEach(e => e.curva.forEach(p => todas.add(p.fecha)));
+  conCurva.forEach(e => (e.curva2 && e.curva2.datos ? e.curva2.datos : []).forEach(p => todas.add(p.fecha)));
+  const labels = [...todas].sort();
+
+  const serie = (puntos) => {
+    const m = new Map(puntos.map(p => [p.fecha, p.valor]));
+    return labels.map(f => m.has(f) ? m.get(f) : null);
+  };
+
   const datasets = conCurva.map((e,i) => ({
     label: e.etiqueta,
-    data: e.curva.map(p => ({x: p.fecha, y: p.valor})),
+    data: serie(e.curva),
     borderColor: COLORES[i % COLORES.length],
-    borderWidth: 2, pointRadius: 0, tension: .1
+    borderWidth: 2, pointRadius: 0, tension: .1, spanGaps: true
   }));
-  // benchmark propio del ML, si lo trae (su universo, no el oro)
   conCurva.forEach(e => {
     if(e.curva2 && e.curva2.datos && e.curva2.datos.length > 5){
-      datasets.push({label: `${e.curva2.nombre}`,
-        data: e.curva2.datos.map(p => ({x: p.fecha, y: p.valor})),
-        borderColor: '#8a97a6', borderWidth: 1.4, borderDash:[6,4], pointRadius: 0, tension: .1});
+      datasets.push({label: e.curva2.nombre, data: serie(e.curva2.datos),
+        borderColor: '#8a97a6', borderWidth: 1.4, borderDash:[6,4],
+        pointRadius: 0, tension: .1, spanGaps: true});
     }
   });
-  if(window.rentChart){ try{ window.rentChart.destroy(); }catch(e){} }
-  // Si el adaptador de fechas no cargó, usar eje de categorías con las fechas de
-  // la serie más larga (menos preciso, pero el gráfico se ve igualmente).
-  const hayTime = !!(Chart && Chart._adapters && Chart._adapters._date &&
-                     Chart._adapters._date.override !== undefined);
-  let cfgX;
-  if(hayTime){
-    cfgX = {type:'time', time:{unit:'year'}, grid:{color:'rgba(38,48,61,.4)'},
-            ticks:{color:'#5c6775', maxTicksLimit:8, font:{family:'JetBrains Mono'}}};
-  }else{
-    const larga = conCurva.reduce((a,b)=> b.curva.length > a.curva.length ? b : a);
-    const labels = larga.curva.map(p=>p.fecha);
-    datasets.forEach(ds=>{
-      const m = new Map(ds.data.map(p=>[p.x, p.y]));
-      let u = null;
-      ds.data = labels.map(f=>{ if(m.has(f)) u = m.get(f); return u; });
-      ds.spanGaps = true;
-    });
-    cfgX = {type:'category', labels, grid:{color:'rgba(38,48,61,.4)'},
-            ticks:{color:'#5c6775', maxTicksLimit:8, font:{family:'JetBrains Mono'}}};
-  }
-  window.rentChart = new Chart(ctx, {type:'line',
-    data: hayTime ? {datasets} : {labels: conCurva.reduce((a,b)=> b.curva.length>a.curva.length?b:a).curva.map(p=>p.fecha), datasets},
-    options:{responsive:true, maintainAspectRatio:false,
-      interaction:{mode:'nearest', intersect:false},
-      plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y?.toFixed(2)}×`}}},
-      scales:{x:cfgX,
-        y:{type:'logarithmic', grid:{color:'rgba(38,48,61,.4)'},
-           ticks:{color:'#5c6775', font:{family:'JetBrains Mono'}, callback:v=>v+'×'}}}}});
+  datasets.push({label: 'No hacer nada (1×)', data: labels.map(() => 1),
+                 borderColor: '#5c6775', borderWidth: 1, borderDash: [5,5], pointRadius: 0});
+
+  if(window.rentChart){ try{ window.rentChart.destroy(); }catch(err){} }
+  window.rentChart = new Chart(ctx, {
+    type: 'line',
+    data: {labels, datasets},
+    options: {responsive: true, maintainAspectRatio: false,
+      interaction: {mode: 'index', intersect: false},
+      plugins: {legend: {display: false},
+        tooltip: {callbacks: {label: c => c.parsed.y == null ? null :
+          ` ${c.dataset.label}: ${c.parsed.y.toFixed(2)}×`}}},
+      scales: {
+        x: {grid: {color: 'rgba(38,48,61,.4)'},
+            ticks: {color: '#5c6775', maxTicksLimit: 8, font: {family: 'JetBrains Mono'}}},
+        y: {grid: {color: 'rgba(38,48,61,.4)'},
+            ticks: {color: '#5c6775', font: {family: 'JetBrains Mono'}, callback: v => v + '×'}}
+      }}});
+
   const ley = document.getElementById('rent-leyenda');
   if(ley) ley.innerHTML = conCurva.map((e,i) =>
     `<span class="lg"><i style="background:${COLORES[i % COLORES.length]}"></i>${e.etiqueta}</span>`).join('')
