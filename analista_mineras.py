@@ -177,9 +177,26 @@ def analizar(modelo, max_noticias):
                 resumen.setdefault(tk, []).append((cat, signo))
                 n_clasificadas += 1
                 print(f"  {tk}: [{cat} {signo:+d}] {titular[:70]}")
-    _anotar_forward(mes, resumen)
+    _anotar_forward(mes, _resumen_del_mes(mes))
     print(f"\n{n_clasificadas} titulares nuevos clasificados por {modelo}.")
     print("Ahora: git add noticias_mineras.csv forward_mineras.csv ; git commit ; git push")
+
+
+def _resumen_del_mes(mes):
+    """Resumen por ticker con TODO lo clasificado este mes (no solo esta pasada):
+    así relanzar el analista puede anotar el forward aunque no haya titulares nuevos."""
+    resumen = {}
+    if not os.path.exists(LOG_NOTICIAS):
+        return resumen
+    with open(LOG_NOTICIAS, encoding="utf-8") as fh:
+        for r in csv.DictReader(fh):
+            if r.get("mes") != mes:
+                continue
+            try:
+                resumen.setdefault(r["ticker"], []).append((r["categoria"], int(r["signo"])))
+            except Exception:
+                continue
+    return resumen
 
 
 def _anotar_forward(mes, resumen):
