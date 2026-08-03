@@ -1,0 +1,28 @@
+# Universo de mineras para el forward-test de selección (forward_mineras.py).
+# Un ticker por línea (cotización en EE.UU.). Editable: añade o quita a mano.
+# Las que fallen al descargar se reportan, no se rellenan.
+# Nota: Barrick cotiza como "B" en NYSE desde mayo de 2025 (antes "GOLD").
+NEM
+B
+AEM
+WPM
+FNV
+RGLD
+KGC
+GFI
+AU
+HMY
+PAAS
+AG
+HL
+CDE
+BTG
+EGO
+IAG
+EQX
+SSRM
+NGD
+OR
+SAND
+MAG
+DRD

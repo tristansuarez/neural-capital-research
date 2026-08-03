@@ -33,6 +33,8 @@ import cartera
 import volobjetivo
 import volobjetivo2
 import primas
+import mineras
+import forward_mineras
 import pauta_techo
 import forward_carteras
 from validation import evaluate
@@ -338,6 +340,33 @@ def main(sintetico: bool = False):
             print(f"   {pr.get('n_celdas')} celdas, {pr.get('n_fdr')} superan el FDR", flush=True)
         except Exception:
             pass
+    else:
+        print("   (sin datos suficientes)", flush=True)
+
+    # Lote M: tesis macro de las mineras de oro (6 celdas pre-registradas).
+    print("-> Lote M: mineras de oro (macro) ...", flush=True)
+    try:
+        mi = mineras.evaluar(sintetico=sintetico)
+    except Exception as e:
+        mi = None; print(f"   (error: {e})", flush=True)
+    if mi:
+        salida.append(mi)
+        try:
+            print(f"   {mi.get('n_celdas')} celdas, {mi.get('n_fdr')} superan el FDR", flush=True)
+        except Exception:
+            pass
+    else:
+        print("   (sin datos suficientes)", flush=True)
+
+    # Forward-test de selección de mineras (registro mensual en vivo).
+    print("-> Forward-test de selección de mineras ...", flush=True)
+    try:
+        fm = forward_mineras.evaluar_forward(sintetico=sintetico)
+    except Exception as e:
+        fm = None; print(f"   (error: {e})", flush=True)
+    if fm:
+        salida.append(fm)
+        print("   selección del mes registrada", flush=True)
     else:
         print("   (sin datos suficientes)", flush=True)
 
