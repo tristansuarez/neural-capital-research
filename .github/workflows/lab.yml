@@ -32,7 +32,12 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add resultados.json graficos.json forward_carteras.csv forward_mineras.csv noticias_mineras.csv veredictos_mineras.csv data_cache/*.csv || true
+          # Un add por archivo: si uno no existe, que no tumbe a los demas
+          # (un pathspec que no casa aborta el add ENTERO y el commit sale "sin cambios" en verde).
+          for f in resultados.json graficos.json forward_carteras.csv forward_mineras.csv noticias_mineras.csv veredictos_mineras.csv; do
+            git add "$f" 2>/dev/null || echo "aviso: $f no existe en esta corrida"
+          done
+          git add data_cache/*.csv 2>/dev/null || true
           git commit -m "Actualizar resultados del laboratorio" || { echo "Sin cambios"; exit 0; }
           for i in 1 2 3 4 5; do
             git merge --abort 2>/dev/null || true
