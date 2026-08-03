@@ -69,8 +69,14 @@
       return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
     }
     function limpiaHTML(s){
-      var d = document.createElement('div'); d.innerHTML = s || '';
-      return (d.textContent || '').replace(/\s+/g,' ').trim();
+      s = (s || '')
+        .replace(/<\/(tr|thead|tbody)>/gi, ' \u00b7 ')
+        .replace(/<\/(td|th)>/gi, ' ')
+        .replace(/<(td|th)[^>]*>/gi, ' ')
+        .replace(/<br\s*\/?\s*>/gi, ' \u00b7 ');
+      var d = document.createElement('div'); d.innerHTML = s;
+      return (d.textContent || '').replace(/(\s*\u00b7\s*){2,}/g,' \u00b7 ')
+                                  .replace(/\s+/g,' ').trim();
     }
     function trocea(texto, maxLen){
       // corta en frases y agrupa en fragmentos de tamaño legible
@@ -82,10 +88,10 @@
       if(cur.trim()) out.push(cur.trim());
       return out;
     }
-    function addFrag(titulo, texto, fuente, enlace){
+    function addFrag(titulo, texto, fuente, enlace, clase){
       var t = (texto||'').trim();
       if(t.length < 25) return;
-      FRAGS.push({titulo: titulo||'', texto: t, fuente: fuente, enlace: enlace||null,
+      FRAGS.push({titulo: titulo||'', texto: t, fuente: fuente, enlace: enlace||null, clase: clase||'resultado',
                   ntit: norm(titulo), ntx: norm(t)});
     }
     function parseCSV(txt){
@@ -127,7 +133,7 @@
             r.ticker + ' seleccionada en ' + r.mes + ' como ' + r.tipo + ' a ' + r.precio +
             ' $ (orden: ' + (r.metrica_orden||'n/d') + ')' +
             (r.notas ? '. Notas del analista: ' + r.notas : '') + '.',
-            'forward_mineras.csv', 'lab.html?id=forward_mineras');
+            'forward_mineras.csv', 'lab.html?id=forward_mineras', 'forward');
         });
       }).catch(function(){}));
 
@@ -138,7 +144,7 @@
           addFrag('Noticia ' + r.ticker + ' (' + r.mes + ')',
             r.ticker + ': "' + r.titular + '" clasificada como ' + r.categoria +
             ' con signo ' + r.signo + ' por el modelo ' + (r.modelo||'local') + '.',
-            'noticias_mineras.csv', 'lab.html?id=forward_mineras');
+            'noticias_mineras.csv', 'lab.html?id=forward_mineras', 'noticia');
         });
       }).catch(function(){}));
 
@@ -149,7 +155,7 @@
           addFrag('Forward ' + r.estrategia + ' (' + r.mes + ')',
             'Estrategia ' + r.estrategia + ' en ' + r.mes + ': ' + r.posicion +
             ' (exposicion ' + r.exposicion + ', SPY a ' + r.precio_spy + ' $).',
-            'forward_carteras.csv', 'lab.html?id=forward_carteras');
+            'forward_carteras.csv', 'lab.html?id=forward_carteras', 'forward');
         });
       }).catch(function(){}));
 
@@ -189,25 +195,61 @@
     function esc(s){
       var d = document.createElement('div'); d.textContent = s; return d.innerHTML;
     }
-    function responder(q){
-      burbuja('tu', esc(q));
-      if(!LISTO){ burbuja('lab', 'Cargando los datos del laboratorio&hellip; vuelve a intentarlo en un segundo.'); return; }
-      var hits = buscar(q);
-      if(!hits.length){
-        burbuja('lab', 'No encuentro nada sobre eso en los datos publicados. Prueba con el nombre de un ' +
-          'm&eacute;todo (KONCORDE, volatilidad objetivo, pares&hellip;), un ticker (FNV, BTG&hellip;) o ' +
-          'una palabra clave (caída, Sharpe, dilución, rechazada&hellip;). Este buscador solo sabe lo ' +
-          'que el laboratorio ha escrito.');
-        return;
-      }
-      var html = hits.map(function(f){
+    function tarjetas(hits){
+      return hits.map(function(f){
         var fuente = f.enlace
           ? '<a href="' + f.enlace + '">' + esc(f.fuente) + '</a>'
           : esc(f.fuente);
         return '<div class="frag"><div class="fuente">' + fuente + '</div>' +
                '<div class="txt"><b>' + esc(f.titulo) + '.</b> ' + esc(f.texto) + '</div></div>';
       }).join('');
-      burbuja('lab', 'Esto es lo que el laboratorio tiene escrito al respecto:' + html);
+    }
+    function tema(q){
+      var t = q.match(/\b[A-Z]{2,5}\b/);
+      if(t) return t[0];
+      var n = norm(q).replace(/[?¿!.]/g,'').split(/\s+/).filter(function(w){
+        return w.length > 3 && !VACIAS.has(w);
+      });
+      return n.length ? n.slice(0,3).join(' ') : '';
+    }
+    var ABRE = [
+      'Sobre {T}, esto es lo que consta:',
+      'Sobre {T}, el laboratorio tiene escrito esto:',
+      'Buscando {T}, esto es lo m\u00e1s relevante que hay publicado:',
+      'De {T}, esto es lo que hay en el registro:'
+    ];
+    var abreIdx = 0;
+    function abre(t){
+      var s = ABRE[abreIdx++ % ABRE.length];
+      return t ? s.replace('{T}', '<b>' + esc(t) + '</b>') : 'Esto es lo que hay publicado:';
+    }
+    function responder(q){
+      burbuja('tu', esc(q));
+      if(!LISTO){ burbuja('lab', 'Un segundo, que a\u00fan estoy cargando los datos del laboratorio&hellip; repite la pregunta enseguida.'); return; }
+      var t = tema(q);
+      var pideNoticias = /noticia|titular|prensa|news/.test(norm(q));
+      var hits = buscar(q);
+      if(pideNoticias){
+        var noticias = hits.filter(function(f){ return f.clase === 'noticia'; });
+        var hayNoticiasCargadas = FRAGS.some(function(f){ return f.clase === 'noticia'; });
+        if(noticias.length){
+          burbuja('lab', abre(t) + tarjetas(noticias.slice(0,5)));
+          return;
+        }
+        var resto = hits.slice(0,3);
+        var msj = hayNoticiasCargadas
+          ? 'No hay noticias clasificadas sobre ' + (t ? '<b>' + esc(t) + '</b>' : 'eso') + ' todav\u00eda.'
+          : 'El analista local a\u00fan no ha publicado ninguna clasificaci\u00f3n de noticias (corre en la m\u00e1quina del laboratorio, no aqu\u00ed).';
+        burbuja('lab', msj + (resto.length ? ' Lo que s\u00ed consta en los dem\u00e1s registros:' + tarjetas(resto) : ''));
+        return;
+      }
+      if(!hits.length){
+        burbuja('lab', 'Sobre ' + (t ? '<b>' + esc(t) + '</b>' : 'eso') + ' no hay nada escrito en los datos publicados ' +
+          '&mdash; y prefiero decirlo a inventar. Prueba con un m\u00e9todo (KONCORDE, volatilidad objetivo&hellip;), ' +
+          'un ticker (FNV, BTG&hellip;) o una palabra clave (ca\u00edda, Sharpe, diluci\u00f3n, rechazada&hellip;).');
+        return;
+      }
+      burbuja('lab', abre(t) + tarjetas(hits));
     }
 
     var EJEMPLOS = [
