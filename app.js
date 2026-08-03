@@ -52,6 +52,7 @@ function navHTML(active){
         </div></div>
       <a class="nav-link ${active==='visor'?'active':''}" href="visor.html">Visor</a>
       <a class="nav-link ${active==='rentabilidades'?'active':''}" href="rentabilidades.html">Rentabilidades</a>
+      <a class="nav-link ${active==='analista'?'active':''}" href="analista.html">Analista</a>
       <div class="nav-item"><button class="nav-trigger" type="button">Metodología ▾</button>
         <div class="nav-drop">
           <a href="metodologia.html#como-se-lee" class="${active==='metodologia'?'active':''}">Cómo se lee</a>
@@ -934,5 +935,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     initVisor();
   }else if(page === 'rentabilidades'){
     initRentabilidades();
+  }else if(page === 'analista'){
+    mountNav('analista');
   }
 });

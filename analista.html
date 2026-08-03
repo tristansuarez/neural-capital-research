@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neural Capital Research &middot; analista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .chat-caja{max-width:860px;margin:22px auto 0}
+  .chat-hist{display:flex;flex-direction:column;gap:14px;margin-bottom:16px}
+  .msg{max-width:88%;padding:12px 16px;border-radius:14px;font-size:.95rem}
+  .msg.tu{align-self:flex-end;background:var(--panel2);border:1px solid var(--line)}
+  .msg.lab{align-self:flex-start;background:var(--panel);border:1px solid var(--line)}
+  .msg.lab .frag{border-left:3px solid var(--oro);padding:8px 12px;margin:10px 0;background:var(--panel2);border-radius:0 10px 10px 0}
+  .msg.lab .frag .fuente{font-size:.78rem;color:var(--muted);margin-bottom:4px}
+  .msg.lab .frag .fuente a{color:var(--si);text-decoration:none}
+  .msg.lab .frag .txt{color:var(--text)}
+  .chat-form{display:flex;gap:10px}
+  .chat-form input{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:12px 16px;color:var(--text);font-family:inherit;font-size:.95rem}
+  .chat-form input:focus{outline:none;border-color:var(--oro)}
+  .chat-form button{background:var(--oro);color:var(--ink);border:0;border-radius:12px;
+    padding:12px 20px;font-weight:600;cursor:pointer;font-family:inherit}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+  .chips button{background:var(--panel);border:1px solid var(--line);border-radius:999px;
+    color:var(--muted);padding:6px 14px;font-size:.85rem;cursor:pointer;font-family:inherit}
+  .chips button:hover{border-color:var(--oro);color:var(--text)}
+  .aviso-chat{font-size:.82rem;color:var(--faint);margin-top:14px}
+</style>
+</head>
+<body data-page="analista">
+
+  <div id="topnav"></div>
+
+  <div class="wrap">
+    <div class="chat-caja">
+      <h1 class="model-title">Analista del laboratorio</h1>
+      <div class="tipo">&#9656; buscador sobre los datos publicados &middot; no genera texto, recupera lo que el laboratorio ya escribi&oacute;</div>
+
+      <div class="chips" id="chips"></div>
+      <div class="chat-hist" id="hist"></div>
+
+      <form class="chat-form" id="form">
+        <input id="preg" type="text" autocomplete="off"
+               placeholder="Pregunta sobre los resultados, los registros forward o las noticias&hellip;">
+        <button type="submit">Buscar</button>
+      </form>
+
+      <div class="aviso-chat">Este analista <b>no es un modelo de lenguaje</b>: busca en
+      resultados.json y en los registros CSV p&uacute;blicos del repositorio y devuelve los fragmentos
+      relevantes, con enlace a su fuente. No opina, no predice y no inventa. El an&aacute;lisis de
+      noticias con LLM corre en local y solo sus veredictos (auditables) se publican aqu&iacute;.
+      Nada de esto es recomendaci&oacute;n de inversi&oacute;n.</div>
+    </div>
+    <footer><div>Laboratorio experimental &middot; contenido educativo &middot; no es recomendaci&oacute;n de inversi&oacute;n.</div></footer>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+  (function(){
+    'use strict';
+    var FRAGS = [];
+    var LISTO = false;
+
+    function norm(s){
+      return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    }
+    function limpiaHTML(s){
+      var d = document.createElement('div'); d.innerHTML = s || '';
+      return (d.textContent || '').replace(/\s+/g,' ').trim();
+    }
+    function trocea(texto, maxLen){
+      // corta en frases y agrupa en fragmentos de tamaño legible
+      var frases = texto.split(/(?<=[.!?])\s+/), out = [], cur = '';
+      frases.forEach(function(f){
+        if((cur + ' ' + f).length > maxLen && cur){ out.push(cur.trim()); cur = f; }
+        else cur = cur ? cur + ' ' + f : f;
+      });
+      if(cur.trim()) out.push(cur.trim());
+      return out;
+    }
+    function addFrag(titulo, texto, fuente, enlace){
+      var t = (texto||'').trim();
+      if(t.length < 25) return;
+      FRAGS.push({titulo: titulo||'', texto: t, fuente: fuente, enlace: enlace||null,
+                  ntit: norm(titulo), ntx: norm(t)});
+    }
+    function parseCSV(txt){
+      var lineas = txt.split(/\r?\n/).filter(function(l){return l.trim();});
+      if(lineas.length < 2) return [];
+      var cab = lineas[0].split(',');
+      return lineas.slice(1).map(function(l){
+        // división simple: los CSV del laboratorio no llevan comas entre comillas
+        var v = l.split(','), o = {};
+        cab.forEach(function(c,i){ o[c] = (v[i]||'').trim(); });
+        return o;
+      });
+    }
+
+    function cargar(){
+      var tareas = [];
+      tareas.push(fetch('resultados.json').then(function(r){return r.json();}).then(function(d){
+        (d.experimentos||[]).forEach(function(e){
+          var enlace = 'lab.html?id=' + encodeURIComponent(e.id||'');
+          (e.figuras||[]).forEach(function(b){
+            var p = (b.puntos && b.puntos[0]) || {};
+            var ver = (p.valor!==undefined) ?
+              (' Veredicto: ' + p.valor + '%/mes, p=' + p.p +
+               ', FDR ' + (p.sig_fdr ? 'superado' : 'no superado') + '.') : '';
+            addFrag(b.tipo || b.nombre,
+                    limpiaHTML((b.razon||'') + ' ' + (b.extra||'')) + ver,
+                    e.etiqueta, enlace);
+          });
+          trocea(limpiaHTML((e.intro||'') + ' ' + (e.nota||'') + ' ' + (e.nota_fdr||'')), 320)
+            .forEach(function(tx){ addFrag(e.etiqueta, tx, e.etiqueta, enlace); });
+        });
+      }).catch(function(){}));
+
+      tareas.push(fetch('forward_mineras.csv').then(function(r){
+        if(!r.ok) throw 0; return r.text();
+      }).then(function(t){
+        parseCSV(t).forEach(function(r){
+          addFrag('Elegida ' + r.ticker + ' (' + r.mes + ')',
+            r.ticker + ' seleccionada en ' + r.mes + ' como ' + r.tipo + ' a ' + r.precio +
+            ' $ (orden: ' + (r.metrica_orden||'n/d') + ')' +
+            (r.notas ? '. Notas del analista: ' + r.notas : '') + '.',
+            'forward_mineras.csv', 'lab.html?id=forward_mineras');
+        });
+      }).catch(function(){}));
+
+      tareas.push(fetch('noticias_mineras.csv').then(function(r){
+        if(!r.ok) throw 0; return r.text();
+      }).then(function(t){
+        parseCSV(t).forEach(function(r){
+          addFrag('Noticia ' + r.ticker + ' (' + r.mes + ')',
+            r.ticker + ': "' + r.titular + '" clasificada como ' + r.categoria +
+            ' con signo ' + r.signo + ' por el modelo ' + (r.modelo||'local') + '.',
+            'noticias_mineras.csv', 'lab.html?id=forward_mineras');
+        });
+      }).catch(function(){}));
+
+      tareas.push(fetch('forward_carteras.csv').then(function(r){
+        if(!r.ok) throw 0; return r.text();
+      }).then(function(t){
+        parseCSV(t).forEach(function(r){
+          addFrag('Forward ' + r.estrategia + ' (' + r.mes + ')',
+            'Estrategia ' + r.estrategia + ' en ' + r.mes + ': ' + r.posicion +
+            ' (exposicion ' + r.exposicion + ', SPY a ' + r.precio_spy + ' $).',
+            'forward_carteras.csv', 'lab.html?id=forward_carteras');
+        });
+      }).catch(function(){}));
+
+      return Promise.all(tareas).then(function(){ LISTO = true; });
+    }
+
+    var VACIAS = new Set(('de la el los las un una y o que en a al del por para con sin es son fue como cual '
+      + 'se lo le mi tu su hay este esta esto ese esa eso mas menos muy qué cómo cuál').split(' '));
+    function buscar(q){
+      var toks = norm(q).split(/[^a-z0-9$%]+/).filter(function(t){
+        return t.length > 1 && !VACIAS.has(t);
+      });
+      if(!toks.length) return [];
+      var res = FRAGS.map(function(f){
+        var sc = 0;
+        toks.forEach(function(t){
+          if(f.ntit.indexOf(t) >= 0) sc += 3;
+          if(f.ntx.indexOf(t) >= 0) sc += 1;
+        });
+        // los tickers en mayúsculas del texto original puntúan doble si coinciden exactos
+        var mayus = q.match(/\b[A-Z]{1,5}\b/g) || [];
+        mayus.forEach(function(m){
+          if((f.titulo + ' ' + f.texto).indexOf(m) >= 0) sc += 4;
+        });
+        return {f: f, sc: sc};
+      }).filter(function(x){ return x.sc > 0; });
+      res.sort(function(a,b){ return b.sc - a.sc; });
+      return res.slice(0, 5).map(function(x){ return x.f; });
+    }
+
+    function burbuja(clase, html){
+      var d = document.createElement('div');
+      d.className = 'msg ' + clase; d.innerHTML = html;
+      document.getElementById('hist').appendChild(d);
+      d.scrollIntoView({behavior:'smooth', block:'end'});
+    }
+    function esc(s){
+      var d = document.createElement('div'); d.textContent = s; return d.innerHTML;
+    }
+    function responder(q){
+      burbuja('tu', esc(q));
+      if(!LISTO){ burbuja('lab', 'Cargando los datos del laboratorio&hellip; vuelve a intentarlo en un segundo.'); return; }
+      var hits = buscar(q);
+      if(!hits.length){
+        burbuja('lab', 'No encuentro nada sobre eso en los datos publicados. Prueba con el nombre de un ' +
+          'm&eacute;todo (KONCORDE, volatilidad objetivo, pares&hellip;), un ticker (FNV, BTG&hellip;) o ' +
+          'una palabra clave (caída, Sharpe, dilución, rechazada&hellip;). Este buscador solo sabe lo ' +
+          'que el laboratorio ha escrito.');
+        return;
+      }
+      var html = hits.map(function(f){
+        var fuente = f.enlace
+          ? '<a href="' + f.enlace + '">' + esc(f.fuente) + '</a>'
+          : esc(f.fuente);
+        return '<div class="frag"><div class="fuente">' + fuente + '</div>' +
+               '<div class="txt"><b>' + esc(f.titulo) + '.</b> ' + esc(f.texto) + '</div></div>';
+      }).join('');
+      burbuja('lab', 'Esto es lo que el laboratorio tiene escrito al respecto:' + html);
+    }
+
+    var EJEMPLOS = [
+      '¿Qué método sobrevive?',
+      '¿Por qué se rechazó FNV?',
+      '¿Qué dio el KONCORDE?',
+      'Caída máxima de la volatilidad objetivo',
+      '¿Qué noticias tiene BTG?',
+      '¿Qué es el control negativo?'
+    ];
+    var chips = document.getElementById('chips');
+    EJEMPLOS.forEach(function(e){
+      var b = document.createElement('button');
+      b.type = 'button'; b.textContent = e;
+      b.addEventListener('click', function(){ responder(e); });
+      chips.appendChild(b);
+    });
+
+    document.getElementById('form').addEventListener('submit', function(ev){
+      ev.preventDefault();
+      var inp = document.getElementById('preg');
+      var q = inp.value.trim();
+      if(q){ responder(q); inp.value = ''; }
+    });
+
+    cargar();
+  })();
+  </script>
+</body>
+</html>
