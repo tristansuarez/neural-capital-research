@@ -1,0 +1,4 @@
+mes,fecha,estrategia,posicion,exposicion,precio_spy,registrado
+2026-08,2026-08-03,V1,SPY al 94% · resto en liquidez,0.94,754.53,2026-08-03T14:26:20.782986+00:00
+2026-08,2026-08-03,B3,SPY al 100%,1.0,754.53,2026-08-03T14:26:20.783045+00:00
+2026-08,2026-08-03,C4,"60% SPY + 40% TLT, rebalanceo mensual",1.0,754.53,2026-08-03T14:26:20.783085+00:00
