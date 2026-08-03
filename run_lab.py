@@ -31,6 +31,7 @@ import macro_rotacion
 import combinaciones
 import cartera
 import volobjetivo
+import volobjetivo2
 import pauta_techo
 import forward_carteras
 from validation import evaluate
@@ -304,6 +305,21 @@ def main(sintetico: bool = False):
         salida.append(vo)
         try:
             print(f"   {vo.get('n_celdas')} hipótesis, {vo.get('n_fdr')} superan el FDR", flush=True)
+        except Exception:
+            pass
+    else:
+        print("   (sin datos suficientes)", flush=True)
+
+    # Lote V2: explotación de la volatilidad objetivo (14 celdas pre-registradas).
+    print("-> Lote V2: explotar la volatilidad objetivo ...", flush=True)
+    try:
+        vo2 = volobjetivo2.evaluar(sintetico=sintetico)
+    except Exception as e:
+        vo2 = None; print(f"   (error: {e})", flush=True)
+    if vo2:
+        salida.append(vo2)
+        try:
+            print(f"   {vo2.get('n_celdas')} celdas, {vo2.get('n_fdr')} superan el FDR", flush=True)
         except Exception:
             pass
     else:
