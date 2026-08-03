@@ -14,6 +14,12 @@ FILTRO DE SANIDAD, PRE-REGISTRADO (no se retoca según lo que salga):
     quien quema caja sin colchón acaba diluyendo al accionista.
   - Baratura SOLO entre las aprobadas: seniors por EV/EBITDA ascendente,
     juniors por precio/valor contable ascendente.
+  - ROBUSTEZ ANTE DATOS ROTOS (añadida tras la primera corrida real): un dato
+    ausente se etiqueta "sin dato", nunca como si fuera un hecho negativo; y un
+    EV/EBITDA < 0,5 se considera improbable (artefacto habitual de Yahoo con
+    caja neta grande) — la empresa sigue aprobada si pasa el filtro, pero va al
+    final de la cola de baratura, no en cabeza por un dato roto. El registro de
+    meses anteriores NO se retoca: lo registrado, registrado queda.
   - Cartera ficticia del mes: hasta 5 seniors + hasta 3 juniors, equiponderadas.
 
 El registro guarda también las acciones en circulación de cada elegida: con el
@@ -105,14 +111,25 @@ def _filtrar(datos):
         es_senior = d["ebitda"] is not None and d["ebitda"] > 0
         if es_senior:
             apal = neta / d["ebitda"]
-            ok = apal < 2.0 and (d["fcf"] is not None and d["fcf"] > 0)
-            motivo = (f"deuda neta/EBITDA {apal:.1f}" + ("" if apal < 2.0 else " ≥ 2") +
-                      ("" if (d["fcf"] or 0) > 0 else " · FCF ≤ 0"))
-            if ok:
-                orden = (d["ev"] / d["ebitda"]) if d["ev"] else np.inf
-                seniors.append((orden, tk, d, f"EV/EBITDA {orden:.1f}" if np.isfinite(orden) else "EV/EBITDA n/d"))
+            fcf_ok = d["fcf"] is not None and d["fcf"] > 0
+            if apal < 2.0 and fcf_ok:
+                ev_eb = (d["ev"] / d["ebitda"]) if d["ev"] else None
+                valido = ev_eb is not None and np.isfinite(ev_eb) and ev_eb >= 0.5
+                orden = ev_eb if valido else np.inf
+                met = (f"EV/EBITDA {ev_eb:.1f}" if ev_eb is not None and np.isfinite(ev_eb)
+                       else "EV/EBITDA n/d")
+                if not valido:
+                    met += " · dato dudoso (EV improbable): relegada al final de la cola"
+                seniors.append((orden, tk, d, met))
             else:
-                rech.append((tk, "senior", motivo))
+                partes = []
+                if apal >= 2.0:
+                    partes.append(f"deuda neta/EBITDA {apal:.1f} ≥ 2")
+                if d["fcf"] is None:
+                    partes.append("FCF sin dato — no verificable, no negativo")
+                elif d["fcf"] <= 0:
+                    partes.append("FCF ≤ 0")
+                rech.append((tk, "senior", " · ".join(partes) or "no supera el filtro"))
         else:
             ok = neta < 0
             if ok:
