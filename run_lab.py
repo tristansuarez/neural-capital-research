@@ -32,6 +32,7 @@ import combinaciones
 import cartera
 import volobjetivo
 import pauta_techo
+import forward_carteras
 from validation import evaluate
 from models import BuyAndHold, GoldSilverPairs, PairsModel
 
@@ -320,6 +321,18 @@ def main(sintetico: bool = False):
             print(f"   {pt.get('tipo','')}", flush=True)
         except Exception:
             pass
+    else:
+        print("   (sin datos suficientes)", flush=True)
+
+    # Forward-test EN VIVO de las estrategias supervivientes (registro mensual).
+    print("-> Forward-test de carteras (en vivo) ...", flush=True)
+    try:
+        fw = forward_carteras.evaluar_forward(sintetico=sintetico)
+    except Exception as e:
+        fw = None; print(f"   (error: {e})", flush=True)
+    if fw:
+        salida.append(fw)
+        print("   posiciones del mes registradas", flush=True)
     else:
         print("   (sin datos suficientes)", flush=True)
 

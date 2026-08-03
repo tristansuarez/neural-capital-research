@@ -21,6 +21,7 @@ function navHTML(active){
     ['cartera', 'Construcción de cartera'],
     ['vol_objetivo', 'Volatilidad objetivo'],
     ['pauta_techo', 'Método de techo (pauta plana)'],
+    ['forward_carteras', '★ Forward-test en vivo'],
     ['figuras_tecnicas', 'Figuras técnicas (S&P 500)'],
     ['figuras_intradia', 'Figuras intradía (1h)'],
     ['figuras_mensual', 'Figuras mensual'],
