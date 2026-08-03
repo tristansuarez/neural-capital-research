@@ -269,6 +269,65 @@ def evaluar_forward(sintetico=False):
                       "un año para que la comparación con GDX signifique algo. La espera es parte "
                       "del método.</div>")
 
+    # Veredictos del analista LLM (opinión publicada como opinión; puntuación medida).
+    ver_txt = ""
+    try:
+        VCSV = "veredictos_mineras.csv"
+        if os.path.exists(VCSV):
+            with open(VCSV, encoding="utf-8") as fh:
+                vfilas = [r for r in csv.DictReader(fh) if r.get("puntuacion")]
+            mes_hoy = hoy.strftime("%Y-%m")
+            del_mes = sorted([r for r in vfilas if r["mes"] == mes_hoy],
+                             key=lambda r: -float(r["puntuacion"]))
+            if del_mes:
+                filas_v = "".join(
+                    f"<tr><td><b>{r['ticker']}</b></td><td class='mono'>{r['puntuacion']}</td>"
+                    f"<td>{r['veredicto']}</td><td class='est-obs'>{r['tesis']}"
+                    f"{(' <b>Riesgo:</b> ' + r['riesgo']) if r.get('riesgo') else ''}</td></tr>"
+                    for r in del_mes)
+                ver_txt = (
+                    "<br><b>El analista (LLM local) opina</b> — y que quede claro qué es esto: "
+                    "la tesis es la OPINIÓN de un modelo de lenguaje con los datos del mes delante, "
+                    "publicada como tal; la puntuación es la parte MEDIBLE. Con el tiempo, este "
+                    "mismo registro dirá si sus notas altas baten a sus notas bajas — o si el "
+                    "analista era teatro. Prompt fijo en analista_mineras.py."
+                    "<div class='ops-scroll'><table class='ops'><thead><tr><th>Minera</th>"
+                    "<th>Nota</th><th>Veredicto</th><th>Tesis y riesgo</th></tr></thead>"
+                    f"<tbody>{filas_v}</tbody></table></div>")
+            # comparación acumulada mitad alta vs mitad baja, con los precios del propio CSV
+            por_mes = {}
+            for r in vfilas:
+                try:
+                    por_mes.setdefault(r["mes"], {})[r["ticker"]] = (
+                        float(r["puntuacion"]), float(r["precio"]))
+                except Exception:
+                    continue
+            meses_v = sorted(por_mes)
+            if len(meses_v) >= 2:
+                acum_alta, acum_baja, tramos = 1.0, 1.0, 0
+                for a, b in zip(meses_v, meses_v[1:]):
+                    comunes = [t for t in por_mes[a] if t in por_mes[b]]
+                    if len(comunes) < 4:
+                        continue
+                    orden = sorted(comunes, key=lambda t: -por_mes[a][t][0])
+                    mitad = len(orden) // 2
+                    def _ret(ts):
+                        rs = [por_mes[b][t][1] / por_mes[a][t][1] - 1.0 for t in ts]
+                        return sum(rs) / len(rs)
+                    acum_alta *= 1 + _ret(orden[:mitad])
+                    acum_baja *= 1 + _ret(orden[-mitad:])
+                    tramos += 1
+                if tramos:
+                    dif = (acum_alta - acum_baja) * 100
+                    ver_txt += (
+                        f"<br><b>¿Tiene ojo el analista?</b> Mitad mejor puntuada "
+                        f"<b class='{'pos' if acum_alta >= 1 else 'neg'}'>{(acum_alta-1)*100:+.2f}%</b> "
+                        f"vs mitad peor {(acum_baja-1)*100:+.2f}% en {tramos} tramo(s) → diferencia "
+                        f"<b class='{'pos' if dif > 0 else 'neg'}'>{dif:+.2f} puntos</b>. "
+                        f"Con pocos tramos esto es anécdota; la vara seria llega con un año.")
+    except Exception:
+        ver_txt = ""
+
     aviso = ""
     if errores:
         aviso = ("<br><b>Tickers sin datos en esta corrida:</b> " + ", ".join(errores) +
@@ -295,7 +354,7 @@ def evaluar_forward(sintetico=False):
                 "<div class='ops-scroll'><table class='ops'><thead><tr><th>Ticker</th><th>Tipo</th>"
                 f"<th>Motivo</th></tr></thead><tbody>{filas_rech}</tbody></table></div>")
                if filas_rech else "")),
-        "nota": (tabla_hist + notas_txt + aviso +
+        "nota": (tabla_hist + notas_txt + ver_txt + aviso +
                  "<br><b>Dilución vigilada por el propio registro:</b> cada mes se guardan las "
                  "acciones en circulación de las elegidas; con el tiempo, el CSV medirá la "
                  "dilución real — el dato que el sesgo de supervivencia esconde en cualquier "

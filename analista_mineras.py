@@ -53,6 +53,18 @@ RESULTADOS = "resultados.json"
 CATEGORIAS = ["dilucion", "operacional", "permisos", "fusiones",
               "resultados", "financiacion", "otro"]
 
+LOG_VEREDICTOS = "veredictos_mineras.csv"
+
+PROMPT_ANALISTA = (
+    "Eres un analista fundamental de mineras de oro, escéptico y directo. Se te dan "
+    "los datos VIGENTES de una empresa (balance, caja, EBITDA, FCF, valoración, momento "
+    "del precio y noticias del mes). Analiza SOLO con esos datos: si algo no está, no lo "
+    "supongas. Juzga: salud del balance, si la valoración compensa, y qué puede salir mal. "
+    "Responde SOLO con JSON exacto: {\"puntuacion\": 0-10, \"veredicto\": "
+    "\"compraria\"|\"mantendria\"|\"evitaria\", \"tesis\": \"2-3 frases con tu "
+    "razonamiento\", \"riesgo\": \"el mayor riesgo en 1 frase\"}"
+)
+
 PROMPT_CLASIFICADOR = (
     "Eres un analista de mineras de oro. Clasifica el titular en UNA categoría: "
     + ", ".join(CATEGORIAS) +
@@ -228,6 +240,127 @@ def _anotar_forward(mes, resumen):
         print(f"notas añadidas a {cambiadas} elegida(s) del mes en {LOG_FORWARD}")
 
 
+# ----------------------------------------------------------- veredictos ----
+def _contexto_empresa(tk, d, precios6m, noticias_mes):
+    partes = [f"Empresa: {tk}", f"Precio actual: {d['precio']} $"]
+    neta = d["deuda"] - d["caja"]
+    partes.append(f"Deuda neta: {neta/1e6:.0f} M$ (deuda {d['deuda']/1e6:.0f} / caja {d['caja']/1e6:.0f})")
+    partes.append(f"EBITDA: {'%.0f M$' % (d['ebitda']/1e6) if d['ebitda'] is not None else 'sin dato'}")
+    partes.append(f"FCF: {'%.0f M$' % (d['fcf']/1e6) if d['fcf'] is not None else 'sin dato'}")
+    if d.get("ev") and d.get("ebitda"):
+        partes.append(f"EV/EBITDA: {d['ev']/d['ebitda']:.1f}")
+    if d.get("pb") is not None:
+        partes.append(f"Precio/valor contable: {d['pb']}")
+    if tk in precios6m:
+        v1, v6 = precios6m[tk]
+        partes.append(f"Precio: {v1:+.1f}% en 1 mes, {v6:+.1f}% en 6 meses")
+    ns = noticias_mes.get(tk, [])
+    if ns:
+        partes.append("Noticias del mes: " + " | ".join(f"[{c} {s:+d}] {t[:80]}" for t, c, s in ns[:5]))
+    else:
+        partes.append("Noticias del mes: ninguna registrada")
+    return "\n".join(partes)
+
+
+def _precios_6m(tickers, sintetico=False):
+    if sintetico:
+        import numpy as np
+        rng = np.random.default_rng(11)
+        return {tk: (float(rng.normal(0, 5)), float(rng.normal(0, 15))) for tk in tickers}
+    import yfinance as yf
+    out = {}
+    try:
+        df = yf.download(tickers, period="7mo", auto_adjust=True, progress=False,
+                         group_by="ticker", threads=True)
+        for tk in tickers:
+            try:
+                s = df[tk]["Close"].dropna()
+                if len(s) > 40:
+                    out[tk] = (float(s.iloc[-1] / s.iloc[-21] - 1) * 100,
+                               float(s.iloc[-1] / s.iloc[0] - 1) * 100)
+            except Exception:
+                continue
+    except Exception:
+        pass
+    return out
+
+
+def _noticias_del_mes(mes):
+    out = {}
+    if not os.path.exists(LOG_NOTICIAS):
+        return out
+    with open(LOG_NOTICIAS, encoding="utf-8") as fh:
+        for r in csv.DictReader(fh):
+            if r.get("mes") == mes:
+                try:
+                    out.setdefault(r["ticker"], []).append(
+                        (r["titular"], r["categoria"], int(r["signo"])))
+                except Exception:
+                    continue
+    return out
+
+
+def _veredicto_llm(modelo, contexto):
+    salida = _generar(modelo, contexto, sistema=PROMPT_ANALISTA)
+    m = re.search(r"\{.*\}", salida, re.DOTALL)
+    if not m:
+        return None
+    try:
+        d = json.loads(m.group(0))
+        p = float(d.get("puntuacion"))
+        v = str(d.get("veredicto", "")).lower().strip()
+        if not (0 <= p <= 10) or v not in ("compraria", "mantendria", "evitaria"):
+            return None
+        return {"puntuacion": round(p, 1), "veredicto": v,
+                "tesis": str(d.get("tesis", ""))[:400].replace("\n", " "),
+                "riesgo": str(d.get("riesgo", ""))[:200].replace("\n", " ")}
+    except Exception:
+        return None
+
+
+def veredictos(modelo, sintetico=False):
+    """El analista de verdad: tesis, riesgo y puntuación por minera, con datos
+    delante. La OPINIÓN se publica como opinión; la PUNTUACIÓN se mide: con el
+    tiempo, el propio CSV dirá si las notas altas baten a las bajas."""
+    import forward_mineras as fm
+    datos, _bench, errores = fm._fundamentales(sintetico)
+    if not datos:
+        sys.exit("Sin fundamentales (¿red?).")
+    mes = dt.date.today().strftime("%Y-%m")
+    ya = set()
+    if os.path.exists(LOG_VEREDICTOS):
+        with open(LOG_VEREDICTOS, encoding="utf-8") as fh:
+            for r in csv.DictReader(fh):
+                if r.get("mes") == mes:
+                    ya.add(r.get("ticker"))
+    precios6m = _precios_6m(list(datos), sintetico)
+    noticias = _noticias_del_mes(mes)
+    nuevo = not os.path.exists(LOG_VEREDICTOS)
+    n_ok, n_mal = 0, 0
+    with open(LOG_VEREDICTOS, "a", newline="", encoding="utf-8") as fh:
+        w = csv.writer(fh)
+        if nuevo:
+            w.writerow(["mes", "fecha", "ticker", "precio", "puntuacion", "veredicto",
+                        "tesis", "riesgo", "modelo", "registrado"])
+        for tk, d in datos.items():
+            if tk in ya:
+                continue
+            v = _veredicto_llm(modelo, _contexto_empresa(tk, d, precios6m, noticias))
+            ts = dt.datetime.now(dt.timezone.utc).isoformat()
+            if v is None:
+                w.writerow([mes, dt.date.today().isoformat(), tk, d["precio"], "", "",
+                            "sin formato: el modelo no devolvio JSON valido", "", modelo, ts])
+                n_mal += 1
+                print(f"  {tk}: (sin formato)")
+                continue
+            w.writerow([mes, dt.date.today().isoformat(), tk, d["precio"],
+                        v["puntuacion"], v["veredicto"], v["tesis"], v["riesgo"], modelo, ts])
+            n_ok += 1
+            print(f"  {tk}: {v['puntuacion']}/10 {v['veredicto']} — {v['tesis'][:70]}")
+    print(f"\n{n_ok} veredictos ({n_mal} sin formato) de {modelo}. Tickers sin datos: {len(errores)}.")
+    print("Ahora: git add veredictos_mineras.csv ; git commit ; git push")
+
+
 # ---------------------------------------------------------------- chat ----
 def _contexto_laboratorio():
     partes = []
@@ -252,7 +385,8 @@ def _contexto_laboratorio():
             partes.append("(resultados.json ilegible)")
     for csv_f, titulo in ((LOG_FORWARD, "Registro forward de mineras"),
                           ("forward_carteras.csv", "Registro forward de carteras"),
-                          (LOG_NOTICIAS, "Noticias clasificadas")):
+                          (LOG_NOTICIAS, "Noticias clasificadas"),
+                          (LOG_VEREDICTOS, "Veredictos del analista")):
         if os.path.exists(csv_f):
             with open(csv_f, encoding="utf-8") as fh:
                 filas = fh.read().splitlines()
@@ -291,6 +425,8 @@ def chat(modelo):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--chat", action="store_true")
+    ap.add_argument("--veredicto", action="store_true")
+    ap.add_argument("--sintetico", action="store_true")
     ap.add_argument("--modelo", default=None)
     ap.add_argument("--max-noticias", type=int, default=5)
     args = ap.parse_args()
@@ -298,5 +434,7 @@ if __name__ == "__main__":
     print(f"Modelo: {modelo}")
     if args.chat:
         chat(modelo)
+    elif args.veredicto:
+        veredictos(modelo, sintetico=args.sintetico)
     else:
         analizar(modelo, args.max_noticias)
