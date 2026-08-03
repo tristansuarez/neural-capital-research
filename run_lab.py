@@ -32,6 +32,7 @@ import combinaciones
 import cartera
 import volobjetivo
 import volobjetivo2
+import primas
 import pauta_techo
 import forward_carteras
 from validation import evaluate
@@ -320,6 +321,21 @@ def main(sintetico: bool = False):
         salida.append(vo2)
         try:
             print(f"   {vo2.get('n_celdas')} celdas, {vo2.get('n_fdr')} superan el FDR", flush=True)
+        except Exception:
+            pass
+    else:
+        print("   (sin datos suficientes)", flush=True)
+
+    # Lote V3: primas de riesgo (9 celdas pre-registradas).
+    print("-> Lote V3: primas de riesgo ...", flush=True)
+    try:
+        pr = primas.evaluar(sintetico=sintetico)
+    except Exception as e:
+        pr = None; print(f"   (error: {e})", flush=True)
+    if pr:
+        salida.append(pr)
+        try:
+            print(f"   {pr.get('n_celdas')} celdas, {pr.get('n_fdr')} superan el FDR", flush=True)
         except Exception:
             pass
     else:
