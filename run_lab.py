@@ -31,6 +31,7 @@ import macro_rotacion
 import combinaciones
 import cartera
 import volobjetivo
+import pauta_techo
 from validation import evaluate
 from models import BuyAndHold, GoldSilverPairs, PairsModel
 
@@ -302,6 +303,21 @@ def main(sintetico: bool = False):
         salida.append(vo)
         try:
             print(f"   {vo.get('n_celdas')} hipótesis, {vo.get('n_fdr')} superan el FDR", flush=True)
+        except Exception:
+            pass
+    else:
+        print("   (sin datos suficientes)", flush=True)
+
+    # Método de techo con pauta plana (estrategia pública concreta).
+    print("-> Método de techo con pauta plana ...", flush=True)
+    try:
+        pt = pauta_techo.backtest_pauta(sintetico=sintetico)
+    except Exception as e:
+        pt = None; print(f"   (error: {e})", flush=True)
+    if pt:
+        salida.append(pt)
+        try:
+            print(f"   {pt.get('tipo','')}", flush=True)
         except Exception:
             pass
     else:

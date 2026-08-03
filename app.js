@@ -20,6 +20,7 @@ function navHTML(active){
     ['combinaciones', 'Combinaciones y estacionalidad'],
     ['cartera', 'Construcción de cartera'],
     ['vol_objetivo', 'Volatilidad objetivo'],
+    ['pauta_techo', 'Método de techo (pauta plana)'],
     ['figuras_tecnicas', 'Figuras técnicas (S&P 500)'],
     ['figuras_intradia', 'Figuras intradía (1h)'],
     ['figuras_mensual', 'Figuras mensual'],
