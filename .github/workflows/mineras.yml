@@ -1,0 +1,45 @@
+name: Bot de mineras (Telegram)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 21 * * 1-5'   # 21:30 UTC, tras el cierre de EE.UU., días laborables
+
+permissions:
+  contents: write
+
+jobs:
+  avisar:
+    runs-on: ubuntu-latest
+    env:
+      TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+      TELEGRAM_CHANNEL: ${{ secrets.TELEGRAM_CHANNEL }}
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Avisos de mineras a Telegram
+        continue-on-error: true
+        run: python senal_mineras.py --enviar
+
+      - name: Guardar deduplicación
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add senal_mineras_log.csv || true
+          git commit -m "Deduplicación de avisos de mineras" || { echo "Sin cambios"; exit 0; }
+          for i in 1 2 3; do
+            git fetch origin main
+            git merge -X ours --no-edit origin/main || true
+            git push && exit 0
+            sleep 5
+          done
+          echo "No se pudo publicar el log"; exit 1
