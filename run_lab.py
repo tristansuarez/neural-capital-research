@@ -29,6 +29,7 @@ import hipotesis2
 import momentum_tsm
 import macro_rotacion
 import combinaciones
+import cartera
 from validation import evaluate
 from models import BuyAndHold, GoldSilverPairs, PairsModel
 
@@ -270,6 +271,21 @@ def main(sintetico: bool = False):
         salida.append(cmb)
         try:
             print(f"   {cmb.get('n_celdas')} variantes, {cmb.get('n_fdr')} superan el FDR", flush=True)
+        except Exception:
+            pass
+    else:
+        print("   (sin datos suficientes)", flush=True)
+
+    # Construcción de cartera: rebalanceo, paridad de riesgo, geografía, bonos.
+    print("-> Construcción de cartera ...", flush=True)
+    try:
+        car = cartera.evaluar_cartera(sintetico=sintetico)
+    except Exception as e:
+        car = None; print(f"   (error: {e})", flush=True)
+    if car:
+        salida.append(car)
+        try:
+            print(f"   {car.get('n_celdas')} hipótesis, {car.get('n_fdr')} superan el FDR", flush=True)
         except Exception:
             pass
     else:
