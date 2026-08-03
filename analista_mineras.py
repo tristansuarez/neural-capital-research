@@ -65,6 +65,24 @@ PROMPT_ANALISTA = (
     "razonamiento\", \"riesgo\": \"el mayor riesgo en 1 frase\"}"
 )
 
+PROMPT_INFORME = (
+    "Eres un analista de bolsa escéptico y directo, del laboratorio Neural Capital "
+    "Research, cuya marca es la honestidad: publicamos también lo que no funciona. Se te "
+    "dan TODOS los datos disponibles de un valor. Escribe un informe en español, en "
+    "markdown, con EXACTAMENTE estas secciones: "
+    "## Resumen (3-4 frases con lo esencial y el precio) · "
+    "## Fundamentales (tabla con las métricas dadas y qué significan) · "
+    "## Consenso de analistas (qué dice y cuánto fiarse) · "
+    "## Técnicos (RSI, MACD, medias: qué señalan y en qué plazo) · "
+    "## Noticias (si las hay) · "
+    "## Tesis alcista y bajista (viñetas honestas en ambos lados) · "
+    "## Veredicto (tu opinión clara, el mayor riesgo, y una nota 0-10). "
+    "REGLAS: usa SOLO los datos dados; si una métrica falta, di 'sin dato', no la "
+    "inventes; distingue siempre hechos de tu opinión; nada de precios objetivo propios; "
+    "cierra con: 'Opinión de un modelo de lenguaje local con datos del día. No es "
+    "recomendación de inversión.'"
+)
+
 PROMPT_CLASIFICADOR = (
     "Eres un analista de mineras de oro. Clasifica el titular en UNA categoría: "
     + ", ".join(CATEGORIAS) +
@@ -361,6 +379,134 @@ def veredictos(modelo, sintetico=False):
     print("Ahora: git add veredictos_mineras.csv ; git commit ; git push")
 
 
+# -------------------------------------------------------------- informe ----
+def _tecnicos(cierre):
+    """RSI(14), MACD(12,26,9), medias 50/200 y posición en el rango de 52 semanas."""
+    import numpy as np
+    c = cierre.dropna()
+    if len(c) < 60:
+        return {}
+    delta = c.diff()
+    up = delta.clip(lower=0).ewm(alpha=1/14, adjust=False).mean()
+    dn = (-delta.clip(upper=0)).ewm(alpha=1/14, adjust=False).mean()
+    rs = up / dn.replace(0, np.nan)
+    rsi = float((100 - 100 / (1 + rs)).iloc[-1])
+    ema12 = c.ewm(span=12, adjust=False).mean()
+    ema26 = c.ewm(span=26, adjust=False).mean()
+    macd = ema12 - ema26
+    senal = macd.ewm(span=9, adjust=False).mean()
+    out = {"rsi14": round(rsi, 1),
+           "macd": round(float(macd.iloc[-1]), 3),
+           "macd_senal": round(float(senal.iloc[-1]), 3),
+           "macd_hist": round(float(macd.iloc[-1] - senal.iloc[-1]), 3)}
+    if len(c) >= 200:
+        out["sma50"] = round(float(c.rolling(50).mean().iloc[-1]), 2)
+        out["sma200"] = round(float(c.rolling(200).mean().iloc[-1]), 2)
+        out["precio_vs_sma200"] = "por encima" if c.iloc[-1] > out["sma200"] else "por debajo"
+    ult = c[c.index >= c.index[-1] - pd_timedelta_dias(365)]
+    if len(ult) > 50:
+        lo, hi = float(ult.min()), float(ult.max())
+        out["rango_52s"] = f"{lo:.2f}-{hi:.2f}"
+        out["posicion_52s_pct"] = round((float(c.iloc[-1]) - lo) / (hi - lo) * 100, 0) if hi > lo else None
+        out["var_12m_pct"] = round((float(c.iloc[-1]) / float(ult.iloc[0]) - 1) * 100, 1)
+    return out
+
+
+def pd_timedelta_dias(n):
+    import pandas as pd
+    return pd.Timedelta(days=n)
+
+
+def _datos_informe(tk, sintetico=False):
+    if sintetico:
+        import numpy as np, pandas as pd
+        rng = np.random.default_rng(3)
+        idx = pd.bdate_range("2024-01-01", periods=420)
+        c = pd.Series(20 * np.exp(np.cumsum(rng.normal(2e-4, 0.02, len(idx)))), idx)
+        info = {"currentPrice": round(float(c.iloc[-1]), 2), "marketCap": 3.1e9,
+                "trailingPE": None, "forwardPE": -17.0, "priceToBook": 4.2,
+                "totalCash": 4.5e8, "totalDebt": 2e6, "ebitda": -2e8,
+                "freeCashflow": -7.5e8, "revenueGrowth": -0.4, "profitMargins": -8.0,
+                "beta": 2.25, "targetMeanPrice": 13.9, "targetLowPrice": 7.0,
+                "targetHighPrice": 21.0, "numberOfAnalystOpinions": 18,
+                "recommendationKey": "hold"}
+        return info, c
+    import yfinance as yf
+    t = yf.Ticker(tk)
+    try:
+        info = t.info or {}
+    except Exception:
+        info = {}
+    try:
+        c = t.history(period="2y", auto_adjust=True)["Close"].dropna()
+    except Exception:
+        c = None
+    if not info and (c is None or not len(c)):
+        return None, None
+    return info, c
+
+
+def _num(v, div=1.0, dec=2):
+    try:
+        return round(float(v) / div, dec)
+    except Exception:
+        return None
+
+
+def informe(modelo, tk, sintetico=False):
+    tk = tk.upper()
+    info, cierre = _datos_informe(tk, sintetico)
+    if info is None:
+        sys.exit(f"Yahoo no sirve datos de {tk}.")
+    partes = [f"VALOR: {tk}",
+              f"Precio: {info.get('currentPrice') or info.get('regularMarketPrice') or 'sin dato'} $",
+              f"Capitalización: {_num(info.get('marketCap'), 1e9)} mil M$"]
+    f = {"PER (trailing)": info.get("trailingPE"), "PER (forward)": info.get("forwardPE"),
+         "Precio/valor contable": info.get("priceToBook"),
+         "Caja total (M$)": _num(info.get("totalCash"), 1e6, 0),
+         "Deuda total (M$)": _num(info.get("totalDebt"), 1e6, 0),
+         "EBITDA (M$)": _num(info.get("ebitda"), 1e6, 0),
+         "FCF (M$)": _num(info.get("freeCashflow"), 1e6, 0),
+         "Crecimiento de ingresos": info.get("revenueGrowth"),
+         "Margen neto": info.get("profitMargins"),
+         "Beta": info.get("beta")}
+    partes.append("FUNDAMENTALES: " + " | ".join(
+        f"{k}: {v if v is not None else 'sin dato'}" for k, v in f.items()))
+    n_op = info.get("numberOfAnalystOpinions")
+    partes.append("CONSENSO DE ANALISTAS: " + (
+        f"{n_op} analistas, recomendación '{info.get('recommendationKey','sin dato')}', "
+        f"precio objetivo medio {info.get('targetMeanPrice','sin dato')} $ "
+        f"(rango {info.get('targetLowPrice','?')}-{info.get('targetHighPrice','?')} $)"
+        if n_op else "sin dato"))
+    tec = _tecnicos(cierre) if cierre is not None else {}
+    partes.append("TÉCNICOS (diario): " + (" | ".join(f"{k}: {v}" for k, v in tec.items())
+                                           if tec else "sin dato"))
+    mes = dt.date.today().strftime("%Y-%m")
+    ns = _noticias_del_mes(mes).get(tk, [])
+    partes.append("NOTICIAS DEL MES (clasificadas): " + (
+        " | ".join(f"[{c} {s:+d}] {t[:90]}" for t, c, s in ns[:6]) if ns else "ninguna registrada"))
+    # contexto del laboratorio si el valor está en nuestro registro
+    lab = []
+    if os.path.exists(LOG_FORWARD):
+        with open(LOG_FORWARD, encoding="utf-8") as fh:
+            for r in csv.DictReader(fh):
+                if r.get("ticker") == tk:
+                    lab.append(f"en la selección del forward de {r['mes']} a {r['precio']} $ ({r['metrica_orden']})")
+    partes.append("CONTEXTO DEL LABORATORIO: " + ("; ".join(lab[-3:]) if lab else
+                  "no está en la selección actual del forward de mineras"))
+
+    contexto = "\n".join(partes)
+    print(f"Generando informe de {tk} con {modelo}...\n")
+    salida = _generar(modelo, contexto, sistema=PROMPT_INFORME)
+    os.makedirs("informes", exist_ok=True)
+    ruta = os.path.join("informes", f"{tk}_{dt.date.today().isoformat()}.md")
+    with open(ruta, "w", encoding="utf-8") as fh:
+        fh.write(f"# Informe {tk} · {dt.date.today().isoformat()} · modelo {modelo}\n\n")
+        fh.write(salida.strip() + "\n")
+    print(salida.strip())
+    print(f"\nGuardado en {ruta}. Si quieres publicarlo: git add informes ; git commit ; git push")
+
+
 # ---------------------------------------------------------------- chat ----
 def _contexto_laboratorio():
     partes = []
@@ -426,6 +572,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--chat", action="store_true")
     ap.add_argument("--veredicto", action="store_true")
+    ap.add_argument("--informe", metavar="TICKER", default=None)
     ap.add_argument("--sintetico", action="store_true")
     ap.add_argument("--modelo", default=None)
     ap.add_argument("--max-noticias", type=int, default=5)
@@ -436,5 +583,7 @@ if __name__ == "__main__":
         chat(modelo)
     elif args.veredicto:
         veredictos(modelo, sintetico=args.sintetico)
+    elif args.informe:
+        informe(modelo, args.informe, sintetico=args.sintetico)
     else:
         analizar(modelo, args.max_noticias)
