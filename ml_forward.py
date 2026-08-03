@@ -286,6 +286,87 @@ def evaluar_ml(sintetico=False):
             f"(+0,59% → +0,17% → −0,05% → {round(m_ex, 2)}%). Un edge real no se comporta así; "
             f"esa inestabilidad es la firma del ruido y del sesgo, no de una señal.</div>")
 
+    # --- CAPACIDAD PREDICTIVA PURA (independiente del sesgo de supervivencia) ---
+    # No mide cuánto gana, sino si ORDENA bien: ¿acierta qué acciones lo harán mejor
+    # que otras? El sesgo de supervivencia sube el nivel de todas por igual, así que
+    # no infla estas métricas. Es la prueba de capacidad, no de rentabilidad.
+    ic_lista, top_bot, aciertos_par = [], [], []
+    t = MIN_TRAIN
+    modelo_ic = None
+    while t < n - H:
+        if modelo_ic is None or (t - MIN_TRAIN) % REFIT == 0:
+            lim = t - H
+            Xtr = F[:lim].reshape(-1, len(nombres)); ytr = Y[:lim].reshape(-1)
+            msk = np.isfinite(ytr) & np.isfinite(Xtr).all(axis=1)
+            if msk.sum() >= 5000:
+                Xtr, ytr = Xtr[msk], ytr[msk]
+                if len(ytr) > 150000:
+                    sel_ = np.random.default_rng(0).choice(len(ytr), 150000, replace=False)
+                    Xtr, ytr = Xtr[sel_], ytr[sel_]
+                modelo_ic = HistGradientBoostingRegressor(
+                    max_depth=3, max_iter=120, learning_rate=0.05,
+                    min_samples_leaf=200, l2_regularization=1.0, random_state=0)
+                modelo_ic.fit(Xtr, ytr)
+        if modelo_ic is not None and t + H < n:
+            Xt = F[t]; ok_ = np.isfinite(Xt).all(axis=1)
+            real = np.full(k, np.nan)
+            real[ok_] = px.values[t + H, ok_] / px.values[t, ok_] - 1.0
+            val = np.isfinite(real) & ok_
+            if val.sum() >= 20:
+                pr = modelo_ic.predict(Xt[val])
+                rl = real[val]
+                # 1) Information Coefficient: correlación de rangos predicción-realidad
+                rp = pd.Series(pr).rank().values; rr = pd.Series(rl).rank().values
+                if np.std(rp) > 0 and np.std(rr) > 0:
+                    ic_lista.append(float(np.corrcoef(rp, rr)[0, 1]))
+                # 2) top vs bottom: ¿el quintil alto bate al bajo?
+                q_hi, q_lo = np.quantile(pr, 0.8), np.quantile(pr, 0.2)
+                hi_, lo_ = rl[pr >= q_hi], rl[pr <= q_lo]
+                if len(hi_) >= 3 and len(lo_) >= 3:
+                    top_bot.append(float(np.mean(hi_) - np.mean(lo_)) * 100)
+                # 3) acierto por pares: de cada 2 acciones, ¿ordena bien?
+                rng_p = np.random.default_rng(t)
+                idx_a = rng_p.integers(0, val.sum(), 200)
+                idx_b = rng_p.integers(0, val.sum(), 200)
+                dif_p = pr[idx_a] - pr[idx_b]; dif_r = rl[idx_a] - rl[idx_b]
+                mv = (dif_p != 0) & (dif_r != 0)
+                if mv.sum() > 20:
+                    aciertos_par.append(float(np.mean(np.sign(dif_p[mv]) == np.sign(dif_r[mv])) * 100))
+        t += H
+
+    cap = ""
+    if len(ic_lista) >= 24:
+        ic_m, ic_ic, ic_p = _boot(np.array(ic_lista), bloque=1)
+        tb_m, tb_ic, tb_p = _boot(np.array(top_bot), bloque=1) if len(top_bot) >= 24 else (0, [0, 0], 1)
+        ap_m, ap_ic, ap_p = (_boot(np.array(aciertos_par) - 50.0, bloque=1)
+                             if len(aciertos_par) >= 24 else (0, [0, 0], 1))
+        cap = (
+            "<br><br><b>Capacidad predictiva pura</b> (no mide cuánto gana, sino si ORDENA bien "
+            "las acciones). El sesgo de supervivencia sube el nivel de todas por igual, así que "
+            "aquí no infla el resultado: esta es la prueba de capacidad."
+            "<div class='ops-scroll'><table class='ops'><thead><tr><th>Métrica</th><th>Valor</th>"
+            "<th>IC 90%</th><th>p</th><th>Qué significaría tener capacidad</th></tr></thead><tbody>"
+            f"<tr><td>Coeficiente de información (IC)</td>"
+            f"<td class='{'pos' if ic_m > 0 else 'neg'}'>{ic_m:+.3f}</td>"
+            f"<td class='est-obs'>[{ic_ic[0]:.3f}, {ic_ic[1]:.3f}]</td>"
+            f"<td class='{'pos' if ic_p <= 0.10 else 'est-obs'}'>{ic_p}</td>"
+            f"<td class='est-obs'>&gt; 0,03 ya sería explotable; &gt; 0,05 es bueno</td></tr>"
+            f"<tr><td>Quintil alto − quintil bajo</td>"
+            f"<td class='{'pos' if tb_m > 0 else 'neg'}'>{tb_m:+.2f}%</td>"
+            f"<td class='est-obs'>[{tb_ic[0]:.2f}, {tb_ic[1]:.2f}]</td>"
+            f"<td class='{'pos' if tb_p <= 0.10 else 'est-obs'}'>{tb_p}</td>"
+            f"<td class='est-obs'>positivo y significativo</td></tr>"
+            f"<tr><td>Acierto ordenando pares (sobre 50%)</td>"
+            f"<td class='{'pos' if ap_m > 0 else 'neg'}'>{ap_m:+.2f} pts</td>"
+            f"<td class='est-obs'>[{ap_ic[0]:.2f}, {ap_ic[1]:.2f}]</td>"
+            f"<td class='{'pos' if ap_p <= 0.10 else 'est-obs'}'>{ap_p}</td>"
+            f"<td class='est-obs'>&gt; +2 pts sobre el 50% del azar</td></tr>"
+            "</tbody></table></div>"
+            "<div class='ch-sub' style='margin-top:8px'>Si estas tres métricas rondan cero, el modelo "
+            "no distingue una acción de otra: su rentabilidad viene de estar invertido, no de elegir. "
+            "Si son claramente positivas, hay capacidad real aunque la rentabilidad esté contaminada "
+            "por el sesgo del universo.</div>")
+
     # Variante causal: operar solo cuando el régimen es alcista (info conocida ese día)
     ml_filtrado = np.where(reg, ml, 0.0)     # fuera de mercado en régimen no alcista
     cagr_fil = float((np.prod(1 + ml_filtrado) ** (252 / (H * len(ml_filtrado))) - 1) * 100)
@@ -320,7 +401,7 @@ def evaluar_ml(sintetico=False):
         "curva_sub": ("Protocolo fijado de antemano: una sola configuración, entrenamiento solo con el "
                       "pasado, refit periódico, operaciones no solapadas y costes aplicados. Si la línea "
                       "de color no supera a la gris, el ML no aporta sobre comprar y mantener."),
-        "nota": (aviso_sup + "Machine learning honesto: walk-forward estricto, sin lookahead y con una única "
+        "nota": (aviso_sup + cap + "Machine learning honesto: walk-forward estricto, sin lookahead y con una única "
                  "configuración prefijada (probar muchas y quedarse con la mejor fabrica ganadores "
                  "falsos). El veredicto se acepta tal cual. No es recomendación de inversión."
                  + regimenes + tort),
