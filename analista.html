@@ -41,6 +41,17 @@
       <div class="tipo">&#9656; buscador sobre los datos publicados &middot; no genera texto, recupera lo que el laboratorio ya escribi&oacute;</div>
 
       <div class="chips" id="chips"></div>
+
+      <div id="cerebro-caja" style="margin:6px 0 14px">
+        <button id="cerebro-btn" type="button" style="background:var(--panel);border:1px solid var(--oro);
+          border-radius:12px;color:var(--oro);padding:10px 18px;cursor:pointer;font-family:inherit;font-weight:600">
+          &#9889; Activar el analista (IA en tu navegador)
+        </button>
+        <span id="cerebro-estado" class="ch-sub" style="margin-left:10px"></span>
+        <div class="ch-sub" style="margin-top:6px;color:var(--faint)">La primera vez descarga un modelo
+          (~1 GB) que corre en TU navegador: nada sale de tu m&aacute;quina, no hay servidores ni claves.
+          Requiere un navegador moderno (Chrome/Edge). Sin activarlo, el buscador funciona igual.</div>
+      </div>
       <div class="chat-hist" id="hist"></div>
 
       <form class="chat-form" id="form">
@@ -49,9 +60,9 @@
         <button type="submit">Buscar</button>
       </form>
 
-      <div class="aviso-chat">Este analista <b>no es un modelo de lenguaje</b>: busca en
+      <div class="aviso-chat">Sin activar, este analista <b>no es un modelo de lenguaje</b>: busca en
       resultados.json y en los registros CSV p&uacute;blicos del repositorio y devuelve los fragmentos
-      relevantes, con enlace a su fuente. No opina, no predice y no inventa. El an&aacute;lisis de
+      relevantes, con enlace a su fuente. No opina, no predice y no inventa. Al activarlo, un modelo peque\u00f1o corre EN TU NAVEGADOR y redacta las respuestas usando solo esos datos como contexto: entonces s\u00ed opina, y se dice. El an&aacute;lisis de
       noticias con LLM corre en local y solo sus veredictos (auditables) se publican aqu&iacute;.
       Nada de esto es recomendaci&oacute;n de inversi&oacute;n.</div>
     </div>
@@ -243,6 +254,10 @@
         burbuja('lab', msj + (resto.length ? ' Lo que s\u00ed consta en los dem\u00e1s registros:' + tarjetas(resto) : ''));
         return;
       }
+      if(MOTOR){
+        responderConCerebro(q, hits.slice(0, 5));
+        return;
+      }
       if(!hits.length){
         burbuja('lab', 'Sobre ' + (t ? '<b>' + esc(t) + '</b>' : 'eso') + ' no hay nada escrito en los datos publicados ' +
           '&mdash; y prefiero decirlo a inventar. Prueba con un m\u00e9todo (KONCORDE, volatilidad objetivo&hellip;), ' +
@@ -250,6 +265,77 @@
         return;
       }
       burbuja('lab', abre(t) + tarjetas(hits));
+    }
+
+    // ---------- Analista con cerebro (WebLLM, corre en el navegador) ----------
+    var MOTOR = null, MOTOR_CARGANDO = false;
+    var MODELO_WEB = 'Qwen2.5-1.5B-Instruct-q4f16_1-MLC';
+    var SISTEMA_WEB =
+      'Eres el analista del laboratorio Neural Capital Research, esceptico y honesto: ' +
+      'este laboratorio publica tambien lo que no funciona. Responde en espanol, breve y claro, ' +
+      'USANDO SOLO los datos del contexto. Si la respuesta no esta en el contexto, di exactamente ' +
+      'que no esta en los datos publicados. Distingue hechos (con sus numeros) de tu opinion. ' +
+      'Nada es recomendacion de inversion.';
+
+    function estadoCerebro(txt){
+      var el = document.getElementById('cerebro-estado');
+      if(el) el.textContent = txt;
+    }
+    function activarCerebro(){
+      if(MOTOR || MOTOR_CARGANDO) return;
+      MOTOR_CARGANDO = true;
+      var btn = document.getElementById('cerebro-btn');
+      if(btn) btn.disabled = true;
+      estadoCerebro('cargando m\u00f3dulo\u2026');
+      import('https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm/+esm').then(function(webllm){
+        return webllm.CreateMLCEngine(MODELO_WEB, {
+          initProgressCallback: function(p){
+            estadoCerebro(p && p.text ? p.text.slice(0, 90) : 'descargando modelo\u2026');
+          }
+        });
+      }).then(function(engine){
+        MOTOR = engine; MOTOR_CARGANDO = false;
+        estadoCerebro('analista activo \u2713 (modelo local en tu navegador)');
+        if(btn) btn.style.display = 'none';
+      }).catch(function(err){
+        MOTOR_CARGANDO = false;
+        if(btn) btn.disabled = false;
+        estadoCerebro('no se pudo activar: ' + (String(err).indexOf('WebGPU') >= 0 || !navigator.gpu
+          ? 'tu navegador no soporta WebGPU (prueba Chrome o Edge actualizados)'
+          : String(err).slice(0, 120)) + ' \u2014 el buscador sigue funcionando.');
+      });
+    }
+    document.getElementById('cerebro-btn').addEventListener('click', activarCerebro);
+
+    function responderConCerebro(q, hits){
+      var contexto = hits.map(function(f, i){
+        return (i+1) + ') [' + f.fuente + '] ' + f.titulo + ': ' + f.texto;
+      }).join('\n');
+      var d = document.createElement('div');
+      d.className = 'msg lab'; d.innerHTML = '<span class="ch-sub">pensando\u2026</span>';
+      document.getElementById('hist').appendChild(d);
+      d.scrollIntoView({behavior:'smooth', block:'end'});
+      MOTOR.chat.completions.create({
+        messages: [
+          {role:'system', content: SISTEMA_WEB},
+          {role:'user', content: 'DATOS DEL LABORATORIO:\n' + (contexto || '(nada relevante encontrado)') +
+            '\n\nPREGUNTA: ' + q}
+        ],
+        temperature: 0.3, max_tokens: 400, stream: true
+      }).then(async function(stream){
+        var texto = '';
+        for await (var trozo of stream){
+          texto += (trozo.choices[0] && trozo.choices[0].delta.content) || '';
+          d.innerHTML = esc(texto).replace(/\n/g,'<br>');
+        }
+        if(hits.length){
+          d.innerHTML = esc(texto).replace(/\n/g,'<br>') +
+            '<div class="ch-sub" style="margin-top:10px">Fuentes usadas:</div>' + tarjetas(hits.slice(0,3));
+        }
+      }).catch(function(err){
+        d.innerHTML = 'El modelo fall\u00f3 al responder (' + esc(String(err).slice(0,80)) +
+          '). Esto es lo que encontr\u00f3 el buscador:' + tarjetas(hits);
+      });
     }
 
     var EJEMPLOS = [
