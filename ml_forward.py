@@ -34,9 +34,12 @@ ANOS = 30       # máximo con sentido: incluye 2000-2002, 2008, 2020, 2022.
 
 
 def _features(px: pd.DataFrame) -> dict:
-    """Features causales por fecha x ticker (solo información pasada)."""
+    """Features causales por fecha x ticker (solo información pasada).
+    Tres familias: (a) del propio valor, (b) relativas al mercado y (c) de estado
+    del mercado. Las (b) y (c) son información que el modelo antes NO tenía."""
     logp = np.log(px)
     f = {}
+    # --- (a) propias del valor ---
     for w in (21, 63, 126, 252):
         f[f"mom{w}"] = logp.diff(w)
     ret1 = logp.diff(1)
@@ -48,6 +51,30 @@ def _features(px: pd.DataFrame) -> dict:
     up = d.clip(lower=0).rolling(14).mean()
     dn = (-d.clip(upper=0)).rolling(14).mean()
     f["rsi14"] = 100 - 100 / (1 + up / dn.replace(0, np.nan))
+
+    # --- (b) relativas a la sección cruzada (¿destaca frente a sus pares?) ---
+    for w in (21, 126, 252):
+        m = f[f"mom{w}"]
+        f[f"mom{w}_rel"] = m.sub(m.mean(axis=1), axis=0)          # exceso sobre la media
+        f[f"mom{w}_rank"] = m.rank(axis=1, pct=True)              # percentil transversal
+    f["vol21_rank"] = f["vol21"].rank(axis=1, pct=True)
+    f["reversion_1m"] = -f["mom21_rel"]                            # los rezagados rebotan
+
+    # --- (c) estado del mercado (mismo valor para todos, define el régimen) ---
+    idx = px.mean(axis=1)
+    ridx = np.log(idx).diff(1)
+    mercado = {
+        "mkt_mom126": np.log(idx).diff(126),
+        "mkt_vol21": ridx.rolling(21).std(),
+        "mkt_vol_ratio": ridx.rolling(21).std() / ridx.rolling(126).std(),
+        "mkt_dist_max": idx / idx.rolling(252).max() - 1.0,
+        "dispersion": px.pct_change().rolling(21).std().std(axis=1),   # dispersión entre valores
+    }
+    for k, s in mercado.items():
+        f[k] = pd.DataFrame(np.repeat(s.values[:, None], px.shape[1], axis=1),
+                            index=px.index, columns=px.columns)
+    # interacción: momentum del valor x régimen del mercado
+    f["mom126_x_regimen"] = f["mom126"] * np.sign(f["mkt_mom126"])
     return f
 
 
@@ -340,6 +367,19 @@ def evaluar_ml(sintetico=False):
         tb_m, tb_ic, tb_p = _boot(np.array(top_bot), bloque=1) if len(top_bot) >= 24 else (0, [0, 0], 1)
         ap_m, ap_ic, ap_p = (_boot(np.array(aciertos_par) - 50.0, bloque=1)
                              if len(aciertos_par) >= 24 else (0, [0, 0], 1))
+        veredicto_ic = (
+            "<div class='ch-sub' style='margin-top:10px;border-left:3px solid "
+            + ("#6ec08a" if ic_m >= 0.03 else "#d2566a") + ";padding-left:12px'>"
+            + (f"<b>SUPERA el umbral.</b> IC = {ic_m:.3f} &ge; 0,03, el minimo explotable segun la "
+               f"ley fundamental de la gestion activa. Sharpe teorico maximo &asymp; "
+               f"{ic_m * np.sqrt(usados):.2f} antes de costes. Merece investigarse mas."
+               if ic_m >= 0.03 else
+               f"<b>NO supera el umbral.</b> IC = {ic_m:.3f} &lt; 0,03, por debajo del minimo "
+               f"explotable. Sharpe teorico maximo &asymp; {ic_m * np.sqrt(usados):.2f} antes de "
+               f"costes (regla de Grinold: Sharpe &asymp; IC x raiz de n). Aunque sea estadisticamente "
+               f"distinto de cero, es demasiado pequeno para sobrevivir a los costes de operarlo.")
+            + " El umbral se fijo ANTES de medir, no despues.</div>")
+
         cap = (
             "<br><br><b>Capacidad predictiva pura</b> (no mide cuánto gana, sino si ORDENA bien "
             "las acciones). El sesgo de supervivencia sube el nivel de todas por igual, así que "
@@ -365,7 +405,7 @@ def evaluar_ml(sintetico=False):
             "<div class='ch-sub' style='margin-top:8px'>Si estas tres métricas rondan cero, el modelo "
             "no distingue una acción de otra: su rentabilidad viene de estar invertido, no de elegir. "
             "Si son claramente positivas, hay capacidad real aunque la rentabilidad esté contaminada "
-            "por el sesgo del universo.</div>")
+            "por el sesgo del universo.</div>" + veredicto_ic)
 
     # Variante causal: operar solo cuando el régimen es alcista (info conocida ese día)
     ml_filtrado = np.where(reg, ml, 0.0)     # fuera de mercado en régimen no alcista
