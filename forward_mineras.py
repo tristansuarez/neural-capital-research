@@ -234,6 +234,26 @@ def evaluar_forward(sintetico=False):
         for tk, tipo, motivo in rech)
 
     tabla_hist = ""
+    # Notas del analista local (clasificador de noticias), si las hay este mes.
+    notas_txt = ""
+    try:
+        if os.path.exists(LOG):
+            mes_hoy = hoy.strftime("%Y-%m")
+            with open(LOG, encoding="utf-8") as fh:
+                con_notas = [r for r in csv.DictReader(fh)
+                             if r.get("mes") == mes_hoy and r.get("notas")]
+            if con_notas:
+                filas_n = "".join(
+                    f"<tr><td><b>{r['ticker']}</b></td><td class='est-obs'>{r['notas']}</td></tr>"
+                    for r in con_notas)
+                notas_txt = (
+                    "<br><b>Notas del analista</b> (clasificador local de noticias con LLM; "
+                    "prompt fijo pre-registrado en analista_mineras.py, veredictos auditables "
+                    "en noticias_mineras.csv):"
+                    "<div class='ops-scroll'><table class='ops'><thead><tr><th>Elegida</th>"
+                    f"<th>Noticias del mes</th></tr></thead><tbody>{filas_n}</tbody></table></div>")
+    except Exception:
+        notas_txt = ""
     if hist:
         gana = hist["sel"] > hist["gdx"]
         tabla_hist = (
@@ -275,7 +295,7 @@ def evaluar_forward(sintetico=False):
                 "<div class='ops-scroll'><table class='ops'><thead><tr><th>Ticker</th><th>Tipo</th>"
                 f"<th>Motivo</th></tr></thead><tbody>{filas_rech}</tbody></table></div>")
                if filas_rech else "")),
-        "nota": (tabla_hist + aviso +
+        "nota": (tabla_hist + notas_txt + aviso +
                  "<br><b>Dilución vigilada por el propio registro:</b> cada mes se guardan las "
                  "acciones en circulación de las elegidas; con el tiempo, el CSV medirá la "
                  "dilución real — el dato que el sesgo de supervivencia esconde en cualquier "
