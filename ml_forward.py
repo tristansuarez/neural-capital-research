@@ -28,7 +28,9 @@ REFIT = 21      # refit del modelo cada N días
 MIN_TRAIN = 756 # ~3 años mínimos de entrenamiento antes de predecir
 COST_BPS = 2.0  # coste por rotación (ida) en puntos básicos
 N_TICKERS = 80
-ANOS = 20       # periodo ampliado: incluye 2008 y varios regímenes bajistas
+ANOS = 30       # máximo con sentido: incluye 2000-2002, 2008, 2020, 2022.
+                # Antes de ~1995 la composición del índice y la calidad del dato
+                # cambian tanto que la comparación deja de ser limpia.
 
 
 def _features(px: pd.DataFrame) -> dict:
@@ -213,6 +215,55 @@ def evaluar_ml(sintetico=False):
     curva = [{"fecha": f, "valor": round(float(v), 4)} for f, v in zip(fechas_op, eq_ml)]
     curva2 = [{"fecha": f, "valor": round(float(v), 4)} for f, v in zip(fechas_op, eq_bh)]
 
+    # --- ¿Se comporta igual en todos los regímenes? Desglose honesto ---
+    fechas_arr = np.array(fechas_op)
+    decadas = {}
+    for i, f in enumerate(fechas_arr):
+        d = f[:3] + "0s"
+        decadas.setdefault(d, []).append(i)
+    filas_dec = []
+    for d in sorted(decadas):
+        idx = np.array(decadas[d])
+        if len(idx) < 8:
+            continue
+        ex = exceso[idx]
+        m = float(np.mean(ex))
+        ganados = float(np.mean(ml[idx] > bh[idx]) * 100)
+        mercado = float((np.prod(1 + bh[idx]) ** (252 / (H * len(idx))) - 1) * 100)
+        filas_dec.append(
+            f"<tr><td>{d}</td><td class='{'pos' if m > 0 else 'neg'}'>{m:+.2f}%</td>"
+            f"<td class='est-obs'>{ganados:.0f}%</td>"
+            f"<td class='{'pos' if mercado > 0 else 'neg'}'>{mercado:+.1f}%</td>"
+            f"<td class='est-obs'>{len(idx)}</td></tr>")
+
+    # por signo del mercado en cada periodo: ¿aporta cuando el mercado cae?
+    sube = bh > 0
+    filas_reg = []
+    for etq, m_ in (("Mercado al alza", sube), ("Mercado a la baja", ~sube)):
+        if m_.sum() < 5:
+            continue
+        ex = exceso[m_]
+        mm, ic, pp = _boot(ex, bloque=1)
+        filas_reg.append(
+            f"<tr><td>{etq}</td><td class='{'pos' if mm > 0 else 'neg'}'>{mm:+.2f}%</td>"
+            f"<td class='est-obs'>[{ic[0]:.2f}, {ic[1]:.2f}]</td>"
+            f"<td class='{'pos' if pp <= 0.10 else 'est-obs'}'>{pp}</td>"
+            f"<td class='est-obs'>{int(m_.sum())}</td></tr>")
+
+    regimenes = ""
+    if filas_dec:
+        regimenes += ("<br><br><b>¿Se comporta igual en todas las épocas?</b> Si el modelo detectase "
+                      "algo real, su ventaja no debería depender de la década."
+                      "<div class='ops-scroll'><table class='ops'><thead><tr><th>Década</th>"
+                      "<th>Exceso medio</th><th>Periodos ganados</th><th>Mercado</th><th>n</th>"
+                      f"</tr></thead><tbody>{''.join(filas_dec)}</tbody></table></div>")
+    if filas_reg:
+        regimenes += ("<br><b>¿Y cuando el mercado cae?</b> La prueba de si sabe defenderse o solo "
+                      "sabe subir con la marea."
+                      "<div class='ops-scroll'><table class='ops'><thead><tr><th>Régimen</th>"
+                      "<th>Exceso medio</th><th>IC 90%</th><th>p</th><th>n</th>"
+                      f"</tr></thead><tbody>{''.join(filas_reg)}</tbody></table></div>")
+
     # Variante causal: operar solo cuando el régimen es alcista (info conocida ese día)
     ml_filtrado = np.where(reg, ml, 0.0)     # fuera de mercado en régimen no alcista
     cagr_fil = float((np.prod(1 + ml_filtrado) ** (252 / (H * len(ml_filtrado))) - 1) * 100)
@@ -248,5 +299,6 @@ def evaluar_ml(sintetico=False):
                       "de color no supera a la gris, el ML no aporta sobre comprar y mantener."),
         "nota": ("Machine learning honesto: walk-forward estricto, sin lookahead y con una única "
                  "configuración prefijada (probar muchas y quedarse con la mejor fabrica ganadores "
-                 "falsos). El veredicto se acepta tal cual. No es recomendación de inversión." + tort),
+                 "falsos). El veredicto se acepta tal cual. No es recomendación de inversión."
+                 + regimenes + tort),
     }
