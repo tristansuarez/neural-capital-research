@@ -759,6 +759,7 @@ async function initRentabilidades(){
 
   const filasComp = comp.map((o,i) => {
     const e = o.e, bench = 9.2;
+    const esBench = e.id === 'oro_bh' || e.id === 'plata_bh';
     // Cada modelo debe compararse con SU benchmark, no con el oro: el ML opera
     // acciones del S&P, así que su rival es ese universo comprado y mantenido.
     const propio = cardVal(e, ['COMPRAR Y MANTENER','B&H','BENCHMARK']);
@@ -766,12 +767,18 @@ async function initRentabilidades(){
     const rival = (nprop !== null && !isNaN(nprop)) ? nprop : bench;
     const nombreRival = (nprop !== null && !isNaN(nprop)) ? 'su universo' : 'oro';
     const bate = o.cagr !== null && o.cagr > rival;
+    const colBench = esBench
+      ? `<td class="est-obs">— <span style="font-size:11px">(es la vara de medir)</span></td>`
+      : `<td class="est-obs">${rival.toFixed(1)}% <span style="font-size:11px">(${nombreRival})</span></td>`;
+    const colBate = esBench
+      ? `<td class="est-obs">—</td>`
+      : `<td>${bate?'<span class="pos">sí</span>':'<span class="est-obs">no</span>'}</td>`;
     return `<tr>
       <td><a href="lab.html?id=${e.id}"><b>${e.etiqueta}</b></a><div class="est-obs">${e.tipo||''}</div></td>
       <td class="mono ${o.cagr===null?'':(o.cagr>=0?'pos':'neg')}">${o.cagr===null?'—':(o.cagr>0?'+':'')+o.cagr+'%'}</td>
-      <td class="est-obs">${rival.toFixed(1)}% <span style="font-size:11px">(${nombreRival})</span></td>
+      ${colBench}
       <td>${veredicto(e)}</td>
-      <td>${bate?'<span class="pos">sí</span>':'<span class="est-obs">no</span>'}</td>
+      ${colBate}
       <td><canvas class="spark" id="sp${i}" width="150" height="40"></canvas></td>
     </tr>`;
   }).join('');
