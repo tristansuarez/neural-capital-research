@@ -19,6 +19,7 @@ function navHTML(active){
     ['macro_rotacion', 'Rotación y filtros macro'],
     ['combinaciones', 'Combinaciones y estacionalidad'],
     ['cartera', 'Construcción de cartera'],
+    ['vol_objetivo', 'Volatilidad objetivo'],
     ['figuras_tecnicas', 'Figuras técnicas (S&P 500)'],
     ['figuras_intradia', 'Figuras intradía (1h)'],
     ['figuras_mensual', 'Figuras mensual'],

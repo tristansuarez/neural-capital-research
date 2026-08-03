@@ -30,6 +30,7 @@ import momentum_tsm
 import macro_rotacion
 import combinaciones
 import cartera
+import volobjetivo
 from validation import evaluate
 from models import BuyAndHold, GoldSilverPairs, PairsModel
 
@@ -286,6 +287,21 @@ def main(sintetico: bool = False):
         salida.append(car)
         try:
             print(f"   {car.get('n_celdas')} hipótesis, {car.get('n_fdr')} superan el FDR", flush=True)
+        except Exception:
+            pass
+    else:
+        print("   (sin datos suficientes)", flush=True)
+
+    # Volatilidad objetivo, momentum entre clases y degradación de factores.
+    print("-> Volatilidad objetivo y momentum entre clases ...", flush=True)
+    try:
+        vo = volobjetivo.evaluar(sintetico=sintetico)
+    except Exception as e:
+        vo = None; print(f"   (error: {e})", flush=True)
+    if vo:
+        salida.append(vo)
+        try:
+            print(f"   {vo.get('n_celdas')} hipótesis, {vo.get('n_fdr')} superan el FDR", flush=True)
         except Exception:
             pass
     else:
