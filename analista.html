@@ -234,8 +234,20 @@
       var s = ABRE[abreIdx++ % ABRE.length];
       return t ? s.replace('{T}', '<b>' + esc(t) + '</b>') : 'Esto es lo que hay publicado:';
     }
+    var GENERANDO = false;
+    var SALUDO = /^\s*(hola+|hol|buenas|buenos dias|buenas tardes|buenas noches|hey|hi|hello|que tal|qu\u00e9 tal|hola que tal|hola qu\u00e9 tal)[\s!.,?]*$/i;
     function responder(q){
       burbuja('tu', esc(q));
+      if(SALUDO.test(q)){
+        burbuja('lab', '\u00a1Hola! Preg\u00fantame por los resultados del laboratorio: un m\u00e9todo ' +
+          '(volatilidad objetivo, KONCORDE\u2026), un ticker del registro de mineras (BTG, HMY\u2026) ' +
+          'o una m\u00e9trica (ca\u00edda m\u00e1xima, Sharpe\u2026). Los chips de arriba son atajos.');
+        return;
+      }
+      if(GENERANDO){
+        burbuja('lab', 'Un momento \u2014 a\u00fan estoy con la pregunta anterior. En cuanto termine, repite esta.');
+        return;
+      }
       if(!LISTO){ burbuja('lab', 'Un segundo, que a\u00fan estoy cargando los datos del laboratorio&hellip; repite la pregunta enseguida.'); return; }
       var t = tema(q);
       var pideNoticias = /noticia|titular|prensa|news/.test(norm(q));
@@ -275,7 +287,7 @@
       'este laboratorio publica tambien lo que no funciona. Responde en espanol, breve y claro, ' +
       'USANDO SOLO los datos del contexto. Si la respuesta no esta en el contexto, di exactamente ' +
       'que no esta en los datos publicados. Distingue hechos (con sus numeros) de tu opinion. ' +
-      'Nada es recomendacion de inversion.';
+      'Tutea siempre, nada de usted. Nada es recomendacion de inversion.';
 
     function estadoCerebro(txt){
       var el = document.getElementById('cerebro-estado');
@@ -307,6 +319,22 @@
     }
     document.getElementById('cerebro-btn').addEventListener('click', activarCerebro);
 
+    async function _generarWeb(q, contexto, d){
+      var stream = await MOTOR.chat.completions.create({
+        messages: [
+          {role:'system', content: SISTEMA_WEB},
+          {role:'user', content: 'DATOS DEL LABORATORIO:\n' + (contexto || '(nada relevante encontrado)') +
+            '\n\nPREGUNTA: ' + q}
+        ],
+        temperature: 0.3, max_tokens: 400, stream: true
+      });
+      var texto = '';
+      for await (var trozo of stream){
+        texto += (trozo.choices[0] && trozo.choices[0].delta.content) || '';
+        d.innerHTML = esc(texto).replace(/\n/g,'<br>');
+      }
+      return texto;
+    }
     function responderConCerebro(q, hits){
       var contexto = hits.map(function(f, i){
         return (i+1) + ') [' + f.fuente + '] ' + f.titulo + ': ' + f.texto;
@@ -315,27 +343,31 @@
       d.className = 'msg lab'; d.innerHTML = '<span class="ch-sub">pensando\u2026</span>';
       document.getElementById('hist').appendChild(d);
       d.scrollIntoView({behavior:'smooth', block:'end'});
-      MOTOR.chat.completions.create({
-        messages: [
-          {role:'system', content: SISTEMA_WEB},
-          {role:'user', content: 'DATOS DEL LABORATORIO:\n' + (contexto || '(nada relevante encontrado)') +
-            '\n\nPREGUNTA: ' + q}
-        ],
-        temperature: 0.3, max_tokens: 400, stream: true
-      }).then(async function(stream){
-        var texto = '';
-        for await (var trozo of stream){
-          texto += (trozo.choices[0] && trozo.choices[0].delta.content) || '';
-          d.innerHTML = esc(texto).replace(/\n/g,'<br>');
+      GENERANDO = true;
+      (async function(){
+        try {
+          var texto;
+          try {
+            texto = await _generarWeb(q, contexto, d);
+          } catch(err1){
+            // "Buffer unmapped"/AbortError: resetear el estado del motor y reintentar UNA vez
+            if(/Buffer unmapped|AbortError|Device/i.test(String(err1)) && MOTOR.resetChat){
+              d.innerHTML = '<span class="ch-sub">el motor tropez\u00f3; reintentando\u2026</span>';
+              try { await MOTOR.resetChat(); } catch(_e){}
+              texto = await _generarWeb(q, contexto, d);
+            } else { throw err1; }
+          }
+          if(hits.length){
+            d.innerHTML = esc(texto).replace(/\n/g,'<br>') +
+              '<div class="ch-sub" style="margin-top:10px">Fuentes usadas:</div>' + tarjetas(hits.slice(0,3));
+          }
+        } catch(err){
+          d.innerHTML = 'El modelo fall\u00f3 al responder (' + esc(String(err).slice(0,80)) +
+            '). Esto es lo que encontr\u00f3 el buscador:' + tarjetas(hits);
+        } finally {
+          GENERANDO = false;
         }
-        if(hits.length){
-          d.innerHTML = esc(texto).replace(/\n/g,'<br>') +
-            '<div class="ch-sub" style="margin-top:10px">Fuentes usadas:</div>' + tarjetas(hits.slice(0,3));
-        }
-      }).catch(function(err){
-        d.innerHTML = 'El modelo fall\u00f3 al responder (' + esc(String(err).slice(0,80)) +
-          '). Esto es lo que encontr\u00f3 el buscador:' + tarjetas(hits);
-      });
+      })();
     }
 
     var EJEMPLOS = [
