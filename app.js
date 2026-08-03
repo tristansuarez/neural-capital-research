@@ -767,12 +767,15 @@ async function initRentabilidades(){
     const rival = (nprop !== null && !isNaN(nprop)) ? nprop : bench;
     const nombreRival = (nprop !== null && !isNaN(nprop)) ? 'su universo' : 'oro';
     const bate = o.cagr !== null && o.cagr > rival;
+    const dudoso = /NO FIABLE|sesgo/i.test((e.headline && e.headline.etiqueta) || '');
     const colBench = esBench
       ? `<td class="est-obs">— <span style="font-size:11px">(es la vara de medir)</span></td>`
       : `<td class="est-obs">${rival.toFixed(1)}% <span style="font-size:11px">(${nombreRival})</span></td>`;
     const colBate = esBench
       ? `<td class="est-obs">—</td>`
-      : `<td>${bate?'<span class="pos">sí</span>':'<span class="est-obs">no</span>'}</td>`;
+      : (dudoso
+          ? `<td><span class="neg" title="Resultado inflado por sesgo de supervivencia">⚠ no fiable</span></td>`
+          : `<td>${bate?'<span class="pos">sí</span>':'<span class="est-obs">no</span>'}</td>`);
     return `<tr>
       <td><a href="lab.html?id=${e.id}"><b>${e.etiqueta}</b></a><div class="est-obs">${e.tipo||''}</div></td>
       <td class="mono ${o.cagr===null?'':(o.cagr>=0?'pos':'neg')}">${o.cagr===null?'—':(o.cagr>0?'+':'')+o.cagr+'%'}</td>

@@ -81,6 +81,9 @@ def _panel(sintetico=False):
                 continue
     if len(cierres) < 30:
         return None
+    # Requerir historia completa desde el inicio deja SOLO supervivientes: las que
+    # existían hace ANOS años y siguen HOY en el índice. Es un sesgo grave que infla
+    # el resultado. Se mide y se reporta (ver _aviso_supervivencia).
     return pd.DataFrame(cierres).dropna(how="all").ffill().dropna(axis=1)
 
 
@@ -264,6 +267,25 @@ def evaluar_ml(sintetico=False):
                       "<th>Exceso medio</th><th>IC 90%</th><th>p</th><th>n</th>"
                       f"</tr></thead><tbody>{''.join(filas_reg)}</tbody></table></div>")
 
+    # ¿Cuánto sesgo de supervivencia arrastra este universo?
+    pedidos = N_TICKERS
+    usados = px.shape[1]
+    grave = usados < 0.75 * pedidos
+    aviso_sup = ""
+    if grave:
+        aviso_sup = (
+            f"<div class='ch-sub' style='border-left:3px solid #d2566a;padding-left:12px;margin:14px 0'>"
+            f"<b>⚠️ Sesgo de supervivencia grave.</b> De {pedidos} valores pedidos, solo {usados} "
+            f"tienen {ANOS} años de historia continua. Esas {usados} son, por definición, las que "
+            f"existían hace {ANOS} años <b>y siguen hoy</b> en el índice: las que quebraron o fueron "
+            f"expulsadas no están. Comprar «las que sobrevivieron» gana casi siempre, así que "
+            f"<b>cualquier ventaja medida aquí está inflada y no debe tomarse como edge real</b>. "
+            f"Con datos gratuitos no hay forma de reconstruir la composición histórica del índice. "
+            f"<br><br>Comprobación: la ventaja de este modelo ha cambiado de signo cada vez que se "
+            f"ha modificado la ventana temporal o el tamaño del universo "
+            f"(+0,59% → +0,17% → −0,05% → {round(m_ex, 2)}%). Un edge real no se comporta así; "
+            f"esa inestabilidad es la firma del ruido y del sesgo, no de una señal.</div>")
+
     # Variante causal: operar solo cuando el régimen es alcista (info conocida ese día)
     ml_filtrado = np.where(reg, ml, 0.0)     # fuera de mercado en régimen no alcista
     cagr_fil = float((np.prod(1 + ml_filtrado) ** (252 / (H * len(ml_filtrado))) - 1) * 100)
@@ -275,7 +297,8 @@ def evaluar_ml(sintetico=False):
         "modelo": "ml",
         "color": "#b48ad6",
         "headline": {"valor": round(m_ex, 2),
-                     "etiqueta": "Exceso medio por periodo frente a comprar y mantener",
+                     "etiqueta": ("Exceso por periodo vs comprar y mantener"
+                                  + (" — NO FIABLE: sesgo de supervivencia" if grave else "")),
                      "sufijo": "%", "decimales": 2},
         "significancia": {"p_valor": p_ex, "ic90": ic_ex,
                           "etiqueta": "exceso sobre comprar y mantener (%/periodo)"},
@@ -297,7 +320,7 @@ def evaluar_ml(sintetico=False):
         "curva_sub": ("Protocolo fijado de antemano: una sola configuración, entrenamiento solo con el "
                       "pasado, refit periódico, operaciones no solapadas y costes aplicados. Si la línea "
                       "de color no supera a la gris, el ML no aporta sobre comprar y mantener."),
-        "nota": ("Machine learning honesto: walk-forward estricto, sin lookahead y con una única "
+        "nota": (aviso_sup + "Machine learning honesto: walk-forward estricto, sin lookahead y con una única "
                  "configuración prefijada (probar muchas y quedarse con la mejor fabrica ganadores "
                  "falsos). El veredicto se acepta tal cual. No es recomendación de inversión."
                  + regimenes + tort),
