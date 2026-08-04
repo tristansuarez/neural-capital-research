@@ -89,7 +89,7 @@ def avisos_seleccion(vistos):
         # primer mes del registro: presentar la selección inicial una sola vez
         clave = f"inicial:{ultimo}"
         if clave not in vistos:
-            lineas.append(f"🟡 <b>Registro inaugural {ultimo}</b> — selección inicial del filtro:")
+            lineas.append(f"🟡 Registro inaugural {ultimo} — selección inicial del filtro:")
             for tk, r in sorted(ahora.items()):
                 nota = f" · {r['notas']}" if r.get("notas") else ""
                 lineas.append(f"   • {tk} ({r['tipo']}) a {r['precio']} $ · {r['metrica_orden']}{nota}")
@@ -104,7 +104,7 @@ def avisos_seleccion(vistos):
             continue
         r = ahora[tk]
         nota = f" · noticias: {r['notas']}" if r.get("notas") else ""
-        lineas.append(f"🟢 <b>ALTA {tk}</b> ({r['tipo']}) — entra en la selección de {ultimo} "
+        lineas.append(f"🟢 ALTA {tk} ({r['tipo']}) — entra en la selección de {ultimo} "
                       f"a {r['precio']} $ · {r['metrica_orden']}{nota}")
         claves.append(clave)
     for tk in bajas:
@@ -112,7 +112,7 @@ def avisos_seleccion(vistos):
         if clave in vistos:
             continue
         r = previo[tk]
-        lineas.append(f"🔴 <b>BAJA {tk}</b> — sale de la selección en {ultimo} "
+        lineas.append(f"🔴 BAJA {tk} — sale de la selección en {ultimo} "
                       f"(entró a {r['precio']} $ en {r['mes']}). El motivo queda en la web.")
         claves.append(clave)
     if not altas and not bajas:
@@ -168,20 +168,20 @@ def avisos_macro(vistos, sintetico=False):
         clave = f"cruce_oro:{e['mes']}:{'arriba' if e['sobre'] else 'abajo'}"
         if clave not in vistos:
             if e["sobre"]:
-                lineas.append("🟢 <b>RÉGIMEN: el oro cruza SOBRE su media de 10 meses.</b> "
+                lineas.append("🟢 RÉGIMEN: el oro cruza SOBRE su media de 10 meses. "
                               "En el backtest (M5/M6), estar en mineras solo en este régimen no dio "
                               "más retorno que GDX, pero recortó la caída máxima de −77% a −45%.")
             else:
-                lineas.append("🔴 <b>RÉGIMEN: el oro cruza BAJO su media de 10 meses.</b> "
+                lineas.append("🔴 RÉGIMEN: el oro cruza BAJO su media de 10 meses. "
                               "El régimen que históricamente concentró los desastres del sector: "
                               "en el backtest, salir aquí fue lo que evitó el −77%.")
             claves.append(clave)
     if e["giro"] and e["margen_sube"] is not None:
         clave = f"giro_margen:{e['mes']}:{'sube' if e['margen_sube'] else 'baja'}"
         if clave not in vistos:
-            lineas.append(("🟢 <b>Margen oro/petróleo girando al alza</b> (variación 3m positiva). "
+            lineas.append(("🟢 Margen oro/petróleo girando al alza (variación 3m positiva). "
                            if e["margen_sube"] else
-                           "🔴 <b>Margen oro/petróleo girando a la baja</b> (variación 3m negativa). ")
+                           "🔴 Margen oro/petróleo girando a la baja (variación 3m negativa). ")
                           + "En el backtest esta señal sola fue ruido (M4, p=0,58): es contexto, no edge.")
             claves.append(clave)
     return lineas, claves
@@ -196,7 +196,7 @@ def main(enviar=False, sintetico=False):
     if not lineas:
         print("Sin avisos nuevos.")
         return
-    cabecera = "⛏️ <b>MINERAS · Neural Capital Research</b>\n"
+    cabecera = "⛏️ MINERAS · Neural Capital Research\n"
     cuerpo = cabecera + "\n".join(lineas)
     if enviar:
         ok_alguno = False
@@ -212,7 +212,7 @@ def main(enviar=False, sintetico=False):
             print("No se envió nada: no se apunta la deduplicación (se reintentará).")
     else:
         print("--- ENSAYO (no se envía; usa --enviar) ---")
-        print(cuerpo.replace("<b>", "").replace("</b>", ""))
+        print(cuerpo.replace("", "").replace("", ""))
         print(PIE)
 
 
