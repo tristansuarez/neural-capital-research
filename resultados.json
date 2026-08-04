@@ -5674,15 +5674,15 @@
             "valor": -0.22,
             "ic_lo": -0.39,
             "ic_hi": -0.04,
-            "n": 1977
+            "n": 1978
           },
           {
             "h": 10,
             "etiqueta": "2 sem",
-            "valor": -0.13,
+            "valor": -0.12,
             "ic_lo": -0.34,
-            "ic_hi": 0.1,
-            "n": 1968
+            "ic_hi": 0.11,
+            "n": 1969
           },
           {
             "h": 21,
@@ -48335,7 +48335,7 @@
       "n_celdas": 4,
       "n_fdr": 1,
       "nota_fdr": "Se evalúan 4 horizontes con corrección Benjamini-Hochberg (FDR 10%): 1 sobreviven. La estrategia opera CONTRA la tendencia, que es estadísticamente lo más difícil.",
-      "nota": "<b>Eventos que sobreviven a cada condición</b> (cinco filtros encadenados):<div class='ops-scroll'><table class='ops'><thead><tr><th>Condición</th><th>Casos</th></tr></thead><tbody><tr><td>Techo</td><td class='mono'>5754</td></tr><tr><td>Acelerada</td><td class='mono'>1671</td></tr><tr><td>Resistencia</td><td class='mono'>1388</td></tr><tr><td>Pauta plana</td><td class='mono'>1382</td></tr><tr><td>Entrada</td><td class='mono'>1115</td></tr></tbody></table></div><br>Ojo al embudo: cada condición añadida reduce los casos. Una estrategia muy específica parece infalible porque solo se ven los casos que encajaron, y rara vez hay muestra suficiente para probarlo. Aquí se cuenta el embudo entero. No es recomendación de inversión."
+      "nota": "<b>Eventos que sobreviven a cada condición</b> (cinco filtros encadenados):<div class='ops-scroll'><table class='ops'><thead><tr><th>Condición</th><th>Casos</th></tr></thead><tbody><tr><td>Techo</td><td class='mono'>5754</td></tr><tr><td>Acelerada</td><td class='mono'>1670</td></tr><tr><td>Resistencia</td><td class='mono'>1388</td></tr><tr><td>Pauta plana</td><td class='mono'>1382</td></tr><tr><td>Entrada</td><td class='mono'>1115</td></tr></tbody></table></div><br>Ojo al embudo: cada condición añadida reduce los casos. Una estrategia muy específica parece infalible porque solo se ven los casos que encajaron, y rara vez hay muestra suficiente para probarlo. Aquí se cuenta el embudo entero. No es recomendación de inversión."
     },
     {
       "id": "forward_carteras",
@@ -48544,8 +48544,8 @@
           "puntos": [
             {
               "etiqueta": "1 sem",
-              "valor": -0.12,
-              "ic_lo": -0.29,
+              "valor": -0.13,
+              "ic_lo": -0.31,
               "ic_hi": 0.05,
               "n": 1569,
               "sig_cruda": false,
@@ -48752,7 +48752,7 @@
           "tipo": "doble_suelo",
           "nombre": "Doble suelo",
           "color": "#b48ad6",
-          "n_eventos": 2008,
+          "n_eventos": 2003,
           "puntos": [
             {
               "etiqueta": "1 sem",
