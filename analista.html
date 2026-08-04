@@ -238,10 +238,11 @@
     var SALUDO = /^\s*(hola+|hol|buenas|buenos dias|buenas tardes|buenas noches|hey|hi|hello|que tal|qu\u00e9 tal|hola que tal|hola qu\u00e9 tal)[\s!.,?]*$/i;
     function responder(q){
       burbuja('tu', esc(q));
-      if(SALUDO.test(q)){
+      if(!MOTOR && SALUDO.test(q)){
         burbuja('lab', '\u00a1Hola! Preg\u00fantame por los resultados del laboratorio: un m\u00e9todo ' +
           '(volatilidad objetivo, KONCORDE\u2026), un ticker del registro de mineras (BTG, HMY\u2026) ' +
-          'o una m\u00e9trica (ca\u00edda m\u00e1xima, Sharpe\u2026). Los chips de arriba son atajos.');
+          'o una m\u00e9trica (ca\u00edda m\u00e1xima, Sharpe\u2026). Los chips de arriba son atajos. ' +
+          'Y si activas el analista con el bot\u00f3n de arriba, podr\u00e1s charlar conmigo de verdad.');
         return;
       }
       if(GENERANDO){
@@ -287,11 +288,20 @@
       'este laboratorio publica tambien lo que no funciona. Responde en espanol, breve y claro, ' +
       'USANDO SOLO los datos del contexto. Si la respuesta no esta en el contexto, di exactamente ' +
       'que no esta en los datos publicados. Distingue hechos (con sus numeros) de tu opinion. ' +
-      'Tutea siempre, nada de usted. Nada es recomendacion de inversion.';
+      'Si te saludan o charlan, responde natural y breve, como una persona. Si preguntan por algo que el laboratorio no cubre (un valor, un dato que no esta en el contexto), dilo con naturalidad y cuenta que SI cubre el laboratorio, sin inventar jamas cifras ni datos. Tutea siempre, nada de usted. Nada es recomendacion de inversion.';
 
     function estadoCerebro(txt){
       var el = document.getElementById('cerebro-estado');
       if(el) el.textContent = txt;
+    }
+    function _crearMotor(){
+      return import('https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm/+esm').then(function(webllm){
+        return webllm.CreateMLCEngine(MODELO_WEB, {
+          initProgressCallback: function(p){
+            estadoCerebro(p && p.text ? p.text.slice(0, 90) : 'descargando modelo\u2026');
+          }
+        });
+      });
     }
     function activarCerebro(){
       if(MOTOR || MOTOR_CARGANDO) return;
@@ -299,13 +309,7 @@
       var btn = document.getElementById('cerebro-btn');
       if(btn) btn.disabled = true;
       estadoCerebro('cargando m\u00f3dulo\u2026');
-      import('https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm/+esm').then(function(webllm){
-        return webllm.CreateMLCEngine(MODELO_WEB, {
-          initProgressCallback: function(p){
-            estadoCerebro(p && p.text ? p.text.slice(0, 90) : 'descargando modelo\u2026');
-          }
-        });
-      }).then(function(engine){
+      _crearMotor().then(function(engine){
         MOTOR = engine; MOTOR_CARGANDO = false;
         estadoCerebro('analista activo \u2713 (modelo local en tu navegador)');
         if(btn) btn.style.display = 'none';
@@ -350,12 +354,21 @@
           try {
             texto = await _generarWeb(q, contexto, d);
           } catch(err1){
-            // "Buffer unmapped"/AbortError: resetear el estado del motor y reintentar UNA vez
-            if(/Buffer unmapped|AbortError|Device/i.test(String(err1)) && MOTOR.resetChat){
-              d.innerHTML = '<span class="ch-sub">el motor tropez\u00f3; reintentando\u2026</span>';
-              try { await MOTOR.resetChat(); } catch(_e){}
+            if(!/buffer|abort|device|gpu|mapping/i.test(String(err1))) throw err1;
+            // nivel 1: resetear el chat del motor
+            d.innerHTML = '<span class="ch-sub">el motor tropez\u00f3; reintentando\u2026</span>';
+            try {
+              if(MOTOR.resetChat) await MOTOR.resetChat();
               texto = await _generarWeb(q, contexto, d);
-            } else { throw err1; }
+            } catch(err2){
+              if(!/buffer|abort|device|gpu|mapping/i.test(String(err2))) throw err2;
+              // nivel 2: recrear el motor entero (los pesos est\u00e1n cacheados: segundos)
+              d.innerHTML = '<span class="ch-sub">reiniciando el motor (los pesos ya est\u00e1n en cach\u00e9)\u2026</span>';
+              estadoCerebro('reiniciando el motor\u2026');
+              try { MOTOR = await _crearMotor(); } catch(e3){ MOTOR = null; throw err2; }
+              estadoCerebro('analista activo \u2713 (modelo local en tu navegador)');
+              texto = await _generarWeb(q, contexto, d);
+            }
           }
           if(hits.length){
             d.innerHTML = esc(texto).replace(/\n/g,'<br>') +
