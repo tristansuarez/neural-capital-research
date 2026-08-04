@@ -194,7 +194,9 @@
         return {f: f, sc: sc};
       }).filter(function(x){ return x.sc > 0; });
       res.sort(function(a,b){ return b.sc - a.sc; });
-      return res.slice(0, 5).map(function(x){ return x.f; });
+      return res.slice(0, 5).map(function(x){
+        var f = Object.assign({}, x.f); f.sc = x.sc; return f;
+      });
     }
 
     function burbuja(clase, html){
@@ -323,6 +325,9 @@
     }
     document.getElementById('cerebro-btn').addEventListener('click', activarCerebro);
 
+    function esErrorMotor(e){
+      return /buffer|abort|device|gpu|mapping|dispos|not.?loaded|unload/i.test(String(e));
+    }
     async function _generarWeb(q, contexto, d){
       var stream = await MOTOR.chat.completions.create({
         messages: [
@@ -354,25 +359,33 @@
           try {
             texto = await _generarWeb(q, contexto, d);
           } catch(err1){
-            if(!/buffer|abort|device|gpu|mapping/i.test(String(err1))) throw err1;
+            if(!esErrorMotor(err1)) throw err1;
             // nivel 1: resetear el chat del motor
             d.innerHTML = '<span class="ch-sub">el motor tropez\u00f3; reintentando\u2026</span>';
             try {
               if(MOTOR.resetChat) await MOTOR.resetChat();
               texto = await _generarWeb(q, contexto, d);
             } catch(err2){
-              if(!/buffer|abort|device|gpu|mapping/i.test(String(err2))) throw err2;
+              if(!esErrorMotor(err2)) throw err2;
               // nivel 2: recrear el motor entero (los pesos est\u00e1n cacheados: segundos)
               d.innerHTML = '<span class="ch-sub">reiniciando el motor (los pesos ya est\u00e1n en cach\u00e9)\u2026</span>';
               estadoCerebro('reiniciando el motor\u2026');
-              try { MOTOR = await _crearMotor(); } catch(e3){ MOTOR = null; throw err2; }
+              try { MOTOR = await _crearMotor(); }
+              catch(e3){
+                MOTOR = null;
+                var btn2 = document.getElementById('cerebro-btn');
+                if(btn2){ btn2.style.display = ''; btn2.disabled = false; }
+                estadoCerebro('el motor se apag\u00f3 y no pudo reiniciarse: vuelve a activarlo con el bot\u00f3n.');
+                throw err2;
+              }
               estadoCerebro('analista activo \u2713 (modelo local en tu navegador)');
               texto = await _generarWeb(q, contexto, d);
             }
           }
-          if(hits.length){
+          var fuertes = hits.filter(function(f){ return (f.sc || 0) >= 5; });
+          if(fuertes.length){
             d.innerHTML = esc(texto).replace(/\n/g,'<br>') +
-              '<div class="ch-sub" style="margin-top:10px">Fuentes usadas:</div>' + tarjetas(hits.slice(0,3));
+              '<div class="ch-sub" style="margin-top:10px">Fuentes usadas:</div>' + tarjetas(fuertes.slice(0,3));
           }
         } catch(err){
           d.innerHTML = 'El modelo fall\u00f3 al responder (' + esc(String(err).slice(0,80)) +
