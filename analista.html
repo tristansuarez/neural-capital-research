@@ -290,7 +290,7 @@
       'este laboratorio publica tambien lo que no funciona. Responde en espanol, breve y claro, ' +
       'USANDO SOLO los datos del contexto. Si la respuesta no esta en el contexto, di exactamente ' +
       'que no esta en los datos publicados. Distingue hechos (con sus numeros) de tu opinion. ' +
-      'Si te saludan o charlan, responde natural y breve, como una persona. Si preguntan por algo que el laboratorio no cubre (un valor, un dato que no esta en el contexto), dilo con naturalidad y cuenta que SI cubre el laboratorio, sin inventar jamas cifras ni datos. Tutea siempre, nada de usted. Nada es recomendacion de inversion.';
+      'Si te saludan o charlan, responde natural y breve, como una persona. Si preguntan por algo que el laboratorio no cubre (un valor, un dato que no esta en el contexto), dilo con naturalidad y cuenta que SI cubre el laboratorio, sin inventar jamas cifras ni datos. REGLAS DURAS: (1) El laboratorio NO hace pronosticos: si te piden predecir el futuro (que pasara, cuanto valdra, volatilidad o precio dentro de X meses), di claramente que el laboratorio no predice, solo publica lo que midio, y ofrece lo medido mas cercano. (2) Cada cifra que digas debe estar LITERAL en el contexto: si no esta, no existe. Tutea siempre, nada de usted. Nada es recomendacion de inversion.';
 
     function estadoCerebro(txt){
       var el = document.getElementById('cerebro-estado');
@@ -298,7 +298,9 @@
     }
     function _crearMotor(){
       return import('https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm/+esm').then(function(webllm){
+        var conf = Object.assign({}, webllm.prebuiltAppConfig || {}, { useIndexedDBCache: true });
         return webllm.CreateMLCEngine(MODELO_WEB, {
+          appConfig: conf,
           initProgressCallback: function(p){
             estadoCerebro(p && p.text ? p.text.slice(0, 90) : 'descargando modelo\u2026');
           }
@@ -313,6 +315,7 @@
       estadoCerebro('cargando m\u00f3dulo\u2026');
       _crearMotor().then(function(engine){
         MOTOR = engine; MOTOR_CARGANDO = false;
+        try { localStorage.setItem('nc_analista_activo', '1'); } catch(_e){}
         estadoCerebro('analista activo \u2713 (modelo local en tu navegador)');
         if(btn) btn.style.display = 'none';
       }).catch(function(err){
@@ -324,6 +327,12 @@
       });
     }
     document.getElementById('cerebro-btn').addEventListener('click', activarCerebro);
+    try {
+      if(localStorage.getItem('nc_analista_activo') === '1' && navigator.gpu){
+        estadoCerebro('reactivando desde cach\u00e9\u2026');
+        activarCerebro();
+      }
+    } catch(_e){}
 
     function esErrorMotor(e){
       return /buffer|abort|device|gpu|mapping|dispos|not.?loaded|unload/i.test(String(e));
