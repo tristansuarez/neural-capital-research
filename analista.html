@@ -49,7 +49,7 @@
         </button>
         <span id="cerebro-estado" class="ch-sub" style="margin-left:10px"></span>
         <div class="ch-sub" style="margin-top:6px;color:var(--faint)">La primera vez descarga un modelo
-          (~1 GB) que corre en TU navegador: nada sale de tu m&aacute;quina, no hay servidores ni claves.
+          (~700 MB) que corre en TU navegador: nada sale de tu m&aacute;quina, no hay servidores ni claves.
           Requiere un navegador moderno (Chrome/Edge). Sin activarlo, el buscador funciona igual.</div>
       </div>
       <div class="chat-hist" id="hist"></div>
@@ -284,7 +284,8 @@
 
     // ---------- Analista con cerebro (WebLLM, corre en el navegador) ----------
     var MOTOR = null, MOTOR_CARGANDO = false;
-    var MODELO_WEB = 'Qwen2.5-1.5B-Instruct-q4f16_1-MLC';
+    var MODELO_WEB = 'Llama-3.2-1B-Instruct-q4f16_1-MLC';
+    var MODELO_VIEJO = 'Qwen2.5-1.5B-Instruct-q4f16_1-MLC';
     var SISTEMA_WEB =
       'Eres el analista del laboratorio Neural Capital Research, esceptico y honesto: ' +
       'este laboratorio publica tambien lo que no funciona. Responde en espanol, breve y claro, ' +
@@ -304,6 +305,12 @@
           initProgressCallback: function(p){
             estadoCerebro(p && p.text ? p.text.slice(0, 90) : 'descargando modelo\u2026');
           }
+        }).then(function(engine){
+          // limpiar la cach\u00e9 del modelo anterior para no dejar 1 GB muerto (mejor esfuerzo)
+          try {
+            if(webllm.deleteModelAllInfoInCache) webllm.deleteModelAllInfoInCache(MODELO_VIEJO, conf).catch(function(){});
+          } catch(_e){}
+          return engine;
         });
       });
     }
@@ -320,10 +327,11 @@
         if(btn) btn.style.display = 'none';
       }).catch(function(err){
         MOTOR_CARGANDO = false;
-        if(btn) btn.disabled = false;
-        estadoCerebro('no se pudo activar: ' + (String(err).indexOf('WebGPU') >= 0 || !navigator.gpu
+        if(btn){ btn.disabled = false; btn.style.display = ''; }
+        var motivo = !navigator.gpu
           ? 'tu navegador no soporta WebGPU (prueba Chrome o Edge actualizados)'
-          : String(err).slice(0, 120)) + ' \u2014 el buscador sigue funcionando.');
+          : 'el motor no pudo arrancar (GPU ocupada o sin memoria; suele ser pasajero) \u2014 reint\u00e9ntalo con el bot\u00f3n. Detalle: ' + String(err).slice(0, 90);
+        estadoCerebro('no se pudo activar: ' + motivo + ' \u2014 el buscador sigue funcionando.');
       });
     }
     document.getElementById('cerebro-btn').addEventListener('click', activarCerebro);
